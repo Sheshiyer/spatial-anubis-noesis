@@ -1,0 +1,1147 @@
+{
+  "gap": "A",
+  "description": "Engine completion tasks for 11 under-covered engines \u2014 specific mechanics, physics, shaders, and integration missing from existing scaffolds",
+  "total_tasks": 93,
+  "sprints": [
+    {
+      "sprint_id": "P3-S4",
+      "duration_weeks": 3,
+      "focus": "Tier 1 Engine Completion (Vimshottari, Tarot, Runes, Numerology)",
+      "tasks": [
+        {
+          "id": "P3-S4-01",
+          "title": "Implement Vimshottari ring RevoluteJoint: constrain rotation to ring Y-axis only",
+          "area": "frontend",
+          "owner_role": "Physics Engineer",
+          "est_hours": 4,
+          "dependencies": [
+            "P0-S1-13",
+            "P3-S1-10"
+          ],
+          "deliverable": "Add Rapier RevoluteJoint to each Vimshottari ring constraining rotation to the ring's local Y-axis. The joint anchor is the ring center. Rotation limits set to +-Infinity (free spin). Damping coefficient 0.3 for natural deceleration after release.",
+          "acceptance": "Each ring rotates only around its Y-axis via RevoluteJoint; Joint anchor at ring geometric center; Damping coefficient 0.3 produces natural deceleration; Ring cannot translate or rotate on other axes"
+        },
+        {
+          "id": "P3-S4-02",
+          "title": "Build Vimshottari Antardasha micro-ring: appears when vessel proximity < 3 units",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 5,
+          "dependencies": [
+            "P3-S1-10",
+            "P3-S1-11"
+          ],
+          "deliverable": "When vessel distance to Vimshottari Clock < 3 units, animate micro-rings appearing between the Maha Dasha rings. Each micro-ring displays Antardasha sub-periods for the currently selected Maha Dasha. Scale from 0 to 1 over 600ms with ease-out. Disappear when vessel moves beyond 3 units.",
+          "acceptance": "Micro-rings appear when vessel proximity < 3 units; Each micro-ring shows Antardasha sub-periods of selected Maha ring; Scale animation 0 to 1 over 600ms with ease-out; Micro-rings disappear smoothly when distance > 3 units"
+        },
+        {
+          "id": "P3-S4-03",
+          "title": "Implement Vimshottari 9-planet Dasha period date mapping with variable year lengths",
+          "area": "backend",
+          "owner_role": "Backend Engineer",
+          "est_hours": 5,
+          "dependencies": [
+            "P3-S1-12"
+          ],
+          "deliverable": "Extend the Vimshottari endpoint with precise date mapping for all 9 planetary periods: Sun(6yr), Moon(10yr), Mars(7yr), Rahu(18yr), Jupiter(16yr), Saturn(19yr), Mercury(17yr), Ketu(7yr), Venus(20yr). Calculate exact start/end dates for Maha, Antar, and Pratyantar levels based on Moon longitude at birth.",
+          "acceptance": "All 9 planetary periods calculated with exact start/end dates; Variable year lengths correctly applied (Sun=6, Moon=10, Mars=7, etc.); Maha, Antar, Pratyantar levels all have precise dates; Calculation accuracy verified against standard Vedic ephemeris tables"
+        },
+        {
+          "id": "P3-S4-04",
+          "title": "Build Vimshottari hover expansion: ring segment reveals period dates as floating 3D text",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 4,
+          "dependencies": [
+            "P3-S1-11",
+            "P3-S1-30"
+          ],
+          "deliverable": "When user hovers a ring segment, it expands radially by 0.3 units over 200ms. Floating 3D text appears above the segment showing: planet name, period start date, period end date, and duration. Text uses the shared billboard system with 40ms/char typewriter reveal.",
+          "acceptance": "Hovered ring segment expands radially 0.3 units over 200ms; Floating 3D text shows planet name, start date, end date, duration; Text uses billboard system with 40ms/char typewriter effect; Segment contracts and text fades on hover exit"
+        },
+        {
+          "id": "P3-S4-05",
+          "title": "Implement Vimshottari PIP sync: central axis pulse rate matches detected breath rate",
+          "area": "frontend",
+          "owner_role": "Bio-Integration Engineer",
+          "est_hours": 4,
+          "dependencies": [
+            "P2-S3-01",
+            "P3-S1-10"
+          ],
+          "deliverable": "Connect the Vimshottari Clock central axis to PIP breath rate data. The central golden axis pulsates (emissive oscillation 0.4 to 0.9) at the user's detected breath rate. Fallback to 4-second cycle (15 BPM) when PIP unavailable. Smooth interpolation between rate changes.",
+          "acceptance": "Central axis emissive oscillates between 0.4 and 0.9; Oscillation frequency matches PIP-detected breath rate; Fallback to 4-second cycle when PIP unavailable; Smooth interpolation on breath rate changes (no abrupt jumps)"
+        },
+        {
+          "id": "P3-S4-06",
+          "title": "Create Vimshottari Devanagari glyph etching shader on ring geometry",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 6,
+          "dependencies": [
+            "P3-S1-10"
+          ],
+          "deliverable": "Write a custom ShaderMaterial that etches Devanagari planet name glyphs onto each ring surface. Use SDF (Signed Distance Field) technique with a glyph atlas texture. Glyphs appear carved into the gold surface with dark recessed channels. Emissive fill in the channels at 0.2 intensity (Deep Ink color).",
+          "acceptance": "Devanagari glyphs render on each ring surface via custom ShaderMaterial; SDF technique produces crisp glyphs at any viewing distance; Glyphs appear carved with dark recessed channels; Channel emissive fill at 0.2 intensity in Deep Ink color (#1A1A2E)"
+        },
+        {
+          "id": "P3-S4-07",
+          "title": "Build Vimshottari output: text particles orbiting selected ring with distance-fade shader",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 5,
+          "dependencies": [
+            "P3-S4-04",
+            "P3-S1-30"
+          ],
+          "deliverable": "When a Dasha period is selected, interpretation text breaks into individual word particles that orbit the selected ring at radius +0.5 units. Each word is a billboard sprite. Words orbit at slightly different speeds for organic feel. Custom fragment shader fades opacity from 1.0 at ring proximity to 0.0 at 8 units distance.",
+          "acceptance": "Interpretation words orbit selected ring as billboard sprites; Orbit radius is ring radius + 0.5 units; Words orbit at varying speeds for organic distribution; Fragment shader fades opacity: 1.0 at ring to 0.0 at 8 units distance"
+        },
+        {
+          "id": "P3-S4-08",
+          "title": "Implement Tarot SparkJS Deep Ink veil: splat cloud opacity 0.3, turbulence 0.8",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 6,
+          "dependencies": [
+            "P0-S2-01",
+            "P3-S1-14"
+          ],
+          "deliverable": "Replace the basic veil with a full SparkJS gaussian splat cloud using Deep Ink color (#1A1A2E). Configure splat opacity to 0.3 base, turbulence parameter to 0.8 for ethereal movement. Splat count: 2000 particles in a shell around the card spiral. Splats drift with Perlin noise displacement.",
+          "acceptance": "SparkJS splat cloud renders in Deep Ink color (#1A1A2E); Base opacity 0.3 with turbulence parameter 0.8; 2000 splat particles in shell formation around card spiral; Perlin noise displacement creates ethereal drifting motion"
+        },
+        {
+          "id": "P3-S4-09",
+          "title": "Build Tarot veil resistance: stiffness ramps 20 to 300 based on Coherence score",
+          "area": "frontend",
+          "owner_role": "Physics Engineer",
+          "est_hours": 5,
+          "dependencies": [
+            "P3-S4-08",
+            "P2-S3-01"
+          ],
+          "deliverable": "Implement veil resistance mechanic where the splat cloud resists parting based on inverse Coherence score. At Coherence 100: stiffness=20 (easy to part). At Coherence 0: stiffness=300 (nearly impenetrable). Formula: stiffness = 300 - (coherence * 2.8). Splats near cursor push away with spring-like force inversely proportional to stiffness.",
+          "acceptance": "Veil stiffness scales from 20 (Coherence 100) to 300 (Coherence 0); Formula: stiffness = 300 - (coherence * 2.8); Splats push away from cursor with spring-like force; Low coherence makes veil noticeably harder to penetrate"
+        },
+        {
+          "id": "P3-S4-10",
+          "title": "Implement Tarot BREATHE-SYNC prerequisite: 3 breath cycles required before card draw",
+          "area": "frontend",
+          "owner_role": "Bio-Integration Engineer",
+          "est_hours": 4,
+          "dependencies": [
+            "P2-S3-01",
+            "P3-S1-15"
+          ],
+          "deliverable": "Gate card drawing behind a breath synchronization check. PIP must detect 3 complete breath cycles (inhale-exhale) before the draw gesture is enabled. Visual feedback: a breathing ring around the card spiral pulses in sync with detected breath. After 3 cycles, ring turns Gold and draw enables.",
+          "acceptance": "Card draw gesture disabled until 3 breath cycles detected by PIP; Breathing ring around spiral pulses in sync with detected breath; Ring color transitions to Gold after 3 complete cycles; Draw gesture enables only after Gold ring state achieved"
+        },
+        {
+          "id": "P3-S4-11",
+          "title": "Build Tarot card detach animation: TweenAnimation scale 1x to 3x over 800ms",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 3,
+          "dependencies": [
+            "P3-S1-15"
+          ],
+          "deliverable": "When a card is drawn from the spiral, animate it with a TweenAnimation: scale from 1x to 3x over 800ms with ease-out-back curve. Card also rotates 180 degrees to reveal its face during the scale-up. Emissive glow ramps from 0 to 0.6 during the reveal. Card settles at 3x scale in spread position.",
+          "acceptance": "Card scales from 1x to 3x over 800ms on draw; Ease-out-back curve for satisfying overshoot; Card rotates 180 degrees to reveal face during animation; Emissive glow ramps 0 to 0.6 during reveal"
+        },
+        {
+          "id": "P3-S4-12",
+          "title": "Implement Tarot reversed card detection via Z-rotation angle at draw moment",
+          "area": "frontend",
+          "owner_role": "Frontend Engineer",
+          "est_hours": 3,
+          "dependencies": [
+            "P3-S1-15"
+          ],
+          "deliverable": "Detect reversed (inverted) Tarot cards by checking the card's Z-axis rotation at the moment of draw. If the card's local Z-rotation is between 90 and 270 degrees (upside down relative to its spiral position), mark it as reversed. Reversed cards display with a subtle Terracotta border glow.",
+          "acceptance": "Z-rotation between 90-270 degrees at draw triggers reversed state; Reversed cards marked in state and API payload; Subtle Terracotta border glow on reversed cards; Upright cards have no special border treatment"
+        },
+        {
+          "id": "P3-S4-13",
+          "title": "Build Tarot splat veil parting effect: splats repel from cursor intrusion point",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 5,
+          "dependencies": [
+            "P3-S4-08",
+            "P3-S4-09"
+          ],
+          "deliverable": "When cursor/hand penetrates the veil, splats within a 0.5-unit radius of the intrusion point repel outward. Repulsion force is a radial spring: F = stiffness * (0.5 - distance). Splats beyond 0.5 units are unaffected. Creates a localized parting hole in the veil that follows cursor movement. Hole closes when cursor withdraws.",
+          "acceptance": "Splats within 0.5 units of cursor repel outward; Repulsion force: F = stiffness * (0.5 - distance); Parting hole follows cursor movement in real-time; Hole closes smoothly when cursor withdraws from veil"
+        },
+        {
+          "id": "P3-S4-14",
+          "title": "Create 78 Tarot card texture generation pipeline (Major + Minor Arcana atlas)",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 8,
+          "dependencies": [
+            "P3-S1-17"
+          ],
+          "deliverable": "Build a pipeline to generate the 78-card texture atlas. Use procedural generation for card frames and suit symbols. Major Arcana (22 cards) get unique symbolic compositions. Minor Arcana (56 cards) use suit-based templates (Wands, Cups, Swords, Pentacles) with number variations. Output: single 4096x4096 atlas PNG with UV mapping JSON.",
+          "acceptance": "22 Major Arcana cards with unique symbolic compositions; 56 Minor Arcana cards with suit-based template variations; Single 4096x4096 atlas texture generated; UV mapping JSON maps each card ID to atlas coordinates"
+        },
+        {
+          "id": "P3-S4-15",
+          "title": "Implement Rune blind draw: cursor enters pouch bounds, nearest stone selected by entry vector",
+          "area": "frontend",
+          "owner_role": "Physics Engineer",
+          "est_hours": 5,
+          "dependencies": [
+            "P3-S1-19",
+            "P3-S1-21"
+          ],
+          "deliverable": "Implement blind draw mechanic: when cursor enters the pouch bounding volume, the nearest stone to the entry point is pre-selected (highlighted with subtle glow, invisible to user through pouch). On GRASP, that stone is drawn. Entry vector determines which region of stones is accessible. No peeking: pouch interior is opaque.",
+          "acceptance": "Cursor entering pouch triggers nearest-stone selection based on entry vector; Selected stone is not visible to user (pouch is opaque); GRASP gesture extracts the pre-selected stone; Different entry angles access different stones (spatial blind selection)"
+        },
+        {
+          "id": "P3-S4-16",
+          "title": "Build Rune multi-stone cast: 3-5 stones released with velocity onto granite slab",
+          "area": "frontend",
+          "owner_role": "Physics Engineer",
+          "est_hours": 5,
+          "dependencies": [
+            "P3-S4-15",
+            "P3-S1-21"
+          ],
+          "deliverable": "Implement multi-rune casting. User draws 3-5 stones (configurable) and holds them. On THROW gesture, all held stones release with velocity (inherit hand velocity + random spread of +-15 degrees). Stones land on a granite slab (static RigidBody, restitution 0.4). Settle detection after all stones are sub-threshold for 800ms.",
+          "acceptance": "User can hold 3-5 stones simultaneously before casting; THROW releases all stones with inherited hand velocity; Random spread of +-15 degrees per stone for natural scatter; Settle detection triggers after 800ms sub-threshold on granite slab"
+        },
+        {
+          "id": "P3-S4-17",
+          "title": "Implement Rune spatial proximity reading: interpretation from stone relative positions",
+          "area": "frontend",
+          "owner_role": "Frontend Engineer",
+          "est_hours": 4,
+          "dependencies": [
+            "P3-S4-16"
+          ],
+          "deliverable": "After stones settle, analyze their spatial relationships. Stones within 0.3 units are 'touching' (strongly connected meaning). Stones 0.3-1.0 units apart are 'neighboring' (related meaning). Stones > 1.0 units apart are 'distant' (independent meaning). Center of mass determines the primary stone. Package spatial data for API interpretation.",
+          "acceptance": "Touching threshold at 0.3 units (strongly connected); Neighboring threshold at 0.3-1.0 units (related); Distant threshold at > 1.0 units (independent); Center-of-mass calculation identifies primary stone; Spatial relationship data packaged for API call"
+        },
+        {
+          "id": "P3-S4-18",
+          "title": "Build Rune gold filament relationship lines between thematically resonant stones",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 4,
+          "dependencies": [
+            "P3-S4-17"
+          ],
+          "deliverable": "After API returns interpretation, draw gold filament lines (TubeGeometry, radius 0.005) between stones that share thematic resonance. Line opacity proportional to resonance strength (0.3 to 1.0). Lines animate in over 500ms with a traveling glow effect from source to target stone.",
+          "acceptance": "Gold filament TubeGeometry lines between resonant stones; Line radius 0.005 units; Opacity scales 0.3 to 1.0 by resonance strength; Lines animate in over 500ms with traveling glow effect"
+        },
+        {
+          "id": "P3-S4-19",
+          "title": "Implement Rune cast pattern types: three_norn, single, five_element, nine_grid layouts",
+          "area": "frontend",
+          "owner_role": "Frontend Engineer",
+          "est_hours": 5,
+          "dependencies": [
+            "P3-S4-16",
+            "P3-S1-22"
+          ],
+          "deliverable": "Implement 4 cast pattern types. single: 1 stone drawn for yes/no. three_norn: 3 stones cast for past/present/future (positions matter). five_element: 5 stones for earth/water/fire/air/spirit. nine_grid: 9 stones cast onto a 3x3 grid overlay on the granite slab. Each pattern sends its type to the API for pattern-specific interpretation.",
+          "acceptance": "single pattern: 1 stone for binary question; three_norn: 3 stones with past/present/future positional meaning; five_element: 5 stones mapped to earth/water/fire/air/spirit; nine_grid: 9 stones onto 3x3 grid with positional interpretation; Pattern type sent to API endpoint"
+        },
+        {
+          "id": "P3-S4-20",
+          "title": "Build Rune vertical beam emission: Aged Gold light column from each cast stone",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 3,
+          "dependencies": [
+            "P3-S4-16"
+          ],
+          "deliverable": "After stones settle and reading begins, each face-up stone emits a vertical light beam (CylinderGeometry, Aged Gold color #C9A961, emissive 1.0, opacity 0.4). Beam height 2 units, radius 0.02 units. Beams pulse gently at 0.5 Hz. Face-down stones emit no beam.",
+          "acceptance": "Face-up stones emit vertical light beams on reading start; Aged Gold color (#C9A961) with emissive 1.0, opacity 0.4; Beam dimensions: height 2 units, radius 0.02 units; Beams pulse at 0.5 Hz; Face-down stones have no beam"
+        },
+        {
+          "id": "P3-S4-21",
+          "title": "Implement Numerology 3D text input: floating React overlay at artifact world position",
+          "area": "frontend",
+          "owner_role": "Frontend Engineer",
+          "est_hours": 5,
+          "dependencies": [
+            "P3-S1-23"
+          ],
+          "deliverable": "Create a React HTML overlay (via @react-three/drei Html component) positioned at the Numerology artifact's world coordinates. The overlay contains a styled input form for name and birthdate. Form styling matches Dark Stone / Bone White palette. On submit, overlay fades out and grid generation begins.",
+          "acceptance": "React Html overlay positioned at Numerology artifact world coordinates; Input form for name (text) and birthdate (date picker); Styling in Dark Stone (#2D2D3A) background with Bone White (#E8E4D9) text; Overlay fades out on submit and triggers grid generation"
+        },
+        {
+          "id": "P3-S4-22",
+          "title": "Build Numerology waterfall cascade: numbers cascade top-to-bottom, 50ms stagger per row",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 4,
+          "dependencies": [
+            "P3-S1-24"
+          ],
+          "deliverable": "Enhance the cascade animation with precise waterfall physics. Each number drops from 2 units above its target position. Row 1 starts at t=0, row 2 at t=50ms, row 3 at t=100ms, etc. Each number has a slight bounce on arrival (spring damping 0.7). Trail particles (2-3 per number) follow the drop path and fade over 200ms.",
+          "acceptance": "Numbers drop from 2 units above target position; 50ms stagger between consecutive rows; Spring bounce on arrival with damping 0.7; 2-3 trail particles per number fading over 200ms"
+        },
+        {
+          "id": "P3-S4-23",
+          "title": "Implement Numerology lock-in effect: Life Path/Expression/Soul Urge with percussive audio",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 4,
+          "dependencies": [
+            "P3-S1-24",
+            "P0-S2-43"
+          ],
+          "deliverable": "When key numbers (Life Path, Expression, Soul Urge) are calculated, each locks in with a percussive audio hit and visual emphasis. The number scales to 1.5x, emits a radial shockwave (ring geometry expanding from 0 to 2 units over 300ms, opacity 1.0 to 0.0), and settles at 1.2x scale with persistent Gold glow.",
+          "acceptance": "Key numbers trigger percussive audio hit on calculation; Number scales to 1.5x then settles at 1.2x; Radial shockwave ring expands 0 to 2 units over 300ms; Persistent Gold glow on locked-in key numbers"
+        },
+        {
+          "id": "P3-S4-24",
+          "title": "Build Numerology grid-to-mandala reorganization: 9x9 grid morphs to radial layout",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 5,
+          "dependencies": [
+            "P3-S1-25"
+          ],
+          "deliverable": "Animate the 9x9 number grid transforming into a radial mandala. Each number lerps from its grid position to its mandala position over 2 seconds with ease-in-out-cubic. Life Path spirals to center. Other numbers arrange in 3 concentric rings: Expression/Soul/Personality (inner), Birthday/Maturity (middle), remaining digits (outer). Rotation applied to each ring at different speeds.",
+          "acceptance": "Grid-to-mandala transition animates over 2 seconds; Ease-in-out-cubic interpolation for all number positions; Life Path at center, 3 concentric rings by significance; Each ring rotates at different speed after settling"
+        },
+        {
+          "id": "P3-S4-25",
+          "title": "Implement Numerology orbiting dimension numbers with touch-to-reveal interpretation",
+          "area": "frontend",
+          "owner_role": "Frontend Engineer",
+          "est_hours": 4,
+          "dependencies": [
+            "P3-S4-24",
+            "P3-S1-30"
+          ],
+          "deliverable": "After mandala formation, each key number orbits its ring. On touch/click of any orbiting number, it pauses, scales to 2x, and reveals its interpretation text (via shared 3D text system) in an arc above the mandala. Text persists for 5 seconds then fades. Number resumes orbit on fade.",
+          "acceptance": "Key numbers orbit their mandala ring continuously; Touch/click pauses number and scales to 2x; Interpretation text appears in arc above mandala via shared text system; Text persists 5 seconds then fades; number resumes orbit"
+        },
+        {
+          "id": "P3-S4-26",
+          "title": "Create Tarot Celtic Cross precise 3D layout: 10 card positions with traditional arrangement",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 4,
+          "dependencies": [
+            "P3-S1-18"
+          ],
+          "deliverable": "Implement precise Celtic Cross layout in 3D space. Positions: 1(center), 2(crossing at 90deg), 3(below), 4(left), 5(above), 6(right), 7-10(vertical column right). Each position labeled with role text (Situation, Challenge, Past, Future, etc). Cards placed sequentially with 400ms delay between positions.",
+          "acceptance": "10 card positions arranged in traditional Celtic Cross pattern; Position 2 rotated 90 degrees crossing position 1; Positions 7-10 form vertical column to the right; Each position labeled with role text; 400ms sequential placement delay"
+        }
+      ]
+    },
+    {
+      "sprint_id": "P3-S5",
+      "duration_weeks": 3,
+      "focus": "Tier 2 Engine Completion (Biorhythm, Gene Keys, Human Design, Chronobiology)",
+      "tasks": [
+        {
+          "id": "P3-S5-01",
+          "title": "Build Biorhythm 3 independent arm mechanics: Physical(23d), Emotional(28d), Intellectual(33d)",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 5,
+          "dependencies": [
+            "P3-S2-01"
+          ],
+          "deliverable": "Replace ribbon visualization with 3 independent compass arms, each a tapered metallic needle. Physical arm (red, 23-day cycle), Emotional arm (blue, 28-day cycle), Intellectual arm (green, 33-day cycle). Each arm rotates around the compass center. Arm angle = (daysSinceBirth % cycleDays) / cycleDays * 360 degrees.",
+          "acceptance": "3 independent compass arms with distinct colors (red, blue, green); Physical cycle: 23 days, Emotional: 28 days, Intellectual: 33 days; Arm angle calculated from birth date and current date; Arms rotate independently around shared compass center"
+        },
+        {
+          "id": "P3-S5-02",
+          "title": "Implement Biorhythm PIP live sync: arms auto-adjust to actual biorhythmic positions",
+          "area": "frontend",
+          "owner_role": "Bio-Integration Engineer",
+          "est_hours": 5,
+          "dependencies": [
+            "P3-S5-01",
+            "P2-S3-01"
+          ],
+          "deliverable": "Connect biorhythm arms to PIP bio-data for live calibration. Physical arm amplitude modulated by real-time HRV power. Emotional arm modulated by facial affect valence (-1 to +1). Intellectual arm modulated by blink rate deviation from baseline. Arms show both calculated position (thin line) and PIP-adjusted position (thick needle).",
+          "acceptance": "Physical arm amplitude modulated by HRV power from PIP; Emotional arm modulated by facial affect valence; Intellectual arm modulated by blink rate deviation; Dual display: thin calculated line + thick PIP-adjusted needle"
+        },
+        {
+          "id": "P3-S5-03",
+          "title": "Build Biorhythm past/future scrub: click+drag rim, floating date readout",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 4,
+          "dependencies": [
+            "P3-S5-01",
+            "P3-S2-03"
+          ],
+          "deliverable": "Enhanced rim scrub interaction. Click and drag the compass rim to rotate time. Clockwise = future, counter-clockwise = past. 360 degrees = 30 days. A floating date readout (3D text billboard) hovers 0.5 units above the rim, updating in real-time during drag. Arms animate smoothly to positions for the scrubbed date.",
+          "acceptance": "Click-drag on rim rotates time (CW=future, CCW=past); 360 degrees rim rotation equals 30 days; Floating 3D date readout hovers 0.5 units above rim; Arms smoothly animate to scrubbed date positions"
+        },
+        {
+          "id": "P3-S5-04",
+          "title": "Implement Biorhythm critical day detection: zero-crossing flash + low-frequency tone",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 4,
+          "dependencies": [
+            "P3-S5-01",
+            "P0-S2-43"
+          ],
+          "deliverable": "Detect critical days (zero-crossings) for each biorhythm cycle. When scrubbing through or landing on a critical day, the corresponding arm flashes white 3 times over 600ms. A low-frequency sine tone (80Hz for Physical, 120Hz for Emotional, 160Hz for Intellectual) plays for 500ms. Critical days marked with Terracotta dots on the rim.",
+          "acceptance": "Zero-crossing detection for each cycle during scrub; Arm flashes white 3 times over 600ms on critical day; Frequency-coded audio tone: 80Hz/120Hz/160Hz per cycle type; Terracotta dots mark critical days on compass rim"
+        },
+        {
+          "id": "P3-S5-05",
+          "title": "Build Biorhythm sine wave projection: 3D ribbon geometry showing 30-day cycle data",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 5,
+          "dependencies": [
+            "P3-S5-01"
+          ],
+          "deliverable": "Project a 30-day sine wave ribbon from the compass into 3D space. Three ribbons (one per cycle) extend outward from the compass face, X-axis = time (30 days), Y-axis = cycle amplitude (-1 to +1). Ribbon width 0.1 units, uses cycle color with alpha gradient (solid at day 0, fading to 0.2 at day 30). Current day marked with a bright vertical line.",
+          "acceptance": "3 sine wave ribbons extend from compass face into 3D space; X-axis spans 30 days, Y-axis spans -1 to +1 amplitude; Ribbon alpha fades from 1.0 (today) to 0.2 (day 30); Current day marked with bright vertical line on ribbon"
+        },
+        {
+          "id": "P3-S5-06",
+          "title": "Implement Biorhythm central needle: composite state from 3 cycles",
+          "area": "frontend",
+          "owner_role": "Frontend Engineer",
+          "est_hours": 3,
+          "dependencies": [
+            "P3-S5-01"
+          ],
+          "deliverable": "Add a central composite needle (Gold color, thicker than individual arms) that shows the weighted average of all 3 cycle positions. Weight: Physical 0.4, Emotional 0.35, Intellectual 0.25. Needle direction = weighted sum of arm angles. Central display shows composite percentage (0-100).",
+          "acceptance": "Gold composite needle at compass center, thicker than cycle arms; Weighted average: Physical 0.4, Emotional 0.35, Intellectual 0.25; Composite percentage (0-100) displayed as 3D text; Needle updates smoothly with any arm position change"
+        },
+        {
+          "id": "P3-S5-07",
+          "title": "Build Gene Keys DNA helix: 64 nodes color-coded by activation state along double helix",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 6,
+          "dependencies": [
+            "P3-S2-04"
+          ],
+          "deliverable": "Refine the DNA helix with precisely 64 nodes positioned along the double strand. Each node is a small IcosahedronGeometry (radius 0.08). Color coding: inactive=Stone Grey (#6B6B7B) emissive 0.1, active=Aged Gold (#C9A961) emissive 0.6, primary=Bone White (#E8E4D9) emissive 1.0. Nodes connected to both strands with cross-rung geometry.",
+          "acceptance": "64 nodes positioned along double helix strands; IcosahedronGeometry radius 0.08 per node; Color: inactive=#6B6B7B, active=#C9A961, primary=#E8E4D9; Cross-rung geometry connects nodes to both helix strands"
+        },
+        {
+          "id": "P3-S5-08",
+          "title": "Implement Gene Keys birth data highlight: specific activations illuminate on profile load",
+          "area": "frontend",
+          "owner_role": "Frontend Engineer",
+          "est_hours": 4,
+          "dependencies": [
+            "P3-S5-07",
+            "P3-S2-06"
+          ],
+          "deliverable": "When birth profile data loads from the Gene Keys API, animate the activation sequence on the helix. Activated Gene Key nodes transition from inactive (Stone Grey) to active (Aged Gold) with a 100ms stagger between nodes. The Life's Work Gene Key transitions last and pulses 3 times in Bone White before settling to Aged Gold.",
+          "acceptance": "Activated nodes transition from Stone Grey to Aged Gold on profile load; 100ms stagger between node activation animations; Life's Work node transitions last with 3 Bone White pulses; Non-activated nodes remain Stone Grey"
+        },
+        {
+          "id": "P3-S5-09",
+          "title": "Build Gene Keys node detach: unfold into 3 concentric rings (Shadow/Gift/Siddhi)",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 5,
+          "dependencies": [
+            "P3-S2-05",
+            "P3-S5-07"
+          ],
+          "deliverable": "When a node is selected, it detaches from the helix and expands into 3 concentric rings over 800ms. Inner ring (radius 0.3) = Shadow (Terracotta #C45B3E, emissive 0.4). Middle ring (radius 0.6) = Gift (Aged Gold #C9A961, emissive 0.6). Outer ring (radius 0.9) = Siddhi (Bone White #E8E4D9, emissive 1.0). Each ring displays its keyword as 3D text.",
+          "acceptance": "Selected node detaches and expands into 3 concentric rings over 800ms; Shadow ring: radius 0.3, Terracotta #C45B3E, emissive 0.4; Gift ring: radius 0.6, Aged Gold #C9A961, emissive 0.6; Siddhi ring: radius 0.9, Bone White #E8E4D9, emissive 1.0; Keywords displayed as 3D text on each ring"
+        },
+        {
+          "id": "P3-S5-10",
+          "title": "Implement Gene Keys progression animation: visual Shadow-to-Siddhi transition over engagement",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 4,
+          "dependencies": [
+            "P3-S5-09",
+            "P3-S3-19"
+          ],
+          "deliverable": "While user engages with an expanded Gene Key, animate a progression effect. The Shadow ring slowly shrinks (radius 0.3 to 0.15 over 30 seconds), Gift ring brightens (emissive 0.6 to 0.9), Siddhi ring expands (0.9 to 1.2). This visually represents the contemplative journey. Progression state saved to Field Journal.",
+          "acceptance": "Shadow ring shrinks from radius 0.3 to 0.15 over 30 seconds of engagement; Gift ring emissive brightens from 0.6 to 0.9; Siddhi ring expands from radius 0.9 to 1.2; Progression state persisted to Field Journal for continuity"
+        },
+        {
+          "id": "P3-S5-11",
+          "title": "Build Gene Keys three-column 3D typography output (color-coded Shadow/Gift/Siddhi)",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 4,
+          "dependencies": [
+            "P3-S5-09",
+            "P3-S1-30"
+          ],
+          "deliverable": "Display Gene Key interpretation as three parallel columns of 3D billboard text above the expanded node. Left column: Shadow text in Terracotta. Center column: Gift text in Aged Gold. Right column: Siddhi text in Bone White. Columns spaced 1 unit apart. Text uses shared billboard system with 40ms/char reveal.",
+          "acceptance": "Three parallel text columns above expanded Gene Key node; Shadow column in Terracotta, Gift in Aged Gold, Siddhi in Bone White; 1 unit spacing between columns; 40ms/char typewriter reveal via shared text system"
+        },
+        {
+          "id": "P3-S5-12",
+          "title": "Implement Gene Keys cross-reference with Human Design gate mapping (Engine 08)",
+          "area": "frontend",
+          "owner_role": "Frontend Engineer",
+          "est_hours": 4,
+          "dependencies": [
+            "P3-S5-07",
+            "P3-S2-27"
+          ],
+          "deliverable": "Enhance the existing cross-reference with a persistent mapping overlay. When Gene Keys helix is active, faint dotted lines connect each activated Gene Key node to its corresponding HD gate on the Bodygraph. Lines use gradient color: Aged Gold at Gene Key end, Stone Grey at HD gate end. Lines visible only when both engines are within 20 units of vessel.",
+          "acceptance": "Faint dotted lines connect Gene Key nodes to corresponding HD gates; Line gradient: Aged Gold to Stone Grey; Lines only visible when both engines within 20 units of vessel; Standard 1:1 Gene Key to HD gate mapping used"
+        },
+        {
+          "id": "P3-S5-13",
+          "title": "Build Human Design 9-center constellation: polyhedra with 36 channel lines",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 6,
+          "dependencies": [
+            "P3-S2-07"
+          ],
+          "deliverable": "Refine the Bodygraph to use specific polyhedra per center: Head=Tetrahedron, Ajna=Octahedron, Throat=Dodecahedron, G=Icosahedron, Heart=Cube, Sacral=DodecahedronStar, Spleen=Octahedron(rotated), SolarPlexus=Icosahedron(rotated), Root=Cube(rotated). 36 channel lines connect centers as TubeGeometry (radius 0.01). Total constellation fits within 3-unit bounding sphere.",
+          "acceptance": "9 centers use specified polyhedra shapes; 36 channel TubeGeometry lines connect appropriate centers; Each polyhedron has radius 0.15 units; Total constellation fits within 3-unit bounding sphere"
+        },
+        {
+          "id": "P3-S5-14",
+          "title": "Implement Human Design Defined/Undefined/Open center rendering states",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 4,
+          "dependencies": [
+            "P3-S5-13",
+            "P3-S2-08"
+          ],
+          "deliverable": "Three visual states for each center. Defined: solid polyhedron, Aged Gold material, emissive 0.5, metalness 0.8. Undefined: wireframe polyhedron, Stone Grey, emissive 0.2, metalness 0.3. Open: dim wireframe, Deep Ink (#1A1A2E), emissive 0.05, nearly invisible. State driven by API chart data.",
+          "acceptance": "Defined centers: solid mesh, Aged Gold, emissive 0.5, metalness 0.8; Undefined centers: wireframe, Stone Grey, emissive 0.2, metalness 0.3; Open centers: dim wireframe, Deep Ink #1A1A2E, emissive 0.05; State set by Human Design API response data"
+        },
+        {
+          "id": "P3-S5-15",
+          "title": "Build Human Design Strategy/Authority ambient audio per type",
+          "area": "frontend",
+          "owner_role": "Audio Engineer",
+          "est_hours": 5,
+          "dependencies": [
+            "P3-S2-09"
+          ],
+          "deliverable": "Design and implement 5 ambient audio loops (each 30 seconds, seamlessly looping). Generator: low rhythmic hum at 60Hz fundamental. Projector: crystalline chime pattern, high register. Manifestor: percussive low-frequency pulse, irregular rhythm. Manifesting Generator: hybrid of Generator hum + staccato bursts. Reflector: slowly shifting harmonic wash, evolving timbre.",
+          "acceptance": "5 distinct 30-second seamless loops for each HD type; Generator: 60Hz fundamental rhythmic hum; Projector: crystalline high-register chime pattern; Manifestor: percussive irregular low-frequency pulse; Reflector: slowly shifting harmonic wash"
+        },
+        {
+          "id": "P3-S5-16",
+          "title": "Implement Human Design channel tracing: hover highlights connected centers + theme text",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 4,
+          "dependencies": [
+            "P3-S5-13",
+            "P3-S1-30"
+          ],
+          "deliverable": "When user hovers a channel line, both connected centers pulse brighter (emissive +0.3) and the channel line thickens from radius 0.01 to 0.03. Floating 3D text appears above the channel showing: channel number, channel name, and 1-line theme description. Text fades on hover exit.",
+          "acceptance": "Hover on channel pulses both connected centers emissive +0.3; Channel line thickens from 0.01 to 0.03 radius on hover; Floating text shows channel number, name, and theme; Text fades and line returns to normal on hover exit"
+        },
+        {
+          "id": "P3-S5-17",
+          "title": "Build Human Design center expansion: click reveals numbered gates (1-64)",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 5,
+          "dependencies": [
+            "P3-S5-13"
+          ],
+          "deliverable": "Clicking a center polyhedron expands it to 3x scale over 400ms, revealing its numbered gates as small hexagonal nodes orbiting the center. Each center has its specific gates (e.g., Throat has gates 62, 23, 56, 35, 12, 45, 33, 31, 8, 20, 16). Active gates glow Aged Gold, inactive gates are Stone Grey. Tap a gate to see its description + cross-ref to Gene Key.",
+          "acceptance": "Center click expands polyhedron to 3x scale over 400ms; Gates displayed as hexagonal nodes orbiting the expanded center; Active gates in Aged Gold, inactive in Stone Grey; Gate tap shows description and cross-references Gene Key"
+        },
+        {
+          "id": "P3-S5-18",
+          "title": "Implement Human Design Not-Self theme: Terracotta warning glow when Coherence < 40",
+          "area": "frontend",
+          "owner_role": "Bio-Integration Engineer",
+          "est_hours": 4,
+          "dependencies": [
+            "P3-S5-14",
+            "P2-S3-01"
+          ],
+          "deliverable": "When PIP Coherence score drops below 40, undefined centers begin pulsing with a Terracotta (#C45B3E) warning glow. Pulse frequency increases as coherence decreases (0.5Hz at coherence 40, 2Hz at coherence 0). A subtle Not-Self theme text appears below each pulsing center (Frustration for Generator, Bitterness for Projector, Anger for Manifestor, Disappointment for Reflector).",
+          "acceptance": "Undefined centers pulse Terracotta when Coherence < 40; Pulse frequency: 0.5Hz at coherence 40, 2Hz at coherence 0; Not-Self theme text appears below pulsing undefined centers; Theme text matches HD type (Frustration/Bitterness/Anger/Disappointment)"
+        },
+        {
+          "id": "P3-S5-19",
+          "title": "Build Chronobiology 24-hour horizontal clock face with sundial orientation",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 5,
+          "dependencies": [
+            "P3-S2-10"
+          ],
+          "deliverable": "Redesign the Chronobiology Clock as a horizontal (flat) 24-hour clock face with sundial orientation. 12:00 (noon) at the top (north), 00:00 (midnight) at the bottom (south), 06:00 at the right (east, sunrise), 18:00 at the left (west, sunset). Hour markers as raised gold numerals on dark face. Shadow gnomon casts from center.",
+          "acceptance": "Horizontal flat clock face with 24-hour markings; Sundial orientation: noon=north, midnight=south, 6AM=east, 6PM=west; Raised gold numeral hour markers on Dark Stone face; Central gnomon casts directional shadow"
+        },
+        {
+          "id": "P3-S5-20",
+          "title": "Implement Chronobiology 3 concentric rings: Circadian, Ultradian 90-min, Infradian monthly",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 5,
+          "dependencies": [
+            "P3-S5-19"
+          ],
+          "deliverable": "Add 3 concentric rings to the clock face. Outer ring (radius 1.5): Circadian cycle (24h), colored arcs for wake/sleep/peak/dip zones. Middle ring (radius 1.0): Ultradian 90-minute BRAC cycles, alternating focus/rest arcs. Inner ring (radius 0.5): Infradian monthly cycle, showing current phase position. Each ring rotates independently to its current position.",
+          "acceptance": "Outer ring (r=1.5): Circadian 24h zones with color-coded arcs; Middle ring (r=1.0): Ultradian 90-min BRAC cycles; Inner ring (r=0.5): Infradian monthly cycle phase; Each ring independently positioned to current time/phase"
+        },
+        {
+          "id": "P3-S5-21",
+          "title": "Build Chronobiology PIP circadian sync: auto-synchronize to detected circadian phase",
+          "area": "frontend",
+          "owner_role": "Bio-Integration Engineer",
+          "est_hours": 4,
+          "dependencies": [
+            "P3-S5-20",
+            "P3-S2-11"
+          ],
+          "deliverable": "Enhance PIP sync to detect actual circadian phase from bio-indicators. Use HRV trends (rising=waking phase, declining=sleep pressure). Adjust circadian ring zone boundaries based on detected phase shifts vs standard model. Show discrepancy between clock time and bio-time as a colored arc offset on the outer ring.",
+          "acceptance": "HRV trends used to detect waking vs sleep pressure phases; Circadian ring zone boundaries adjusted by detected phase; Discrepancy between clock time and bio-time shown as colored arc offset; Fallback to standard model when PIP unavailable"
+        },
+        {
+          "id": "P3-S5-22",
+          "title": "Implement Chronobiology optimal window overlay: Aged Gold arcs for peak performance",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 4,
+          "dependencies": [
+            "P3-S5-20"
+          ],
+          "deliverable": "Overlay arcs of Aged Gold (#C9A961) on the circadian ring for peak performance windows. Deep Work window: typically 9-11 AM arc. Creative Flow: 2-4 PM arc. Physical Peak: 5-7 PM arc. Arcs glow with emissive 0.7, opacity 0.6. Arcs shift based on detected chronotype (early bird vs night owl offset).",
+          "acceptance": "Aged Gold arcs overlay on circadian ring for performance windows; Deep Work, Creative Flow, Physical Peak windows shown as distinct arcs; Arcs: emissive 0.7, opacity 0.6; Window positions shift based on detected chronotype offset"
+        },
+        {
+          "id": "P3-S5-23",
+          "title": "Build Chronobiology time beam: vertical Aged Gold light column sweeping in real-time",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 3,
+          "dependencies": [
+            "P3-S5-19"
+          ],
+          "deliverable": "A vertical Aged Gold light column (CylinderGeometry, radius 0.02, height 3 units) extends upward from the current time position on the clock face. The beam sweeps around the clock in real-time (completing one revolution per 24 hours). Beam has volumetric glow effect using additive blended billboard planes.",
+          "acceptance": "Vertical light column at current time position on clock face; Aged Gold color, radius 0.02, height 3 units; Sweeps one revolution per 24 hours in real-time; Volumetric glow via additive blended billboard planes"
+        },
+        {
+          "id": "P3-S5-24",
+          "title": "Implement Chronobiology activity labels: 3D bar chart for optimal activity periods",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 4,
+          "dependencies": [
+            "P3-S5-22"
+          ],
+          "deliverable": "Within each optimal window arc, display a 3D bar rising from the clock face. Bar height proportional to expected performance level (0.5 to 2.0 units). Each bar labeled with activity type as 3D text: Deep Work, Creative Flow, Rest, Physical Peak. Bars use the color of their parent arc. Bars grow from 0 on clock activation, with 200ms stagger.",
+          "acceptance": "3D bars rise from clock face within optimal window arcs; Bar height 0.5-2.0 units proportional to performance level; Labels: Deep Work, Creative Flow, Rest, Physical Peak as 3D text; Bars animate from 0 height with 200ms stagger on activation"
+        },
+        {
+          "id": "P3-S5-25",
+          "title": "Build FastAPI Gene Keys endpoint enhancement: cross-reference HD gate data",
+          "area": "backend",
+          "owner_role": "Backend Engineer",
+          "est_hours": 4,
+          "dependencies": [
+            "P3-S2-30",
+            "P3-S2-29"
+          ],
+          "deliverable": "Enhance the Gene Keys endpoint to include cross-reference data with Human Design gates. For each activated Gene Key, include the corresponding HD gate number, center location, and whether the gate is defined in the user's chart. Enable bidirectional lookup: Gene Key ID to HD gate and HD gate to Gene Key ID.",
+          "acceptance": "Each Gene Key response includes corresponding HD gate number; HD center location included for each cross-referenced gate; Defined/undefined status from user's HD chart included; Bidirectional lookup: GK-to-gate and gate-to-GK"
+        },
+        {
+          "id": "P3-S5-26",
+          "title": "Implement FastAPI Biorhythm endpoint enhancement: critical day detection + composite score",
+          "area": "backend",
+          "owner_role": "Backend Engineer",
+          "est_hours": 3,
+          "dependencies": [
+            "P3-S2-31"
+          ],
+          "deliverable": "Enhance the Biorhythm endpoint to include critical day detection (zero-crossings for each cycle within the requested range) and composite score calculation. Composite score = weighted average (Physical 0.4, Emotional 0.35, Intellectual 0.25) normalized to 0-100. Flag days where multiple cycles cross zero simultaneously.",
+          "acceptance": "Critical days (zero-crossings) identified for each cycle in date range; Composite score calculated with weights: P=0.4, E=0.35, I=0.25; Multi-cycle critical days flagged when 2+ cycles cross zero same day; Score normalized to 0-100 range"
+        },
+        {
+          "id": "P3-S5-27",
+          "title": "Build Chronobiology FastAPI endpoint enhancement: ultradian + infradian cycle data",
+          "area": "backend",
+          "owner_role": "Backend Engineer",
+          "est_hours": 4,
+          "dependencies": [
+            "P3-S2-12"
+          ],
+          "deliverable": "Enhance the Chronobiology endpoint to return ultradian (90-minute BRAC) cycle positions and infradian (monthly) cycle data in addition to circadian. Ultradian: current position within 90-min cycle, next focus/rest transition time. Infradian: current monthly phase, upcoming phase transitions. Include chronotype classification (lion/bear/wolf/dolphin).",
+          "acceptance": "Ultradian 90-min cycle position and next transition time included; Infradian monthly phase and upcoming transitions included; Chronotype classification returned (lion/bear/wolf/dolphin); All three cycle types in single response payload"
+        },
+        {
+          "id": "P3-S5-28",
+          "title": "Create Human Design FastAPI endpoint enhancement: gate-to-Gene Key mapping table",
+          "area": "backend",
+          "owner_role": "Backend Engineer",
+          "est_hours": 3,
+          "dependencies": [
+            "P3-S2-29"
+          ],
+          "deliverable": "Enhance the Human Design endpoint to include a full gate-to-Gene Key mapping table in the response. For each of the 64 gates, include: gate number, Gene Key number, center location, channel connections, and whether defined in user's chart. This enables the frontend cross-reference overlay.",
+          "acceptance": "Full 64-gate mapping table in HD response; Each gate maps to Gene Key number; Center location and channel connections included; Defined/undefined status per user's chart included"
+        },
+        {
+          "id": "P3-S5-29",
+          "title": "Implement Tier 2 engine integration test: all 4 engines render and respond to PIP data",
+          "area": "qa",
+          "owner_role": "QA Engineer",
+          "est_hours": 5,
+          "dependencies": [
+            "P3-S5-01",
+            "P3-S5-07",
+            "P3-S5-13",
+            "P3-S5-19"
+          ],
+          "deliverable": "End-to-end integration test for all 4 Tier 2 engines. Verify: each engine renders within its bounding sphere, PIP data connection modulates visuals, API endpoints return valid responses, cross-references between Gene Keys and Human Design function bidirectionally. Test with mock PIP data stream.",
+          "acceptance": "All 4 Tier 2 engines render within expected bounding spheres; PIP data modulates visuals on each engine; API endpoints return valid Pydantic-validated responses; Gene Keys <-> Human Design cross-reference works bidirectionally"
+        },
+        {
+          "id": "P3-S5-30",
+          "title": "Build Gene Keys + Human Design combined profile view: unified activation map",
+          "area": "frontend",
+          "owner_role": "Frontend Engineer",
+          "est_hours": 5,
+          "dependencies": [
+            "P3-S5-12",
+            "P3-S5-17"
+          ],
+          "deliverable": "Create a combined view mode activated by a gesture between the two engines. The Gene Keys helix and HD Bodygraph merge into a unified activation map: HD centers show as background structure, Gene Key nodes overlay at gate positions with Shadow/Gift/Siddhi color coding. The combined view enables deeper pattern recognition.",
+          "acceptance": "Gesture between Gene Keys and HD engines activates combined view; HD centers form background structural layout; Gene Key nodes overlay at corresponding gate positions; Shadow/Gift/Siddhi color coding visible on merged map"
+        },
+        {
+          "id": "P3-S5-31",
+          "title": "Implement Biorhythm + Chronobiology sync: biorhythm data overlays onto chronobiology clock",
+          "area": "frontend",
+          "owner_role": "Frontend Engineer",
+          "est_hours": 4,
+          "dependencies": [
+            "P3-S5-05",
+            "P3-S5-20"
+          ],
+          "deliverable": "When both Biorhythm and Chronobiology engines have been consulted, enable a sync overlay. Biorhythm sine ribbons project onto the Chronobiology clock face as colored arcs. High biorhythm values amplify the optimal window arcs. Low values dim them. Creates a personalized daily optimization view.",
+          "acceptance": "Biorhythm ribbons project as colored arcs on Chronobiology clock; High biorhythm values amplify optimal window arc brightness; Low values dim optimal window arcs; Overlay activates only after both engines consulted"
+        },
+        {
+          "id": "P3-S5-32",
+          "title": "Build Tier 2 performance benchmark: 4 engines + PIP at 60fps",
+          "area": "qa",
+          "owner_role": "QA Engineer",
+          "est_hours": 3,
+          "dependencies": [
+            "P3-S5-29"
+          ],
+          "deliverable": "Performance benchmark running all 4 Tier 2 engines simultaneously with simulated PIP data stream. Measure frame time with all engines active + PIP modulation. Target: consistent 60fps (16.6ms frame budget). Report per-engine GPU time contribution. Test on target hardware profile.",
+          "acceptance": "All 4 Tier 2 engines + PIP data running simultaneously; Consistent 60fps (16.6ms frame budget) maintained; Per-engine GPU time contribution reported; Tested on minimum target hardware profile"
+        }
+      ]
+    },
+    {
+      "sprint_id": "P3-S6",
+      "duration_weeks": 3,
+      "focus": "Tier 3 Engine Completion (Decision Mirror, Transit Overlay, Somatic Canticle, Cartographer)",
+      "tasks": [
+        {
+          "id": "P3-S6-01",
+          "title": "Build Decision Mirror obsidian surface: metalness 0.95, roughness 0.1, extreme reflectivity",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 4,
+          "dependencies": [
+            "P3-S2-16"
+          ],
+          "deliverable": "Refine the Decision Mirror surface material. MeshPhysicalMaterial with metalness 0.95, roughness 0.1, clearcoat 1.0, clearcoatRoughness 0.05. Deep Ink base color (#1A1A2E). Environment map reflection for mirror-like quality. The surface should look like polished obsidian glass, dark but extremely reflective.",
+          "acceptance": "MeshPhysicalMaterial: metalness 0.95, roughness 0.1; Clearcoat 1.0, clearcoatRoughness 0.05; Deep Ink base color #1A1A2E; Environment map reflections produce mirror-like quality"
+        },
+        {
+          "id": "P3-S6-02",
+          "title": "Implement Decision Mirror multi-engine convergence algorithm: colored layer overlay",
+          "area": "frontend",
+          "owner_role": "Frontend Engineer",
+          "est_hours": 6,
+          "dependencies": [
+            "P3-S2-17"
+          ],
+          "deliverable": "Build the convergence algorithm that maps each engine's reading to a colored semi-transparent layer on the mirror surface. Color mapping: I-Ching=amber, Tarot=violet, Runes=forest, Numerology=cyan, Biorhythm=red, GeneKeys=emerald, HD=indigo, Chrono=orange, Transit=silver. Each layer renders as a screen-space decal on the mirror surface with opacity 0.25.",
+          "acceptance": "Each engine reading maps to a distinct colored layer on mirror; 9 unique engine colors as specified; Layers render as screen-space decals with opacity 0.25; Multiple layers visually blend where overlapping"
+        },
+        {
+          "id": "P3-S6-03",
+          "title": "Build Decision Mirror convergence detection: overlapping layers brighten surface",
+          "area": "frontend",
+          "owner_role": "Frontend Engineer",
+          "est_hours": 5,
+          "dependencies": [
+            "P3-S6-02"
+          ],
+          "deliverable": "Where 3+ engine layers overlap on the mirror surface, the intersection region brightens to Bone White (#E8E4D9) glow. Brightness = (overlapping_layer_count / total_consulted_engines) * emissive_max. Convergence regions pulse gently at 0.3Hz. Regions with highest convergence get a particle emission effect (10 particles/sec rising upward).",
+          "acceptance": "3+ layer overlap creates Bone White glow region; Brightness proportional to overlap count / total consulted engines; Convergence regions pulse at 0.3Hz; Highest convergence regions emit 10 particles/sec upward"
+        },
+        {
+          "id": "P3-S6-04",
+          "title": "Implement Decision Mirror drag-to-compare: pull engine layers off for side-by-side",
+          "area": "frontend",
+          "owner_role": "Frontend Engineer",
+          "est_hours": 5,
+          "dependencies": [
+            "P3-S2-19",
+            "P3-S6-02"
+          ],
+          "deliverable": "Enhance layer separation with precise mechanics. GRASP gesture on a layer edge peels it off the mirror as a floating translucent panel (1 unit x 1.5 units). Panel follows hand position. Releasing the panel > 1 unit from mirror surface anchors it in 3D space. Connection lines (dashed, 0.005 radius) link shared themes between separated panels. Double-tap panel to snap it back to mirror.",
+          "acceptance": "GRASP on layer edge peels it into a floating translucent panel; Panel follows hand; release > 1 unit from mirror anchors in space; Dashed connection lines link shared themes between separated panels; Double-tap returns panel to mirror surface"
+        },
+        {
+          "id": "P3-S6-05",
+          "title": "Build Decision Mirror convergence score: 0-100 percentage with visual meter",
+          "area": "frontend",
+          "owner_role": "Frontend Engineer",
+          "est_hours": 4,
+          "dependencies": [
+            "P3-S2-18",
+            "P3-S6-03"
+          ],
+          "deliverable": "Calculate convergence score: score = (sum of pairwise_theme_similarity across all engine pairs) / (max_possible_pairs * max_similarity) * 100. Display as a circular meter around the mirror frame. Meter fill uses Aged Gold color. Score number displayed as large 3D text above the mirror. Score updates in real-time as layers are added/removed.",
+          "acceptance": "Convergence score calculated 0-100 from pairwise theme similarity; Circular meter around mirror frame fills with Aged Gold; Score displayed as large 3D text above mirror; Real-time updates as engine layers are added or removed"
+        },
+        {
+          "id": "P3-S6-06",
+          "title": "Implement Decision Mirror speech/text input: voice or typed decision question",
+          "area": "frontend",
+          "owner_role": "Frontend Engineer",
+          "est_hours": 5,
+          "dependencies": [
+            "P3-S2-16"
+          ],
+          "deliverable": "Add a decision input system to the mirror. User can speak (Web Speech API) or type a decision question. Question text appears etched into the mirror surface using the Devanagari shader technique adapted for Latin characters. The question text persists on the surface and contextualizes the convergence layers. Max 200 characters.",
+          "acceptance": "Web Speech API voice input captures spoken decision question; Text input fallback via React Html overlay; Question text etched on mirror surface via adapted shader; Maximum 200 characters; text persists on surface"
+        },
+        {
+          "id": "P3-S6-07",
+          "title": "Build Transit celestial sphere: transparent sphere with natal inner ring + transit outer ring",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 5,
+          "dependencies": [
+            "P3-S2-20"
+          ],
+          "deliverable": "Refine the celestial sphere with clear inner/outer ring separation. Inner natal ring: radius 1.5, fixed position, 12 zodiac sign divisions etched on the ring surface, natal planet positions as small gold spheres (radius 0.05). Outer transit ring: radius 2.0, rotatable, current transit planets as silver spheres (radius 0.04). Sphere shell: IcosahedronGeometry, wireframe, opacity 0.08.",
+          "acceptance": "Inner natal ring at radius 1.5 with 12 zodiac sign divisions; Natal planets as gold spheres (radius 0.05) at correct zodiacal positions; Outer transit ring at radius 2.0 with silver planet spheres (radius 0.04); Sphere shell wireframe at opacity 0.08"
+        },
+        {
+          "id": "P3-S6-08",
+          "title": "Implement Transit aspect line rendering: color-coded filaments with exactness pulsing",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 5,
+          "dependencies": [
+            "P3-S2-22",
+            "P3-S6-07"
+          ],
+          "deliverable": "Render aspect lines as TubeGeometry filaments between natal and transit planets. Harmonious (trine 120deg, sextile 60deg): Gold (#C9A961). Challenging (square 90deg, opposition 180deg): Terracotta (#C45B3E). Neutral (conjunction 0deg): Bone White (#E8E4D9). Line radius scales with exactness: exact=0.008, 5deg orb=0.002. Pulse frequency: exact aspects pulse at 1Hz, wide orb=0.2Hz.",
+          "acceptance": "Gold filaments for trines and sextiles; Terracotta for squares and oppositions; Bone White for conjunctions; Line radius: 0.008 at exact, 0.002 at 5-deg orb; Pulse: 1Hz exact, 0.2Hz wide orb"
+        },
+        {
+          "id": "P3-S6-09",
+          "title": "Build Transit time scrub: grab outer ring rotation with real-time date readout",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 4,
+          "dependencies": [
+            "P3-S2-21",
+            "P3-S6-07"
+          ],
+          "deliverable": "Enhanced time scrub on the transit sphere. GRASP the outer ring to rotate it. Rotation maps to date change: 360 degrees = 1 year. Fine scrub: hold + slow rotate for day-by-day. All transit planet positions recalculate via API call (debounced 200ms). Date readout as 3D billboard text at the top of the sphere, format: DD MMM YYYY.",
+          "acceptance": "GRASP outer ring to rotate and change date; 360 degrees = 1 year of transit movement; Debounced API recalculation at 200ms; Date readout as 3D billboard at sphere top: DD MMM YYYY format"
+        },
+        {
+          "id": "P3-S6-10",
+          "title": "Implement Transit exact aspect highlight: both planets pulse + connecting info line",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 4,
+          "dependencies": [
+            "P3-S6-08"
+          ],
+          "deliverable": "When an aspect is within 1 degree of exact (orb < 1deg), both involved planets pulse with increased emissive (0.6 to 1.0 at 2Hz). The connecting filament brightens to opacity 1.0 and displays floating text: aspect name, exact date, and a 1-line interpretation. Auto-highlight the tightest aspect on initial load.",
+          "acceptance": "Planets pulse emissive 0.6-1.0 at 2Hz when aspect orb < 1 degree; Filament brightens to opacity 1.0 for exact aspects; Floating text shows aspect name, exact date, 1-line interpretation; Tightest aspect auto-highlighted on initial load"
+        },
+        {
+          "id": "P3-S6-11",
+          "title": "Build Transit cross-reference: tap aspect auto-scrolls Vimshottari Clock to relevant period",
+          "area": "frontend",
+          "owner_role": "Frontend Engineer",
+          "est_hours": 4,
+          "dependencies": [
+            "P3-S2-28",
+            "P3-S6-08"
+          ],
+          "deliverable": "Tapping a transit aspect line triggers cross-reference with the Vimshottari Clock. The Clock's rings auto-rotate to show the Dasha period that governs the aspect's exact date. A golden arc connects the tapped aspect to the highlighted Dasha segment. Arc persists for 5 seconds then fades. Both engines must be within 25 units of vessel for cross-reference to activate.",
+          "acceptance": "Tap transit aspect auto-rotates Vimshottari Clock to governing period; Golden arc connects tapped aspect to Dasha segment; Arc persists 5 seconds then fades; Cross-reference activates only when both engines within 25 units"
+        },
+        {
+          "id": "P3-S6-12",
+          "title": "Implement Transit dual system support: Vedic sidereal + Western tropical with orb tolerance",
+          "area": "backend",
+          "owner_role": "Backend Engineer",
+          "est_hours": 5,
+          "dependencies": [
+            "P3-S2-23"
+          ],
+          "deliverable": "Extend Transit API to support both Vedic (sidereal zodiac, ayanamsa-corrected) and Western (tropical zodiac) systems. Add system parameter to endpoint. Vedic uses Lahiri ayanamsa. Configure orb tolerances per system: Vedic uses tighter orbs (conjunction 8deg, trine 6deg), Western uses wider orbs (conjunction 10deg, trine 8deg). Response includes system flag.",
+          "acceptance": "API accepts system parameter: vedic or western; Vedic uses Lahiri ayanamsa-corrected sidereal positions; Vedic orbs: conjunction 8deg, trine 6deg; Western orbs: conjunction 10deg, trine 8deg; Response includes system identification flag"
+        },
+        {
+          "id": "P3-S6-13",
+          "title": "Build Somatic Canticle vertical scroll/codex: translucent parchment, 3 units tall, breathing",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 5,
+          "dependencies": [
+            "P3-S2-24"
+          ],
+          "deliverable": "Redesign the Somatic Canticle as a vertical scroll/codex. PlaneGeometry (0.8 x 3 units) with parchment texture and subsurface scattering material (transmission 0.3, thickness 0.5). The scroll gently expands/contracts on Y-axis by +-0.05 units at breath rate (default 4-second cycle). Edges have slight curl via vertex displacement.",
+          "acceptance": "PlaneGeometry 0.8 x 3 units with parchment texture; Subsurface scattering: transmission 0.3, thickness 0.5; Breathing animation: Y-scale +-0.05 at 4-second default cycle; Edge curl via vertex displacement shader"
+        },
+        {
+          "id": "P3-S6-14",
+          "title": "Implement Somatic Canticle bio-gating: chapters unlock when bio-state matches requirements",
+          "area": "frontend",
+          "owner_role": "Bio-Integration Engineer",
+          "est_hours": 5,
+          "dependencies": [
+            "P3-S6-13",
+            "P2-S3-01"
+          ],
+          "deliverable": "Implement bio-gating for scroll chapters. Chapter 1 (Introduction): always open. Chapter 2 (Breath Work): requires Coherence > 50. Chapter 3 (Meditation): requires Coherence > 70 sustained for 30 seconds. Chapter 4 (Intensity): requires HRV in 40-60ms range. Chapter 5 (Integration): requires all previous gates passed in current session. Gate status checked every 2 seconds.",
+          "acceptance": "Chapter 1 always accessible; Chapter 2 unlocks at Coherence > 50; Chapter 3 requires Coherence > 70 sustained 30 seconds; Chapter 4 requires HRV 40-60ms range; Chapter 5 requires all previous gates passed; Gate check interval: 2 seconds"
+        },
+        {
+          "id": "P3-S6-15",
+          "title": "Build Somatic Canticle 5-second breath coherence check before content display",
+          "area": "frontend",
+          "owner_role": "Bio-Integration Engineer",
+          "est_hours": 3,
+          "dependencies": [
+            "P3-S6-14"
+          ],
+          "deliverable": "Before any chapter content displays, run a 5-second breath coherence check. A circular progress indicator overlays the scroll, filling over 5 seconds. If average Coherence during the 5-second window exceeds the chapter's threshold, content reveals. If not, the indicator turns Terracotta and resets. Max 3 attempts before temporary lockout (60 seconds).",
+          "acceptance": "5-second breath coherence check before chapter content display; Circular progress indicator fills during the 5-second window; Content reveals if average Coherence exceeds chapter threshold; Terracotta failure indicator and reset; 60-second lockout after 3 failed attempts"
+        },
+        {
+          "id": "P3-S6-16",
+          "title": "Implement Somatic Canticle content fold-back: scroll re-furls if user dysregulated",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 4,
+          "dependencies": [
+            "P3-S6-14"
+          ],
+          "deliverable": "If user's Coherence drops below the chapter's threshold for > 10 seconds while viewing content, the scroll gently re-furls (content area shrinks from full height to 0 over 2 seconds with ease-in). A calming audio tone plays. The chapter marker returns to its locked-but-achieved state. User can re-attempt after stabilizing.",
+          "acceptance": "Content folds back when Coherence drops below threshold for > 10 seconds; Scroll re-furls over 2 seconds with ease-in animation; Calming audio tone plays during fold-back; Chapter marker returns to achieved-but-locked state"
+        },
+        {
+          "id": "P3-S6-17",
+          "title": "Build Somatic Canticle breath-paced text rendering: word-by-word at 40ms per character",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 4,
+          "dependencies": [
+            "P3-S6-13",
+            "P3-S1-30"
+          ],
+          "deliverable": "Content text on the scroll renders word-by-word, paced to the user's breath rate. Each word appears on exhale phase (detected via PIP). Base speed: 40ms per character. Words fade in with opacity 0 to 1 over 200ms. If no PIP, use default 4-second breath cycle. Text color: Bone White (#E8E4D9) on parchment background.",
+          "acceptance": "Words appear one at a time synced to exhale phase from PIP; Base speed: 40ms per character rendering; Word fade-in: opacity 0 to 1 over 200ms; Fallback to 4-second breath cycle without PIP; Text color: Bone White #E8E4D9"
+        },
+        {
+          "id": "P3-S6-18",
+          "title": "Implement Somatic Canticle chapter marker illumination: locked/unlocked/bio-ready states",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 3,
+          "dependencies": [
+            "P3-S6-14"
+          ],
+          "deliverable": "Chapter markers along the scroll edge have 3 visual states. Locked: Deep Ink (#1A1A2E), emissive 0.1, small circle. Unlocked: Aged Gold (#C9A961), emissive 0.5, medium circle. Bio-Ready (bio-state currently meets requirements): Terracotta (#C45B3E) pulsing at 1Hz, emissive oscillating 0.4-0.8, large circle. Markers transition smoothly between states over 300ms.",
+          "acceptance": "Locked markers: Deep Ink #1A1A2E, emissive 0.1, small circle; Unlocked markers: Aged Gold #C9A961, emissive 0.5, medium circle; Bio-Ready markers: Terracotta #C45B3E pulsing 1Hz, emissive 0.4-0.8; 300ms smooth transitions between states"
+        },
+        {
+          "id": "P3-S6-19",
+          "title": "Build Cartographer orbiting astrolabe-compass: orbital radius 17, Y-oscillation +-3",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 5,
+          "dependencies": [
+            "P3-S3-01"
+          ],
+          "deliverable": "Reconfigure the Cartographer to orbit the entire East Wing engine constellation. Orbital path: circle at radius 17 units from East Wing center (50,0,0), with vertical Y-oscillation of +-3 units (sinusoidal, period 120 seconds). Orbit speed: 1 revolution per 300 seconds. The astrolabe faces tangent to its orbital path (always presenting its face to the inside).",
+          "acceptance": "Cartographer orbits at radius 17 from East Wing center (50,0,0); Y-oscillation +-3 units, sinusoidal period 120 seconds; Orbital speed: 1 revolution per 300 seconds; Astrolabe face always oriented toward constellation center"
+        },
+        {
+          "id": "P3-S6-20",
+          "title": "Implement Cartographer 12 dial faces: each represents one engine, lit=consulted, dark=unconsulted",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 5,
+          "dependencies": [
+            "P3-S6-19",
+            "P3-S3-22"
+          ],
+          "deliverable": "Add 12 small dial faces arranged in a circle on the Cartographer's front plate (Engine 02 I-Ching excluded as the 13th is the Cartographer itself). Each dial is a CircleGeometry (radius 0.1) with an engine-specific glyph engraved. Consulted engines: Aged Gold emissive 0.7. Unconsulted: Deep Ink emissive 0.05. Dial lights up with a brief flash when its engine is first consulted.",
+          "acceptance": "12 dial faces on Cartographer front plate, one per engine; CircleGeometry radius 0.1 with engine-specific glyphs; Consulted: Aged Gold emissive 0.7; Unconsulted: Deep Ink emissive 0.05; Flash animation on first consultation of each engine"
+        },
+        {
+          "id": "P3-S6-21",
+          "title": "Build Cartographer luminosity scaling: emissive = activeEngineCount / 12",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 3,
+          "dependencies": [
+            "P3-S3-26",
+            "P3-S6-20"
+          ],
+          "deliverable": "Enhance the Cartographer luminosity system. Overall emissive intensity = consultedEngineCount / 12. At 0 engines: emissive 0.0, barely visible. At 6 engines: emissive 0.5, clearly visible. At 12 engines: emissive 1.0, brilliant. SparkJS splat density at center also scales: 100 splats at 1 engine, 1200 splats at 12. Glow radius expands from 0.5 to 3.0 units proportionally.",
+          "acceptance": "Emissive intensity = consultedEngineCount / 12; SparkJS splat density scales 100 to 1200 with engine count; Glow radius scales 0.5 to 3.0 units; Smooth transition on each new engine consultation"
+        },
+        {
+          "id": "P3-S6-22",
+          "title": "Implement Cartographer intercept mechanic: pauses when Vessel intersects orbital path",
+          "area": "frontend",
+          "owner_role": "Physics Engineer",
+          "est_hours": 4,
+          "dependencies": [
+            "P3-S6-19",
+            "P1-S1-22"
+          ],
+          "deliverable": "When the user's Vessel enters within 2 units of the Cartographer's orbital path, the Cartographer decelerates over 1.5 seconds and pauses at the nearest point to the Vessel. While paused, the astrolabe rings accelerate their rotation (2x speed). Cartographer resumes orbit when Vessel moves > 4 units away, with 2-second acceleration back to cruise speed.",
+          "acceptance": "Cartographer decelerates when Vessel within 2 units of orbital path; Pauses at nearest point to Vessel over 1.5 seconds; Astrolabe rings accelerate to 2x rotation while paused; Resumes orbit with 2-second acceleration when Vessel > 4 units away"
+        },
+        {
+          "id": "P3-S6-23",
+          "title": "Build Cartographer meta-reading synthesis: cross-engine coherence analysis algorithm",
+          "area": "backend",
+          "owner_role": "Backend Engineer",
+          "est_hours": 6,
+          "dependencies": [
+            "P3-S3-03",
+            "P3-S3-30"
+          ],
+          "deliverable": "Extend the meta-reading algorithm with cross-engine coherence analysis. For each pair of consulted engines, compute thematic coherence (0-1) using keyword overlap and semantic embedding similarity. Build a coherence matrix. Identify the strongest cross-engine theme cluster. Generate narrative that weaves the cluster into a unified insight. Quality metric: coherence_avg >= 0.3 required to produce synthesis.",
+          "acceptance": "Pairwise thematic coherence computed for all engine combinations; Coherence matrix constructed from keyword and semantic similarity; Strongest theme cluster identified across engines; Narrative synthesis woven from cluster; Minimum coherence_avg 0.3 threshold for synthesis"
+        },
+        {
+          "id": "P3-S6-24",
+          "title": "Implement Cartographer 2D map unfold: flat projection of all 12 engines as weighted nodes",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 5,
+          "dependencies": [
+            "P3-S3-04",
+            "P3-S6-23"
+          ],
+          "deliverable": "Enhanced map unfold animation. Astrolabe rings flatten into a 2D plane over 1.5 seconds. 12 engine nodes appear at positions determined by force-directed layout (engines with high coherence pulled closer). Node size = number of consultations. Connection line thickness = pairwise coherence score * 0.02 units. The map floats at eye height, 1.5 units from the Vessel.",
+          "acceptance": "Astrolabe flattens to 2D plane over 1.5 seconds; Force-directed layout places high-coherence engines closer; Node size proportional to consultation count; Line thickness = coherence * 0.02 units; Map floats at eye height, 1.5 units from Vessel"
+        },
+        {
+          "id": "P3-S6-25",
+          "title": "Build Cartographer activation gate: only appears after 7+ engines engaged",
+          "area": "frontend",
+          "owner_role": "Frontend Engineer",
+          "est_hours": 3,
+          "dependencies": [
+            "P3-S3-07",
+            "P3-S6-19"
+          ],
+          "deliverable": "The Cartographer is invisible and intangible until 7+ engines have been consulted. At the 7th consultation, the Cartographer materializes on its orbital path with a spectacular reveal: golden particle explosion (500 particles), harmonic chord audio (all 12 engine tones simultaneously), and 3-second scale-up from 0 to full size.",
+          "acceptance": "Cartographer invisible and intangible below 7 engine consultations; Materialization at 7th consultation with 500-particle golden explosion; Harmonic chord of all 12 engine tones plays; 3-second scale-up from 0 to full size"
+        },
+        {
+          "id": "P3-S6-26",
+          "title": "Implement FastAPI Decision Mirror convergence endpoint: POST /api/engines/decision-mirror",
+          "area": "backend",
+          "owner_role": "Backend Engineer",
+          "est_hours": 5,
+          "dependencies": [
+            "P2-S1-01",
+            "P3-S3-30"
+          ],
+          "deliverable": "Create FastAPI endpoint for the Decision Mirror. Accepts: decision_question (string), engine_readings (array of {engine_id, reading_summary}). Returns: convergence_score (0-100), theme_clusters (array of shared themes with engine sources), contradictions (array of conflicting readings), synthesis_narrative (unified interpretation addressing the decision question).",
+          "acceptance": "POST /api/engines/decision-mirror accepts question and engine readings; Returns convergence_score 0-100; Returns theme_clusters with engine source attribution; Returns contradictions array; Returns synthesis_narrative addressing decision question"
+        },
+        {
+          "id": "P3-S6-27",
+          "title": "Build FastAPI Somatic Canticle content endpoint: bio-gated chapter content delivery",
+          "area": "backend",
+          "owner_role": "Backend Engineer",
+          "est_hours": 4,
+          "dependencies": [
+            "P3-S2-25"
+          ],
+          "deliverable": "Enhance the Somatic Canticle endpoint with chapter-specific content delivery. Each chapter has bio-gate requirements validated server-side. Request includes: chapter_id, bio_summary (coherence, hrv, affect). Server validates bio-gates before returning content. Content includes: chapter_text, practice_instructions, breath_pattern, and estimated_duration_minutes.",
+          "acceptance": "Chapter content gated by server-side bio-state validation; Response includes chapter_text, practice_instructions, breath_pattern; Estimated duration in minutes included; Bio-gate requirements enforced: returns 403 if unmet"
+        },
+        {
+          "id": "P3-S6-28",
+          "title": "Implement Tier 3 cross-engine integration test: Decision Mirror + Transit + Somatic + Cartographer",
+          "area": "qa",
+          "owner_role": "QA Engineer",
+          "est_hours": 6,
+          "dependencies": [
+            "P3-S6-05",
+            "P3-S6-10",
+            "P3-S6-17",
+            "P3-S6-24"
+          ],
+          "deliverable": "Full integration test for all 4 Tier 3 engines. Test: Decision Mirror convergence with 3+ engine readings, Transit time scrub with API recalculation, Somatic Canticle bio-gating with mock PIP data, Cartographer meta-reading with 7+ engine consultation simulation. Verify all cross-references function: Transit-to-Vimshottari, Decision Mirror layer separation, Cartographer map unfold.",
+          "acceptance": "Decision Mirror convergence tested with 3+ engine readings; Transit time scrub verified with API recalculation; Somatic Canticle bio-gating tested with mock PIP data; Cartographer tested with 7+ engine simulation; All cross-references verified functional"
+        },
+        {
+          "id": "P3-S6-29",
+          "title": "Build full 13-engine end-to-end test: complete user journey through all engines to Cartographer",
+          "area": "qa",
+          "owner_role": "QA Engineer",
+          "est_hours": 8,
+          "dependencies": [
+            "P3-S6-28",
+            "P3-S5-29"
+          ],
+          "deliverable": "Comprehensive end-to-end test simulating a complete user journey. Sequence: activate PIP, consult each of the 12 engines (Tier 1 without PIP, then Tier 2 with PIP, then Tier 3 after 3+ consultations), verify Cartographer materializes after 7th, consult Cartographer for meta-reading. Verify Field Journal records all 13 readings. Verify performance stays above 45fps throughout.",
+          "acceptance": "Complete user journey through all 12 engines + Cartographer; Tier unlock progression verified at each stage; Field Journal records all 13 readings with correct data; Cartographer materializes at 7th consultation; Performance remains above 45fps throughout entire journey"
+        },
+        {
+          "id": "P3-S6-30",
+          "title": "Implement Tier 3 performance benchmark: all engines + Cartographer orbit at 60fps",
+          "area": "qa",
+          "owner_role": "QA Engineer",
+          "est_hours": 4,
+          "dependencies": [
+            "P3-S6-29"
+          ],
+          "deliverable": "Performance benchmark with all 13 engines rendered, Cartographer in orbit, PIP data streaming, and at least 3 engines in active physics state. Measure: average frame time, 99th percentile frame time, GPU memory usage, draw call count. All metrics must meet budget: avg < 16.6ms, p99 < 25ms, GPU mem < 512MB, draw calls < 50.",
+          "acceptance": "All 13 engines + Cartographer orbit rendered simultaneously; Average frame time < 16.6ms (60fps); 99th percentile frame time < 25ms; GPU memory < 512MB; Draw calls < 50"
+        },
+        {
+          "id": "P3-S6-31",
+          "title": "Build engine shader compilation warmup: pre-compile all 13 engine shaders on scene load",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 3,
+          "dependencies": [
+            "P3-S4-06",
+            "P3-S6-01"
+          ],
+          "deliverable": "Implement shader warmup system that pre-compiles all custom shaders used by the 13 engines during initial scene load. Render each shader to a 1x1 offscreen target to force compilation. Track compilation progress and display loading bar. Target: all shaders compiled within 3 seconds on mid-range GPU. Eliminates first-interaction jank.",
+          "acceptance": "All 13 engine shaders pre-compiled during scene load; Offscreen 1x1 render pass forces GPU compilation; Loading progress bar displayed during warmup; Total warmup < 3 seconds on mid-range GPU; Zero shader compilation jank on first interaction"
+        }
+      ]
+    }
+  ]
+}

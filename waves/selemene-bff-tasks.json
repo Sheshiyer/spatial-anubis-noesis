@@ -1,0 +1,521 @@
+{
+  "schema_version": "1.0",
+  "project": {
+    "name": "Spatial Anubis — Selemene BFF Integration",
+    "repo_root": "/Volumes/madara/2026/Trayambakam-Noesis/spatial-anubis",
+    "generated_on": "2026-02-12",
+    "generated_by": "task-master-planner",
+    "assumptions": [
+      "Selemene Engine is deployed and reachable via HTTP at a configurable base URL",
+      "Bun runtime >= 1.1 available in dev and CI environments",
+      "Hono framework provides routing, middleware composition, and Bun-native performance",
+      "Drizzle ORM targets a local SQLite database for dev; Postgres for staging/prod",
+      "JWT tokens are issued by a separate auth service; BFF validates them only",
+      "All 13 Selemene-backed engines expose a uniform /engine/:engineId/read POST contract",
+      "Rune Stones and Somatic Canticle are self-contained custom engines with no Selemene dependency",
+      "Field Journal entries are append-only; no deletion of historical readings",
+      "Rate limiting is per-user, enforced via sliding-window counter in memory (Redis upgrade later)",
+      "Sigil Forge is an existing Selemene workflow absorbed into the West Wing Sigil BFF endpoint"
+    ],
+    "risks": [
+      "Selemene downtime blocks 13 of 15 engines; fallback cache must serve stale readings gracefully",
+      "Transformer schema drift if Selemene API evolves without versioning contract",
+      "JWT validation latency on every request could degrade P99 if JWKS fetch is not cached",
+      "SQLite write contention under concurrent sessions during dev; mitigated by WAL mode",
+      "Custom engines (Runes, Somatic Canticle) lack external validation source; rely solely on unit tests",
+      "Decision Mirror convergence scoring is heuristic; acceptance criteria thresholds may need tuning",
+      "Bio-gate 423 Locked state in Somatic Canticle is a hard-coded business rule with no unlock path yet"
+    ]
+  },
+  "phases": [
+    {
+      "phase_id": "P5",
+      "name": "Selemene Integration — BFF Layer",
+      "objective": "Stand up the Backend-for-Frontend layer that bridges Spatial Anubis UI to the Selemene Engine, transforming raw engine readings into display-ready payloads for all 15 engines, with auth, rate limiting, session persistence, and graceful Selemene-down fallback.",
+      "sprints": [
+        {
+          "sprint_id": "P5-S1",
+          "name": "BFF Foundation",
+          "goal": "Scaffold Bun+Hono project, wire Selemene client with health polling and fallback, define Drizzle schemas, implement auth and rate limiting middleware, create engine router and transformer registry.",
+          "task_count": 16,
+          "est_hours_total": 34,
+          "tasks": [
+            {
+              "id": "P5-S1-01",
+              "title": "Initialize Bun project with Hono framework in bff/ directory",
+              "area": "backend",
+              "owner_role": "Backend Eng",
+              "est_hours": 2,
+              "dependencies": [],
+              "deliverable": "A working bff/ directory with bun init, Hono dependency, tsconfig.json, and a runnable dev script.",
+              "acceptance": "Running `bun run dev` in bff/ starts a process that listens on port 3001 without errors."
+            },
+            {
+              "id": "P5-S1-02",
+              "title": "Configure TypeScript strict mode and path aliases",
+              "area": "backend",
+              "owner_role": "Backend Eng",
+              "est_hours": 2,
+              "dependencies": ["P5-S1-01"],
+              "deliverable": "tsconfig.json with strict: true, paths aliases (@/services, @/schemas, @/middleware, @/routes), and bun-compatible module resolution.",
+              "acceptance": "Importing a module via @/services/example resolves correctly and `bun run typecheck` passes with zero errors."
+            },
+            {
+              "id": "P5-S1-03",
+              "title": "Create Hono server entry point with health endpoint",
+              "area": "backend",
+              "owner_role": "Backend Eng",
+              "est_hours": 2,
+              "dependencies": ["P5-S1-01"],
+              "deliverable": "bff/src/index.ts exporting a Hono app with GET /health returning { status: 'ok', uptime_ms: number }.",
+              "acceptance": "curl localhost:3001/health returns 200 with a valid JSON body containing status 'ok' and a positive uptime_ms value."
+            },
+            {
+              "id": "P5-S1-04",
+              "title": "Implement Selemene API client class",
+              "area": "backend",
+              "owner_role": "Backend Eng",
+              "est_hours": 3,
+              "dependencies": ["P5-S1-03"],
+              "deliverable": "bff/src/services/selemene-client.ts with typed methods for engine reads, workflow calls, and health checks using fetch with configurable base URL and timeout.",
+              "acceptance": "SelemeneClient.healthCheck() returns a typed HealthResponse and SelemeneClient.readEngine(engineId, payload) returns a typed SelemeneResponse when called against a mock server."
+            },
+            {
+              "id": "P5-S1-05",
+              "title": "Add Selemene health check polling on BFF startup",
+              "area": "backend",
+              "owner_role": "Backend Eng",
+              "est_hours": 2,
+              "dependencies": ["P5-S1-03"],
+              "deliverable": "Startup hook that polls Selemene /health every 30s, logs status, and sets a global isSelemeneUp boolean flag.",
+              "acceptance": "BFF logs 'Selemene: connected' on successful poll and 'Selemene: unreachable' when the poll fails, toggling the flag accordingly."
+            },
+            {
+              "id": "P5-S1-06",
+              "title": "Implement Selemene fallback mode with cached readings",
+              "area": "backend",
+              "owner_role": "Backend Eng",
+              "est_hours": 3,
+              "dependencies": ["P5-S1-03"],
+              "deliverable": "FallbackCache service that stores the last successful reading per engine per user and serves it with a stale: true flag when Selemene is down.",
+              "acceptance": "When isSelemeneUp is false, engine read requests return the cached reading with stale: true and a cache_age_ms field, instead of a 503 error."
+            },
+            {
+              "id": "P5-S1-07",
+              "title": "Define Zod schemas for SelemeneResponse and Engine3DResponse",
+              "area": "backend",
+              "owner_role": "Backend Eng",
+              "est_hours": 2,
+              "dependencies": ["P5-S1-03"],
+              "deliverable": "bff/src/schemas/selemene.ts with Zod schemas for raw Selemene payloads and bff/src/schemas/engine3d.ts for transformed display-ready payloads.",
+              "acceptance": "Parsing a valid Selemene JSON fixture through the Zod schema succeeds, and parsing a malformed fixture throws a ZodError with descriptive path."
+            },
+            {
+              "id": "P5-S1-08",
+              "title": "Create Drizzle ORM schema for user_profiles table",
+              "area": "backend",
+              "owner_role": "Backend Eng",
+              "est_hours": 2,
+              "dependencies": ["P5-S1-01"],
+              "deliverable": "bff/src/db/schema/user-profiles.ts defining user_profiles table with id, birth_datetime, birth_lat, birth_lng, vessel_type, preferences JSON, created_at, updated_at.",
+              "acceptance": "Drizzle generates a valid SQL migration file for user_profiles and the table is created successfully in a fresh SQLite database."
+            },
+            {
+              "id": "P5-S1-09",
+              "title": "Create Drizzle ORM schema for engine_readings table",
+              "area": "backend",
+              "owner_role": "Backend Eng",
+              "est_hours": 2,
+              "dependencies": ["P5-S1-01"],
+              "deliverable": "bff/src/db/schema/engine-readings.ts defining engine_readings table with id, user_id FK, engine_id, session_id, raw_payload JSON, transformed_payload JSON, convergence_score, created_at.",
+              "acceptance": "Drizzle generates a valid migration for engine_readings with foreign key to user_profiles and the table is created in a fresh SQLite database."
+            },
+            {
+              "id": "P5-S1-10",
+              "title": "Create Drizzle ORM schema for user_sessions table",
+              "area": "backend",
+              "owner_role": "Backend Eng",
+              "est_hours": 2,
+              "dependencies": ["P5-S1-01"],
+              "deliverable": "bff/src/db/schema/user-sessions.ts defining user_sessions table with id, user_id FK, started_at, ended_at, unlocked_zones JSON, dasha_period, session_metadata JSON.",
+              "acceptance": "Drizzle generates a valid migration for user_sessions with foreign key to user_profiles and nullable ended_at for active session detection."
+            },
+            {
+              "id": "P5-S1-11",
+              "title": "Implement Drizzle migration runner and seed script",
+              "area": "backend",
+              "owner_role": "Backend Eng",
+              "est_hours": 2,
+              "dependencies": ["P5-S1-08", "P5-S1-09", "P5-S1-10"],
+              "deliverable": "bff/src/db/migrate.ts that runs all pending migrations and bff/src/db/seed.ts that inserts a test user with sample birth data.",
+              "acceptance": "Running `bun run db:migrate && bun run db:seed` creates all three tables and inserts one test user row retrievable via Drizzle query."
+            },
+            {
+              "id": "P5-S1-12",
+              "title": "Implement JWT auth middleware for Hono",
+              "area": "backend",
+              "owner_role": "Backend Eng",
+              "est_hours": 2,
+              "dependencies": ["P5-S1-03"],
+              "deliverable": "bff/src/middleware/auth.ts that validates Bearer JWT tokens, extracts user_id into Hono context, and returns 401 on invalid/missing tokens.",
+              "acceptance": "Requests with a valid JWT set c.get('userId') and proceed; requests without a token or with an expired token receive a 401 JSON error."
+            },
+            {
+              "id": "P5-S1-13",
+              "title": "Implement per-user rate limiting middleware",
+              "area": "backend",
+              "owner_role": "Backend Eng",
+              "est_hours": 2,
+              "dependencies": ["P5-S1-03"],
+              "deliverable": "bff/src/middleware/rate-limit.ts using a sliding-window in-memory counter keyed by user_id, configurable window and max requests.",
+              "acceptance": "A user exceeding 60 requests per minute receives a 429 JSON error with retry_after_ms, while a user under the limit proceeds normally."
+            },
+            {
+              "id": "P5-S1-14",
+              "title": "Create unified engine router at /api/engines/:engineId",
+              "area": "backend",
+              "owner_role": "Backend Eng",
+              "est_hours": 2,
+              "dependencies": ["P5-S1-12", "P5-S1-15"],
+              "deliverable": "bff/src/routes/engines.ts with POST /api/engines/:engineId that resolves the transformer from the registry, calls Selemene, and returns the transformed payload.",
+              "acceptance": "POST /api/engines/vimshottari-dasha with valid JWT and body returns a 200 with a transformed Engine3DResponse payload (or 404 for unknown engineId)."
+            },
+            {
+              "id": "P5-S1-15",
+              "title": "Implement EngineTransformer interface and TransformerRegistry",
+              "area": "backend",
+              "owner_role": "Backend Eng",
+              "est_hours": 2,
+              "dependencies": ["P5-S1-07"],
+              "deliverable": "bff/src/transformers/registry.ts defining the EngineTransformer interface (transform, engineId, displayConfig) and a TransformerRegistry that maps engineId strings to transformer instances.",
+              "acceptance": "TransformerRegistry.get('vimshottari-dasha') returns the registered transformer instance and TransformerRegistry.get('nonexistent') returns undefined."
+            },
+            {
+              "id": "P5-S1-16",
+              "title": "Create shared constants for brand palette, display config, and PIP defaults",
+              "area": "backend",
+              "owner_role": "Backend Eng",
+              "est_hours": 2,
+              "dependencies": ["P5-S1-01"],
+              "deliverable": "bff/src/constants/brand.ts with color palette, bff/src/constants/display.ts with default 3D display configs, and bff/src/constants/pip.ts with PIP overlay defaults.",
+              "acceptance": "Importing BRAND_PALETTE, DEFAULT_DISPLAY_CONFIG, and PIP_DEFAULTS yields typed, non-empty objects that pass their respective Zod schema validations."
+            }
+          ]
+        },
+        {
+          "sprint_id": "P5-S2",
+          "name": "Engine Transformers",
+          "goal": "Implement all 13 Selemene-backed EngineTransformers (8 core + 5 bonus), 2 custom engines (Rune Stones, Somatic Canticle), and absorb Sigil Forge into the BFF layer.",
+          "task_count": 16,
+          "est_hours_total": 49,
+          "tasks": [
+            {
+              "id": "P5-S2-01",
+              "title": "Implement Vimshottari Dasha transformer with Panchanga absorption",
+              "area": "backend",
+              "owner_role": "Backend Eng",
+              "est_hours": 3,
+              "dependencies": ["P5-S1-15", "P5-S1-04"],
+              "deliverable": "bff/src/transformers/vimshottari-dasha.ts that transforms Selemene dasha response into layered timeline data with Panchanga tithi/nakshatra as secondary overlay.",
+              "acceptance": "Given a Selemene dasha fixture, the transformer outputs an Engine3DResponse with mahadasha, antardasha, and pratyantardasha layers plus a panchanga overlay array."
+            },
+            {
+              "id": "P5-S2-02",
+              "title": "Implement I-Ching Oracle transformer with physics coin input",
+              "area": "backend",
+              "owner_role": "Backend Eng",
+              "est_hours": 3,
+              "dependencies": ["P5-S1-15", "P5-S1-04"],
+              "deliverable": "bff/src/transformers/i-ching-oracle.ts that maps 6 coin-toss results to a hexagram, sends to Selemene, and transforms the oracle response into line-by-line 3D display data.",
+              "acceptance": "Given 6 coin values [2,3,2,3,3,2], the transformer resolves the correct hexagram number and returns an Engine3DResponse with hexagram, changing_lines, and reading_text fields."
+            },
+            {
+              "id": "P5-S2-03",
+              "title": "Implement Tarot Arcana transformer with spread support",
+              "area": "backend",
+              "owner_role": "Backend Eng",
+              "est_hours": 3,
+              "dependencies": ["P5-S1-15", "P5-S1-04"],
+              "deliverable": "bff/src/transformers/tarot-arcana.ts that sends card IDs with reversed flags and spread type to Selemene and transforms into positional card display data.",
+              "acceptance": "Given a 3-card Celtic Cross subset with one reversed card, the transformer returns an Engine3DResponse with card positions, imagery descriptors, and reversed indicators."
+            },
+            {
+              "id": "P5-S2-04",
+              "title": "Implement Numerology Matrix transformer for Pythagorean and Chaldean",
+              "area": "backend",
+              "owner_role": "Backend Eng",
+              "est_hours": 3,
+              "dependencies": ["P5-S1-15", "P5-S1-04"],
+              "deliverable": "bff/src/transformers/numerology-matrix.ts that computes both Pythagorean and Chaldean number mappings from user name/birth data and transforms Selemene response into a grid display.",
+              "acceptance": "Given birth name 'Daniel' and DOB, the transformer returns an Engine3DResponse with life_path, expression, soul_urge numbers for both systems in a matrix layout."
+            },
+            {
+              "id": "P5-S2-05",
+              "title": "Implement Biorhythm Compass transformer with 23/28/33-day cycles",
+              "area": "backend",
+              "owner_role": "Backend Eng",
+              "est_hours": 3,
+              "dependencies": ["P5-S1-15", "P5-S1-04"],
+              "deliverable": "bff/src/transformers/biorhythm-compass.ts that calculates physical (23d), emotional (28d), intellectual (33d) sine curves from birth date and transforms into waveform display data.",
+              "acceptance": "Given a birth date and target date, the transformer returns an Engine3DResponse with three cycle arrays (values -1 to 1), critical_days flags, and a composite_score."
+            },
+            {
+              "id": "P5-S2-06",
+              "title": "Implement Gene Keys Helix transformer with Shadow-Gift-Siddhi mapping",
+              "area": "backend",
+              "owner_role": "Backend Eng",
+              "est_hours": 3,
+              "dependencies": ["P5-S1-15", "P5-S1-04"],
+              "deliverable": "bff/src/transformers/gene-keys-helix.ts that maps Selemene gene key activations to the Shadow-Gift-Siddhi spectrum with helix visualization coordinates.",
+              "acceptance": "Given a gene key number (1-64), the transformer returns an Engine3DResponse with shadow, gift, siddhi labels, codon_ring, and helix_position as 3D coordinates."
+            },
+            {
+              "id": "P5-S2-07",
+              "title": "Implement Human Design Bodygraph transformer with 9 centers and 36 channels",
+              "area": "backend",
+              "owner_role": "Backend Eng",
+              "est_hours": 4,
+              "dependencies": ["P5-S1-15", "P5-S1-04"],
+              "deliverable": "bff/src/transformers/human-design-bodygraph.ts that transforms Selemene bodygraph data into 9 center states (defined/undefined), 36 channel activations, and type/authority/strategy.",
+              "acceptance": "Given a Selemene bodygraph fixture, the transformer returns an Engine3DResponse with centers array (9 items), channels array (36 items), type, authority, strategy, and profile."
+            },
+            {
+              "id": "P5-S2-08",
+              "title": "Implement Chronobiology Clock transformer with vedic_clock circadian adapter",
+              "area": "backend",
+              "owner_role": "Backend Eng",
+              "est_hours": 3,
+              "dependencies": ["P5-S1-15", "P5-S1-04"],
+              "deliverable": "bff/src/transformers/chronobiology-clock.ts that adapts Selemene vedic_clock output into circadian rhythm segments with dosha-period overlays for time-of-day guidance.",
+              "acceptance": "Given current time and user timezone, the transformer returns an Engine3DResponse with 8 prahara segments, active_dosha, optimal_activities array, and circadian_phase."
+            },
+            {
+              "id": "P5-S2-09",
+              "title": "Implement Enneagram Compass transformer with type, wing, and growth/stress arrows",
+              "area": "backend",
+              "owner_role": "Backend Eng",
+              "est_hours": 3,
+              "dependencies": ["P5-S1-15", "P5-S1-04"],
+              "deliverable": "bff/src/transformers/enneagram-compass.ts that transforms Selemene enneagram data into type + wing identification with growth and stress direction arrows for 3D compass display.",
+              "acceptance": "Given enneagram type 4 with wing 5, the transformer returns an Engine3DResponse with core_type, wing, growth_direction (1), stress_direction (2), instinct_stack, and center."
+            },
+            {
+              "id": "P5-S2-10",
+              "title": "Implement Sacred Geometry Matrix transformer with golden ratio vertices",
+              "area": "backend",
+              "owner_role": "Backend Eng",
+              "est_hours": 3,
+              "dependencies": ["P5-S1-15", "P5-S1-04"],
+              "deliverable": "bff/src/transformers/sacred-geometry-matrix.ts that transforms Selemene geometry patterns into vertex arrays with golden ratio proportions for 3D rendering.",
+              "acceptance": "Given a pattern type (e.g., 'flower-of-life'), the transformer returns an Engine3DResponse with vertices array, edges array, golden_ratio_points, and symmetry_group."
+            },
+            {
+              "id": "P5-S2-11",
+              "title": "Implement Biofield Scanner transformer with field layers and anomaly zones",
+              "area": "backend",
+              "owner_role": "Backend Eng",
+              "est_hours": 3,
+              "dependencies": ["P5-S1-15", "P5-S1-04"],
+              "deliverable": "bff/src/transformers/biofield-scanner.ts that transforms Selemene biofield data into concentric field layers with anomaly zone markers for 3D body overlay.",
+              "acceptance": "Given a Selemene biofield fixture, the transformer returns an Engine3DResponse with layers array (7 auric layers), anomaly_zones with coordinates, and overall_coherence score."
+            },
+            {
+              "id": "P5-S2-12",
+              "title": "Implement Face Reading Mirror transformer with element balance",
+              "area": "backend",
+              "owner_role": "Backend Eng",
+              "est_hours": 3,
+              "dependencies": ["P5-S1-15", "P5-S1-04"],
+              "deliverable": "bff/src/transformers/face-reading-mirror.ts that transforms Selemene face reading data into facial region annotations with five-element balance scoring.",
+              "acceptance": "Given a face reading fixture, the transformer returns an Engine3DResponse with regions array (forehead, eyes, nose, mouth, chin), element_balance object (5 elements), and palace_readings."
+            },
+            {
+              "id": "P5-S2-13",
+              "title": "Implement Nadabrahman Resonator transformer with harmonic series",
+              "area": "backend",
+              "owner_role": "Backend Eng",
+              "est_hours": 3,
+              "dependencies": ["P5-S1-15", "P5-S1-04"],
+              "deliverable": "bff/src/transformers/nadabrahman-resonator.ts that transforms Selemene frequency data into a fundamental + harmonics series with chakra resonance mapping.",
+              "acceptance": "Given a fundamental frequency, the transformer returns an Engine3DResponse with fundamental_hz, harmonics array (8 overtones), chakra_map (7 resonances), and nada_type."
+            },
+            {
+              "id": "P5-S2-14",
+              "title": "Implement Rune Stones custom engine with Elder Futhark lookup",
+              "area": "backend",
+              "owner_role": "Backend Eng",
+              "est_hours": 3,
+              "dependencies": ["P5-S1-15"],
+              "deliverable": "bff/src/engines/rune-stones.ts with full 24 Elder Futhark rune definitions, spatial scoring algorithm, and direct Engine3DResponse output with no Selemene dependency.",
+              "acceptance": "Calling RuneStones.cast(3) returns an Engine3DResponse with 3 rune objects each containing name, symbol, meaning, reversed_meaning, aett, and spatial_score."
+            },
+            {
+              "id": "P5-S2-15",
+              "title": "Implement Somatic Canticle custom engine with bio-gate 423 Locked",
+              "area": "backend",
+              "owner_role": "Backend Eng",
+              "est_hours": 3,
+              "dependencies": ["P5-S1-15"],
+              "deliverable": "bff/src/engines/somatic-canticle.ts with markdown content store, body-region mapping, and hard-coded bio-gate 423 Locked state returning a sealed response.",
+              "acceptance": "Requesting any canticle returns an Engine3DResponse with body_region, canticle_text, and gate_status; requesting gate 423 specifically returns gate_status: 'locked' with sealed_message."
+            },
+            {
+              "id": "P5-S2-16",
+              "title": "Absorb Selemene sigil_forge into West Wing Sigil BFF endpoint",
+              "area": "backend",
+              "owner_role": "Backend Eng",
+              "est_hours": 3,
+              "dependencies": ["P5-S1-04"],
+              "deliverable": "bff/src/routes/sigil-forge.ts that wraps Selemene sigil_forge workflow into POST /api/sigils/forge endpoint with intent validation and SVG path output.",
+              "acceptance": "POST /api/sigils/forge with intent string returns a 200 with an Engine3DResponse containing sigil_svg_path, intent_hash, charge_level, and activation_phrase."
+            }
+          ]
+        },
+        {
+          "sprint_id": "P5-S3",
+          "name": "Synthesis, Persistence & Testing",
+          "goal": "Build composite engines (Decision Mirror, Cartographer's Compass), implement user profile and session persistence layer, and write comprehensive integration and unit tests for all engines.",
+          "task_count": 12,
+          "est_hours_total": 27,
+          "tasks": [
+            {
+              "id": "P5-S3-01",
+              "title": "Implement Decision Mirror composite engine with convergence scoring",
+              "area": "backend",
+              "owner_role": "Backend Eng",
+              "est_hours": 3,
+              "dependencies": [
+                "P5-S2-01", "P5-S2-02", "P5-S2-03", "P5-S2-04",
+                "P5-S2-05", "P5-S2-06", "P5-S2-07", "P5-S2-08",
+                "P5-S2-09", "P5-S2-10", "P5-S2-11", "P5-S2-12",
+                "P5-S2-13", "P5-S2-14", "P5-S2-15", "P5-S2-16"
+              ],
+              "deliverable": "bff/src/engines/decision-mirror.ts that calls Selemene decision-support workflow, aggregates 3+ engine readings from the Field Journal, and computes a convergence score.",
+              "acceptance": "Given 3 prior engine readings in the Field Journal, the Decision Mirror returns an Engine3DResponse with convergence_score (0-1), aligned_themes array, and decision_vectors."
+            },
+            {
+              "id": "P5-S3-02",
+              "title": "Implement Cartographer's Compass composite engine with coherence matrix",
+              "area": "backend",
+              "owner_role": "Backend Eng",
+              "est_hours": 3,
+              "dependencies": [
+                "P5-S2-01", "P5-S2-02", "P5-S2-03", "P5-S2-04",
+                "P5-S2-05", "P5-S2-06", "P5-S2-07", "P5-S2-08",
+                "P5-S2-09", "P5-S2-10", "P5-S2-11", "P5-S2-12",
+                "P5-S2-13", "P5-S2-14", "P5-S2-15", "P5-S2-16"
+              ],
+              "deliverable": "bff/src/engines/cartographers-compass.ts that calls Selemene full-spectrum workflow and builds a session history coherence matrix across all prior readings.",
+              "acceptance": "Given a session with 5+ readings, the Cartographer returns an Engine3DResponse with coherence_matrix (NxN), dominant_archetypes array, and journey_trajectory coordinates."
+            },
+            {
+              "id": "P5-S3-03",
+              "title": "Implement user profile CRUD endpoints",
+              "area": "backend",
+              "owner_role": "Backend Eng",
+              "est_hours": 2,
+              "dependencies": ["P5-S1-11"],
+              "deliverable": "bff/src/routes/profiles.ts with GET/PUT /api/profile for birth data, preferences, and vessel type management.",
+              "acceptance": "PUT /api/profile with birth_datetime and vessel_type updates the user row and GET /api/profile returns the full profile with all fields populated."
+            },
+            {
+              "id": "P5-S3-04",
+              "title": "Implement reading history persistence for Field Journal",
+              "area": "backend",
+              "owner_role": "Backend Eng",
+              "est_hours": 2,
+              "dependencies": ["P5-S1-11", "P5-S1-14"],
+              "deliverable": "bff/src/services/field-journal.ts that persists every engine reading to engine_readings table with raw and transformed payloads plus Selemene request metadata.",
+              "acceptance": "After an engine read via /api/engines/:engineId, a new row exists in engine_readings with matching user_id, engine_id, session_id, and both raw/transformed JSON payloads."
+            },
+            {
+              "id": "P5-S3-05",
+              "title": "Implement session management endpoints",
+              "area": "backend",
+              "owner_role": "Backend Eng",
+              "est_hours": 2,
+              "dependencies": ["P5-S1-11"],
+              "deliverable": "bff/src/routes/sessions.ts with POST /api/sessions (create), PUT /api/sessions/:id/end, and GET /api/sessions/:id for unlocked zones and Dasha period.",
+              "acceptance": "Creating a session returns a session_id, ending it sets ended_at, and GET returns unlocked_zones array and current dasha_period string."
+            },
+            {
+              "id": "P5-S3-06",
+              "title": "Implement Return Protocol with session age check",
+              "area": "backend",
+              "owner_role": "Backend Eng",
+              "est_hours": 2,
+              "dependencies": ["P5-S1-11"],
+              "deliverable": "bff/src/services/return-protocol.ts that checks session age and returns either compressed Descent (for recent returns) or full Descent (for cold starts).",
+              "acceptance": "A returning user within 24h receives compressed descent_mode: 'compressed' with summary; a user returning after 7+ days receives descent_mode: 'full' with complete sequence."
+            },
+            {
+              "id": "P5-S3-07",
+              "title": "Write Selemene-backed core engine integration tests",
+              "area": "qa",
+              "owner_role": "Backend Eng",
+              "est_hours": 3,
+              "dependencies": [
+                "P5-S2-01", "P5-S2-02", "P5-S2-03", "P5-S2-04",
+                "P5-S2-05", "P5-S2-06", "P5-S2-07", "P5-S2-08"
+              ],
+              "deliverable": "bff/tests/integration/core-engines.test.ts with end-to-end tests for all 8 core Selemene engines using a mock Selemene server with fixture responses.",
+              "acceptance": "All 8 core engine tests pass, each verifying: correct Selemene endpoint called, valid Engine3DResponse schema, and proper error handling on Selemene 500."
+            },
+            {
+              "id": "P5-S3-08",
+              "title": "Write bonus engine integration tests",
+              "area": "qa",
+              "owner_role": "Backend Eng",
+              "est_hours": 2,
+              "dependencies": [
+                "P5-S2-09", "P5-S2-10", "P5-S2-11", "P5-S2-12", "P5-S2-13"
+              ],
+              "deliverable": "bff/tests/integration/bonus-engines.test.ts with end-to-end tests for all 5 bonus Selemene engines using mock Selemene server.",
+              "acceptance": "All 5 bonus engine tests pass, verifying correct Selemene calls, valid schema output, and graceful degradation on timeout."
+            },
+            {
+              "id": "P5-S3-09",
+              "title": "Write custom engine unit tests for Runes and Somatic Canticle",
+              "area": "qa",
+              "owner_role": "Backend Eng",
+              "est_hours": 2,
+              "dependencies": ["P5-S2-14", "P5-S2-15"],
+              "deliverable": "bff/tests/unit/rune-stones.test.ts and bff/tests/unit/somatic-canticle.test.ts covering all rune lookups, spatial scoring, canticle retrieval, and gate 423 locked state.",
+              "acceptance": "Rune tests verify all 24 Elder Futhark entries are present and spatial scoring produces values in [0,1]; Somatic Canticle tests verify gate 423 returns locked status."
+            },
+            {
+              "id": "P5-S3-10",
+              "title": "Write Decision Mirror convergence test with multi-engine input",
+              "area": "qa",
+              "owner_role": "Backend Eng",
+              "est_hours": 2,
+              "dependencies": ["P5-S3-01"],
+              "deliverable": "bff/tests/integration/decision-mirror.test.ts that seeds 3+ engine readings into the Field Journal and verifies convergence scoring produces valid aligned themes.",
+              "acceptance": "Test seeds readings from Dasha, Tarot, and Numerology engines, calls Decision Mirror, and asserts convergence_score is a number in [0,1] with at least 1 aligned_theme."
+            },
+            {
+              "id": "P5-S3-11",
+              "title": "Write rate limiting verification tests",
+              "area": "qa",
+              "owner_role": "Backend Eng",
+              "est_hours": 2,
+              "dependencies": ["P5-S1-13"],
+              "deliverable": "bff/tests/integration/rate-limit.test.ts that verifies per-user rate limiting triggers 429 after threshold and resets after window expiry.",
+              "acceptance": "Test sends 61 requests in 60 seconds for one user and asserts the 61st returns 429 with retry_after_ms, while a second user's requests in the same window succeed."
+            },
+            {
+              "id": "P5-S3-12",
+              "title": "Write Selemene-down fallback mode test",
+              "area": "qa",
+              "owner_role": "Backend Eng",
+              "est_hours": 2,
+              "dependencies": ["P5-S1-06"],
+              "deliverable": "bff/tests/integration/fallback-mode.test.ts that simulates Selemene unreachable, verifies cached readings are served with stale flag, and recovery resumes fresh reads.",
+              "acceptance": "Test makes a successful reading, kills mock Selemene, retries and gets stale: true cached response, restarts mock, and next request returns stale: false fresh data."
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

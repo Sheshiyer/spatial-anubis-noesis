@@ -1,0 +1,1235 @@
+{
+  "phase_id": "P0",
+  "name": "THE VOID \u2014 Foundation & Infrastructure",
+  "objective": "Establish the core rendering, physics, and build infrastructure for the entire spatial-anubis project. Three.js + Rapier + SparkJS integrated at 60fps.",
+  "sprints": [
+    {
+      "sprint_id": "S1",
+      "duration_weeks": 2,
+      "focus": "Project Bootstrap & Core Render Pipeline",
+      "tasks": [
+        {
+          "id": "P0-S1-01",
+          "title": "Initialize Bun project with TypeScript and package.json",
+          "area": "infra",
+          "owner_role": "DevOps",
+          "est_hours": 2,
+          "dependencies": [],
+          "deliverable": "Bun-managed project with TypeScript, package.json with all core dependencies declared.",
+          "acceptance": "bun install succeeds; tsc --noEmit passes on empty src/."
+        },
+        {
+          "id": "P0-S1-02",
+          "title": "Configure Vite with React, TypeScript, and HMR",
+          "area": "infra",
+          "owner_role": "DevOps",
+          "est_hours": 3,
+          "dependencies": [
+            "P0-S1-01"
+          ],
+          "deliverable": "Vite config with React plugin, TypeScript support, and hot module replacement enabled.",
+          "acceptance": "bun run dev starts Vite dev server; editing a .tsx file triggers HMR without full reload."
+        },
+        {
+          "id": "P0-S1-03",
+          "title": "Set up React 18 with strict mode entry point",
+          "area": "frontend",
+          "owner_role": "Frontend Eng",
+          "est_hours": 2,
+          "dependencies": [
+            "P0-S1-02"
+          ],
+          "deliverable": "React 18 app root rendered inside StrictMode with a blank page at localhost.",
+          "acceptance": "Browser loads localhost and renders an empty React root without console errors."
+        },
+        {
+          "id": "P0-S1-04",
+          "title": "Install and configure ESLint with TypeScript rules",
+          "area": "infra",
+          "owner_role": "DevOps",
+          "est_hours": 2,
+          "dependencies": [
+            "P0-S1-01"
+          ],
+          "deliverable": "ESLint config with TypeScript-ESLint plugin, React hooks rules, and import ordering.",
+          "acceptance": "bun run lint exits 0 on clean src/ and catches a deliberately introduced type error."
+        },
+        {
+          "id": "P0-S1-05",
+          "title": "Install and configure Prettier with consistent formatting",
+          "area": "infra",
+          "owner_role": "DevOps",
+          "est_hours": 1,
+          "dependencies": [
+            "P0-S1-04"
+          ],
+          "deliverable": "Prettier config with single quotes, trailing commas, 100-char line width, and ESLint integration.",
+          "acceptance": "bun run format --check exits 0 on all source files."
+        },
+        {
+          "id": "P0-S1-06",
+          "title": "Configure TypeScript strict mode (strict, strictNullChecks, noImplicitAny)",
+          "area": "infra",
+          "owner_role": "Frontend Eng",
+          "est_hours": 2,
+          "dependencies": [
+            "P0-S1-01"
+          ],
+          "deliverable": "tsconfig.json with strict, strictNullChecks, noImplicitAny, noUncheckedIndexedAccess enabled.",
+          "acceptance": "tsc --noEmit passes; a file with implicit any causes tsc to fail."
+        },
+        {
+          "id": "P0-S1-07",
+          "title": "Initialize Git repository with .gitignore for node_modules, dist, .env",
+          "area": "infra",
+          "owner_role": "DevOps",
+          "est_hours": 1,
+          "dependencies": [],
+          "deliverable": "Git repository with initial commit and .gitignore covering node_modules, dist, .env, and OS files.",
+          "acceptance": "git status shows clean working tree; node_modules and dist are not tracked."
+        },
+        {
+          "id": "P0-S1-08",
+          "title": "Create folder structure: src/{core,physics,rendering,vessel,engines,rituals,onboarding,audio,bio,shaders,state,utils}",
+          "area": "infra",
+          "owner_role": "Frontend Eng",
+          "est_hours": 2,
+          "dependencies": [
+            "P0-S1-01"
+          ],
+          "deliverable": "Directory tree with index.ts barrel files in each module directory.",
+          "acceptance": "All 12 directories exist under src/ with index.ts files; tsc --noEmit passes."
+        },
+        {
+          "id": "P0-S1-09",
+          "title": "Set up environment variables system (.env.development, .env.production, .env.staging)",
+          "area": "infra",
+          "owner_role": "DevOps",
+          "est_hours": 2,
+          "dependencies": [
+            "P0-S1-02"
+          ],
+          "deliverable": "Three .env files with typed VITE_ prefixed variables and a src/utils/env.ts accessor.",
+          "acceptance": "import.meta.env.VITE_API_URL resolves correctly per environment; missing vars throw at build time."
+        },
+        {
+          "id": "P0-S1-10",
+          "title": "Install React-Three-Fiber and create base Canvas component with PerspectiveCamera",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 4,
+          "dependencies": [
+            "P0-S1-03"
+          ],
+          "deliverable": "R3F Canvas component with PerspectiveCamera (fov 60, near 0.1, far 1000) rendering a black scene.",
+          "acceptance": "Browser shows a WebGL canvas filling the viewport; React DevTools show Canvas and Camera nodes."
+        },
+        {
+          "id": "P0-S1-11",
+          "title": "Implement Deep Ink (#1A1A2E) skybox as scene background",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 2,
+          "dependencies": [
+            "P0-S1-10"
+          ],
+          "deliverable": "Scene background set to Deep Ink color via Three.js scene.background.",
+          "acceptance": "Canvas background is visually #1A1A2E; color picker confirms the hex value."
+        },
+        {
+          "id": "P0-S1-12",
+          "title": "Set up Three.js lighting: Ambient (Deep Ink, low intensity), Key (Bone #F5F0E8, high above), Rim (Gold #B8860B, edge highlighting)",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 4,
+          "dependencies": [
+            "P0-S1-10"
+          ],
+          "deliverable": "Three-light rig with AmbientLight, DirectionalLight (key), and PointLight (rim) with brand colors.",
+          "acceptance": "A test sphere shows ambient fill, directional key shadow, and gold rim highlight."
+        },
+        {
+          "id": "P0-S1-13",
+          "title": "Install Rapier.js WASM module and initialize physics world",
+          "area": "frontend",
+          "owner_role": "Physics Eng",
+          "est_hours": 4,
+          "dependencies": [
+            "P0-S1-10"
+          ],
+          "deliverable": "Rapier WASM initialized asynchronously with a physics World instance at default gravity (0, -9.81, 0).",
+          "acceptance": "Console logs confirm Rapier version; world.step() executes without errors."
+        },
+        {
+          "id": "P0-S1-14",
+          "title": "Implement fixed-timestep physics loop at 1/60s with accumulator pattern",
+          "area": "frontend",
+          "owner_role": "Physics Eng",
+          "est_hours": 5,
+          "dependencies": [
+            "P0-S1-13"
+          ],
+          "deliverable": "Fixed-timestep loop decoupled from render frame rate using time accumulator and substep capping.",
+          "acceptance": "Physics steps execute at exactly 60Hz regardless of render FPS; accumulator never exceeds 3 substeps."
+        },
+        {
+          "id": "P0-S1-15",
+          "title": "Build useFrame interpolation system for smooth rendering between physics steps",
+          "area": "frontend",
+          "owner_role": "Physics Eng",
+          "est_hours": 4,
+          "dependencies": [
+            "P0-S1-14"
+          ],
+          "deliverable": "Interpolation hook that lerps Three.js object transforms between current and previous physics states.",
+          "acceptance": "Moving physics bodies appear smooth at 144Hz display; no visible stutter or teleporting."
+        },
+        {
+          "id": "P0-S1-16",
+          "title": "Define 5 collision layers as bitmasks: VESSEL(0x01), RITUAL(0x02), ATMOSPHERE(0x04), WORLD(0x08), TARGET(0x10)",
+          "area": "frontend",
+          "owner_role": "Physics Eng",
+          "est_hours": 3,
+          "dependencies": [
+            "P0-S1-13"
+          ],
+          "deliverable": "Typed CollisionLayer enum and helper functions for bitmask operations (combine, check, toggle).",
+          "acceptance": "Unit tests verify all 5 layers are distinct bitmasks; combine(VESSEL, RITUAL) produces 0x03."
+        },
+        {
+          "id": "P0-S1-17",
+          "title": "Implement collision layer interaction matrix (VESSEL<->RITUAL, VESSEL<->ATMOSPHERE, RITUAL<->TARGET, etc.)",
+          "area": "frontend",
+          "owner_role": "Physics Eng",
+          "est_hours": 3,
+          "dependencies": [
+            "P0-S1-16"
+          ],
+          "deliverable": "Collision group and filter mask configuration applied to all RigidBody constructors.",
+          "acceptance": "VESSEL collides with RITUAL but not with ATMOSPHERE; interaction matrix matches spec exactly."
+        },
+        {
+          "id": "P0-S1-18",
+          "title": "Create gravity zone system with 4 directional zones: North(0,-3.27,0), East(0,-9.81,0), West(0,-14.72,0), South(0,-4.91,0)",
+          "area": "frontend",
+          "owner_role": "Physics Eng",
+          "est_hours": 4,
+          "dependencies": [
+            "P0-S1-13"
+          ],
+          "deliverable": "GravityZone system with 4 named zones each having distinct gravity vectors applied to the physics world.",
+          "acceptance": "A test body dropped in each zone falls at the zone-specific acceleration rate."
+        },
+        {
+          "id": "P0-S1-19",
+          "title": "Implement gravity interpolation for zone transitions (linear interpolation over 2 seconds)",
+          "area": "frontend",
+          "owner_role": "Physics Eng",
+          "est_hours": 3,
+          "dependencies": [
+            "P0-S1-18"
+          ],
+          "deliverable": "Gravity vector lerp system that smoothly transitions between zone gravities over 2000ms.",
+          "acceptance": "Crossing from North to East zone shows gravity smoothly change from 3.27 to 9.81 over 2 seconds."
+        },
+        {
+          "id": "P0-S1-20",
+          "title": "Create floor plane with static RigidBody and Collider on WORLD layer",
+          "area": "frontend",
+          "owner_role": "Physics Eng",
+          "est_hours": 2,
+          "dependencies": [
+            "P0-S1-13"
+          ],
+          "deliverable": "Static floor plane at y=0 with cuboid collider on WORLD collision layer.",
+          "acceptance": "Dynamic bodies rest on the floor plane; they do not fall through it."
+        },
+        {
+          "id": "P0-S1-21",
+          "title": "Spawn test physics cube (Dynamic RigidBody) for gravity/collision validation",
+          "area": "frontend",
+          "owner_role": "Physics Eng",
+          "est_hours": 2,
+          "dependencies": [
+            "P0-S1-20"
+          ],
+          "deliverable": "1-unit dynamic cube that spawns at (0, 5, 0) and falls under gravity to the floor plane.",
+          "acceptance": "Cube falls, bounces on floor, and comes to rest; physics debug shows correct collision events."
+        },
+        {
+          "id": "P0-S1-22",
+          "title": "Set up post-processing stack skeleton with EffectComposer: Bloom, Grain, Vignette, ChromaticAberration",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 4,
+          "dependencies": [
+            "P0-S1-10"
+          ],
+          "deliverable": "EffectComposer pipeline with four effect passes wired in correct order.",
+          "acceptance": "All four effects render without errors; toggling each effect on/off changes visual output."
+        },
+        {
+          "id": "P0-S1-23",
+          "title": "Configure Bloom with selective threshold (0.8) targeting Gold and bioluminescent materials",
+          "area": "frontend",
+          "owner_role": "Shader Eng",
+          "est_hours": 3,
+          "dependencies": [
+            "P0-S1-22"
+          ],
+          "deliverable": "Bloom pass with luminance threshold 0.8, radius 0.4, and intensity tuned for Gold material glow.",
+          "acceptance": "Gold-colored objects emit visible bloom glow; dark objects produce no bloom artifacts."
+        },
+        {
+          "id": "P0-S1-24",
+          "title": "Configure Film Grain at opacity 0.05 for analog texture",
+          "area": "frontend",
+          "owner_role": "Shader Eng",
+          "est_hours": 2,
+          "dependencies": [
+            "P0-S1-22"
+          ],
+          "deliverable": "Film grain post-processing pass with 0.05 opacity and animated noise pattern.",
+          "acceptance": "Grain is subtly visible on a static scene; opacity slider confirms 0.05 baseline."
+        },
+        {
+          "id": "P0-S1-25",
+          "title": "Configure heavy Vignette for center-focused composition",
+          "area": "frontend",
+          "owner_role": "Shader Eng",
+          "est_hours": 2,
+          "dependencies": [
+            "P0-S1-22"
+          ],
+          "deliverable": "Vignette post-processing pass with strong edge darkening and smooth falloff curve.",
+          "acceptance": "Screen edges are noticeably darker than center; effect is visible in a screenshot comparison."
+        },
+        {
+          "id": "P0-S1-26",
+          "title": "Configure ChromaticAberration with baseline 0.0 and entropy-responsive range to 0.5",
+          "area": "frontend",
+          "owner_role": "Shader Eng",
+          "est_hours": 2,
+          "dependencies": [
+            "P0-S1-22"
+          ],
+          "deliverable": "ChromaticAberration pass with configurable offset driven by an entropy uniform (0.0 to 0.5).",
+          "acceptance": "Setting entropy to 0.0 shows no aberration; setting to 0.5 shows visible RGB fringing at edges."
+        },
+        {
+          "id": "P0-S1-27",
+          "title": "Install Vitest and create test configuration for unit testing",
+          "area": "qa",
+          "owner_role": "QA",
+          "est_hours": 3,
+          "dependencies": [
+            "P0-S1-01"
+          ],
+          "deliverable": "Vitest config with TypeScript support, path aliases, and a passing example test.",
+          "acceptance": "bun run test executes Vitest; the example test passes; coverage report generates."
+        },
+        {
+          "id": "P0-S1-28",
+          "title": "Set up GitHub Actions CI pipeline: lint, typecheck, test on push",
+          "area": "infra",
+          "owner_role": "DevOps",
+          "est_hours": 4,
+          "dependencies": [
+            "P0-S1-04",
+            "P0-S1-06",
+            "P0-S1-27"
+          ],
+          "deliverable": "GitHub Actions workflow running lint, tsc --noEmit, and vitest on every push and PR.",
+          "acceptance": "A push triggers CI; all three steps pass green; a deliberate lint error causes CI failure."
+        },
+        {
+          "id": "P0-S1-29",
+          "title": "Build FPS counter component with rolling 60-frame average display",
+          "area": "frontend",
+          "owner_role": "Frontend Eng",
+          "est_hours": 3,
+          "dependencies": [
+            "P0-S1-10"
+          ],
+          "deliverable": "React component displaying rolling average FPS over the last 60 frames in a fixed overlay.",
+          "acceptance": "FPS counter updates every frame; value stabilizes near 60 on a capable machine."
+        },
+        {
+          "id": "P0-S1-30",
+          "title": "Build physics timing monitor (measure Rapier step duration per frame)",
+          "area": "frontend",
+          "owner_role": "Physics Eng",
+          "est_hours": 2,
+          "dependencies": [
+            "P0-S1-14"
+          ],
+          "deliverable": "Performance.now()-based timer around world.step() reporting milliseconds per physics tick.",
+          "acceptance": "Debug overlay shows physics step time in ms; value stays under 2ms with a single cube."
+        },
+        {
+          "id": "P0-S1-31",
+          "title": "Create memory profiling hooks (track heap usage, geometry count, texture memory)",
+          "area": "frontend",
+          "owner_role": "Frontend Eng",
+          "est_hours": 3,
+          "dependencies": [
+            "P0-S1-10"
+          ],
+          "deliverable": "Custom hooks reading performance.memory, renderer.info.memory, and renderer.info.render stats.",
+          "acceptance": "Debug overlay displays heap MB, geometry count, and texture count; values update every second."
+        },
+        {
+          "id": "P0-S1-32",
+          "title": "Implement React error boundary components wrapping Canvas and physics",
+          "area": "frontend",
+          "owner_role": "Frontend Eng",
+          "est_hours": 3,
+          "dependencies": [
+            "P0-S1-10",
+            "P0-S1-13"
+          ],
+          "deliverable": "Error boundary components that catch render errors and display a fallback UI with error details.",
+          "acceptance": "A deliberately thrown error in a child component shows the fallback UI instead of a white screen."
+        },
+        {
+          "id": "P0-S1-33",
+          "title": "Create README.md with architecture overview, tech stack, and setup instructions",
+          "area": "product",
+          "owner_role": "Frontend Eng",
+          "est_hours": 2,
+          "dependencies": [
+            "P0-S1-07"
+          ],
+          "deliverable": "README.md with project description, tech stack table, setup steps, and folder structure diagram.",
+          "acceptance": "README renders correctly on GitHub; setup instructions produce a running dev server when followed."
+        },
+        {
+          "id": "P0-S1-34",
+          "title": "Build OrbitControls placeholder for development navigation",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 2,
+          "dependencies": [
+            "P0-S1-10"
+          ],
+          "deliverable": "OrbitControls from drei with damping, zoom limits, and dev-only conditional rendering.",
+          "acceptance": "Mouse drag rotates camera; scroll zooms; controls are disabled when NODE_ENV is production."
+        },
+        {
+          "id": "P0-S1-35",
+          "title": "Create Three.js material library: DeepInkMaterial, BoneMaterial, GoldMaterial, TerraMaterial",
+          "area": "frontend",
+          "owner_role": "Shader Eng",
+          "est_hours": 4,
+          "dependencies": [
+            "P0-S1-12"
+          ],
+          "deliverable": "Four MeshStandardMaterial instances with brand colors, roughness, and metalness presets.",
+          "acceptance": "A test scene with four spheres shows visually distinct Deep Ink, Bone, Gold, and Terra materials."
+        },
+        {
+          "id": "P0-S1-36",
+          "title": "Build scene traversal profiler (count nodes, geometries, materials per frame in debug overlay)",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 3,
+          "dependencies": [
+            "P0-S1-29"
+          ],
+          "deliverable": "Profiler that traverses the scene graph and reports object counts in the debug overlay.",
+          "acceptance": "Adding objects to the scene increases the reported node count in real time."
+        },
+        {
+          "id": "P0-S1-37",
+          "title": "Create typed Vector3 utility wrapping Three.js Vector3 with Rapier vector compatibility",
+          "area": "frontend",
+          "owner_role": "Frontend Eng",
+          "est_hours": 3,
+          "dependencies": [
+            "P0-S1-13"
+          ],
+          "deliverable": "SpatialVector3 class with toThree() and toRapier() conversion methods and arithmetic operators.",
+          "acceptance": "Unit tests pass for add, scale, lerp, toThree, and toRapier conversions."
+        },
+        {
+          "id": "P0-S1-38",
+          "title": "Set up Playwright for end-to-end browser testing with Chrome, Firefox, WebKit",
+          "area": "qa",
+          "owner_role": "QA",
+          "est_hours": 4,
+          "dependencies": [
+            "P0-S1-28"
+          ],
+          "deliverable": "Playwright config with three browser projects and a smoke test that loads the app.",
+          "acceptance": "bun run test:e2e runs the smoke test in all three browsers; all pass."
+        },
+        {
+          "id": "P0-S1-39",
+          "title": "Create API client abstraction with typed fetch wrapper, error handling, retry logic",
+          "area": "frontend",
+          "owner_role": "Frontend Eng",
+          "est_hours": 4,
+          "dependencies": [
+            "P0-S1-09"
+          ],
+          "deliverable": "Typed API client with generic fetch<T>(), automatic retry (3 attempts, exponential backoff), and error types.",
+          "acceptance": "Unit tests verify successful fetch, retry on 500, and typed error on 404."
+        },
+        {
+          "id": "P0-S1-40",
+          "title": "Implement requestAnimationFrame game loop with pause/resume on tab visibility",
+          "area": "frontend",
+          "owner_role": "Frontend Eng",
+          "est_hours": 3,
+          "dependencies": [
+            "P0-S1-14"
+          ],
+          "deliverable": "Game loop using rAF that pauses physics and rendering when document.hidden is true.",
+          "acceptance": "Switching tabs pauses the FPS counter; returning resumes without physics explosion or time jump."
+        },
+        {
+          "id": "P0-S1-41",
+          "title": "Build initial load performance test (measure time from page load to first physics frame)",
+          "area": "qa",
+          "owner_role": "QA",
+          "est_hours": 3,
+          "dependencies": [
+            "P0-S1-21",
+            "P0-S1-29"
+          ],
+          "deliverable": "Playwright test that measures performance.mark() timings from navigation start to first physics step.",
+          "acceptance": "Test reports load time in ms; value is under 5000ms on CI hardware."
+        },
+        {
+          "id": "P0-S1-42",
+          "title": "Configure TypeScript path aliases (@core, @physics, @rendering, @vessel, @engines, etc.)",
+          "area": "infra",
+          "owner_role": "Frontend Eng",
+          "est_hours": 2,
+          "dependencies": [
+            "P0-S1-06",
+            "P0-S1-08"
+          ],
+          "deliverable": "tsconfig paths and Vite resolve.alias mapping all 12 module directories to @ prefixed imports.",
+          "acceptance": "import { X } from '@physics/index' resolves correctly; tsc and Vite both resolve the aliases."
+        }
+      ]
+    },
+    {
+      "sprint_id": "S2",
+      "duration_weeks": 2,
+      "focus": "SparkJS Integration & Spatial Infrastructure",
+      "tasks": [
+        {
+          "id": "P0-S2-01",
+          "title": "Install SparkJS and integrate into Three.js render loop",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 5,
+          "dependencies": [
+            "P0-S1-10"
+          ],
+          "deliverable": "SparkJS renderer initialized and composited into the R3F render loop on each frame.",
+          "acceptance": "SparkJS renders splats alongside Three.js meshes in the same canvas without flicker."
+        },
+        {
+          "id": "P0-S2-02",
+          "title": "Validate shared WebGL context between SparkJS and R3F (single canvas)",
+          "area": "qa",
+          "owner_role": "3D Engineer",
+          "est_hours": 4,
+          "dependencies": [
+            "P0-S2-01"
+          ],
+          "deliverable": "Validation test confirming both renderers share one WebGL2 context without state corruption.",
+          "acceptance": "gl.getParameter(gl.VERSION) returns same context ID for both renderers; no WebGL errors in console."
+        },
+        {
+          "id": "P0-S2-03",
+          "title": "Load and render a static .splat file in the scene",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 3,
+          "dependencies": [
+            "P0-S2-01"
+          ],
+          "deliverable": "A test .splat file loaded from local assets and rendered visibly in the scene.",
+          "acceptance": "Splat object is visible in the viewport; no loading errors in console."
+        },
+        {
+          "id": "P0-S2-04",
+          "title": "Implement splat streaming system with progressive quality loading",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 6,
+          "dependencies": [
+            "P0-S2-03"
+          ],
+          "deliverable": "Progressive splat loader that streams low-quality first, then refines to full quality over time.",
+          "acceptance": "Splat appears within 500ms at low quality; full quality loads within 3 seconds on broadband."
+        },
+        {
+          "id": "P0-S2-05",
+          "title": "Build performance governor: monitor frame time, adjust splat quality dynamically",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 5,
+          "dependencies": [
+            "P0-S2-04"
+          ],
+          "deliverable": "Adaptive quality system that reduces splat count when frame time exceeds 16.67ms target.",
+          "acceptance": "Artificially loading 500K splats triggers governor to reduce count until FPS returns above 55."
+        },
+        {
+          "id": "P0-S2-06",
+          "title": "Configure Static splat pool: 300,000 splats for world geometry",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 3,
+          "dependencies": [
+            "P0-S2-04"
+          ],
+          "deliverable": "Pre-allocated splat buffer pool of 300K splats designated for static world geometry.",
+          "acceptance": "Pool allocates 300K splats; attempting to exceed pool size triggers warning, not crash."
+        },
+        {
+          "id": "P0-S2-07",
+          "title": "Configure Dynamic splat pool: 150,000 splats for vessel and interactive objects",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 3,
+          "dependencies": [
+            "P0-S2-04"
+          ],
+          "deliverable": "Pre-allocated splat buffer pool of 150K splats designated for dynamic interactive objects.",
+          "acceptance": "Pool allocates 150K splats; pool usage counter accurately tracks active splat count."
+        },
+        {
+          "id": "P0-S2-08",
+          "title": "Configure Effect splat pool: 50,000 splats for particles and VFX",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 3,
+          "dependencies": [
+            "P0-S2-04"
+          ],
+          "deliverable": "Pre-allocated splat buffer pool of 50K splats designated for particle effects and VFX.",
+          "acceptance": "Pool allocates 50K splats; splats can be rapidly allocated and freed without memory leak."
+        },
+        {
+          "id": "P0-S2-09",
+          "title": "Implement frustum culling for Gaussian splats based on camera view",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 4,
+          "dependencies": [
+            "P0-S2-01"
+          ],
+          "deliverable": "Frustum culling system that skips rendering splats outside the camera view frustum.",
+          "acceptance": "Rotating camera away from splats reduces GPU draw calls; profiler confirms culled splat count."
+        },
+        {
+          "id": "P0-S2-10",
+          "title": "Implement distance-based splat culling (fade out beyond 50 units)",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 3,
+          "dependencies": [
+            "P0-S2-09"
+          ],
+          "deliverable": "Distance culling that fades splat opacity to zero between 40-50 units from camera.",
+          "acceptance": "Splats at 30 units are fully opaque; at 45 units partially transparent; at 50+ units invisible."
+        },
+        {
+          "id": "P0-S2-11",
+          "title": "Build LOD system skeleton with 4 tiers: Full (0-5u), Medium (5-15u), Low (15-30u), Icon (30u+)",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 5,
+          "dependencies": [
+            "P0-S2-10"
+          ],
+          "deliverable": "LOD manager that assigns quality tiers to splat groups based on camera distance.",
+          "acceptance": "Debug overlay shows LOD tier per object; moving camera changes tier assignments correctly."
+        },
+        {
+          "id": "P0-S2-12",
+          "title": "Implement IndexedDB caching layer for downloaded splat assets",
+          "area": "data",
+          "owner_role": "Frontend Eng",
+          "est_hours": 4,
+          "dependencies": [
+            "P0-S1-09"
+          ],
+          "deliverable": "IndexedDB cache with versioned keys, TTL expiry, and size quota management for splat files.",
+          "acceptance": "Second load of a splat file reads from IndexedDB with zero network requests; cache hit logged."
+        },
+        {
+          "id": "P0-S2-13",
+          "title": "Configure CDN endpoint for static asset delivery (splats, textures, WASM)",
+          "area": "infra",
+          "owner_role": "DevOps",
+          "est_hours": 3,
+          "dependencies": [
+            "P0-S1-09"
+          ],
+          "deliverable": "CDN configuration with cache headers, CORS, and WASM MIME types for static asset serving.",
+          "acceptance": "Fetching a test asset from CDN URL returns 200 with correct Content-Type and cache headers."
+        },
+        {
+          "id": "P0-S2-14",
+          "title": "Define spatial coordinate system: North(0,0,-50), East(50,0,0), West(-50,0,0), South(0,0,50), Center(0,0,0)",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 2,
+          "dependencies": [
+            "P0-S1-10"
+          ],
+          "deliverable": "Typed ZoneCoordinate constants and helper functions for zone center lookup and nearest-zone calculation.",
+          "acceptance": "Unit tests verify all 5 zone centers match spec; nearestZone((25,0,-25)) returns North or East."
+        },
+        {
+          "id": "P0-S2-15",
+          "title": "Create zone boundary colliders as 10-unit gradient sensor fields between zones",
+          "area": "frontend",
+          "owner_role": "Physics Eng",
+          "est_hours": 4,
+          "dependencies": [
+            "P0-S1-16",
+            "P0-S2-14"
+          ],
+          "deliverable": "Sensor colliders at zone boundaries that detect entry/exit without blocking physics bodies.",
+          "acceptance": "Moving a body across a boundary triggers onSensorEnter and onSensorExit events."
+        },
+        {
+          "id": "P0-S2-16",
+          "title": "Implement zone transition interpolation: gravity vector lerp over 2 seconds",
+          "area": "frontend",
+          "owner_role": "Physics Eng",
+          "est_hours": 3,
+          "dependencies": [
+            "P0-S1-19",
+            "P0-S2-15"
+          ],
+          "deliverable": "Gravity transition system triggered by zone boundary sensors with 2-second lerp duration.",
+          "acceptance": "Crossing East-to-North boundary shows gravity smoothly changing from 9.81 to 3.27 over 2 seconds."
+        },
+        {
+          "id": "P0-S2-17",
+          "title": "Implement zone transition interpolation: fog density exponential ease-in-out over 2 seconds",
+          "area": "frontend",
+          "owner_role": "Shader Eng",
+          "est_hours": 3,
+          "dependencies": [
+            "P0-S2-15"
+          ],
+          "deliverable": "Fog density interpolation using exponential ease-in-out curve during zone transitions.",
+          "acceptance": "Zone transition shows fog density smoothly changing without abrupt pops or visible seams."
+        },
+        {
+          "id": "P0-S2-18",
+          "title": "Implement zone transition interpolation: fog color HSL interpolation over 1.5 seconds",
+          "area": "frontend",
+          "owner_role": "Shader Eng",
+          "est_hours": 3,
+          "dependencies": [
+            "P0-S2-17"
+          ],
+          "deliverable": "Fog color transition using HSL space interpolation to avoid muddy intermediate colors.",
+          "acceptance": "Transitioning between two zone fog colors produces a visually smooth hue shift without gray midpoints."
+        },
+        {
+          "id": "P0-S2-19",
+          "title": "Build fog system with per-zone density and color configuration",
+          "area": "frontend",
+          "owner_role": "Shader Eng",
+          "est_hours": 4,
+          "dependencies": [
+            "P0-S1-11"
+          ],
+          "deliverable": "Configurable fog system with per-zone fog color, near distance, far distance, and density.",
+          "acceptance": "Each zone displays distinct fog settings; debug overlay shows current fog parameters."
+        },
+        {
+          "id": "P0-S2-20",
+          "title": "Create Gaussian atmosphere breathfield scaffold (placeholder for bio-driven splats in North zone)",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 4,
+          "dependencies": [
+            "P0-S2-01",
+            "P0-S2-14"
+          ],
+          "deliverable": "Placeholder breathfield component in North zone with oscillating splat opacity driven by a sine wave.",
+          "acceptance": "North zone shows pulsing splat cloud at 0.25Hz frequency; amplitude responds to a test input value."
+        },
+        {
+          "id": "P0-S2-21",
+          "title": "Build asset loading manager with progress callbacks and parallel download support",
+          "area": "frontend",
+          "owner_role": "Frontend Eng",
+          "est_hours": 4,
+          "dependencies": [
+            "P0-S1-09"
+          ],
+          "deliverable": "Asset manager with typed load<T>(), progress events, parallel queue (max 4 concurrent), and cancellation.",
+          "acceptance": "Loading 8 assets shows 4 concurrent downloads; progress callback fires with correct percentage."
+        },
+        {
+          "id": "P0-S2-22",
+          "title": "Implement KTX2 texture compression pipeline for efficient GPU upload",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 4,
+          "dependencies": [
+            "P0-S2-21"
+          ],
+          "deliverable": "KTX2 texture loader with basis transcoder for GPU-compressed texture upload.",
+          "acceptance": "KTX2 texture loads and displays correctly; GPU memory usage is lower than equivalent PNG."
+        },
+        {
+          "id": "P0-S2-23",
+          "title": "Optimize WASM module loading (parallel fetch of Rapier + MediaPipe binaries)",
+          "area": "frontend",
+          "owner_role": "Frontend Eng",
+          "est_hours": 4,
+          "dependencies": [
+            "P0-S1-13"
+          ],
+          "deliverable": "Parallel WASM loader using Promise.all for Rapier and MediaPipe initialization.",
+          "acceptance": "Both WASM modules initialize in parallel; total load time is less than the sum of individual loads."
+        },
+        {
+          "id": "P0-S2-24",
+          "title": "Build Web Worker manager skeleton for offloading MediaPipe, audio processing",
+          "area": "frontend",
+          "owner_role": "Frontend Eng",
+          "est_hours": 4,
+          "dependencies": [
+            "P0-S1-09"
+          ],
+          "deliverable": "Worker pool manager with typed message passing, error handling, and automatic worker recycling.",
+          "acceptance": "A test computation runs in a worker and returns results via postMessage without blocking main thread."
+        },
+        {
+          "id": "P0-S2-25",
+          "title": "Create shader uniform system: typed uniform bindings for PIP data, time, camera, zone",
+          "area": "frontend",
+          "owner_role": "Shader Eng",
+          "est_hours": 5,
+          "dependencies": [
+            "P0-S1-22"
+          ],
+          "deliverable": "Typed uniform manager that updates shared uniforms (time, camera position, zone ID, PIP values) per frame.",
+          "acceptance": "Custom shader reads u_time and u_cameraPosition uniforms; values update every frame correctly."
+        },
+        {
+          "id": "P0-S2-26",
+          "title": "Build R3F component library: BaseScene, PhysicsWorld, SplatRenderer, ZoneManager",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 5,
+          "dependencies": [
+            "P0-S1-10",
+            "P0-S1-13",
+            "P0-S2-01"
+          ],
+          "deliverable": "Four composable R3F components encapsulating scene setup, physics, splat rendering, and zone logic.",
+          "acceptance": "Composing all four components produces a working scene with physics, splats, and zone detection."
+        },
+        {
+          "id": "P0-S2-27",
+          "title": "Set up Zustand store with slices: world, vessel, physics, bio, engines, session, debug",
+          "area": "frontend",
+          "owner_role": "Frontend Eng",
+          "est_hours": 4,
+          "dependencies": [
+            "P0-S1-03"
+          ],
+          "deliverable": "Zustand store with 7 typed slices, selectors, and devtools middleware integration.",
+          "acceptance": "Each slice is independently accessible; Zustand devtools show all 7 slices with correct initial state."
+        },
+        {
+          "id": "P0-S2-28",
+          "title": "Define session state schema: world_id, archetype_seed, biome_config, physics_config, zones",
+          "area": "data",
+          "owner_role": "Frontend Eng",
+          "est_hours": 3,
+          "dependencies": [
+            "P0-S2-27"
+          ],
+          "deliverable": "TypeScript interfaces for SessionState with all fields, defaults, and Zod validation schema.",
+          "acceptance": "Zod parse succeeds on valid session data; parse fails with descriptive error on invalid data."
+        },
+        {
+          "id": "P0-S2-29",
+          "title": "Build debug overlay component: FPS, physics ms, splat count, memory MB, zone name",
+          "area": "frontend",
+          "owner_role": "Frontend Eng",
+          "est_hours": 4,
+          "dependencies": [
+            "P0-S1-29",
+            "P0-S1-30",
+            "P0-S1-31"
+          ],
+          "deliverable": "Unified debug overlay panel displaying all performance metrics in a semi-transparent HUD.",
+          "acceptance": "Debug overlay shows all 5 metrics updating in real-time; toggle with backtick key hides/shows it."
+        },
+        {
+          "id": "P0-S2-30",
+          "title": "Implement render order management for transparent splat layers (z-sorting)",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 4,
+          "dependencies": [
+            "P0-S2-01"
+          ],
+          "deliverable": "Z-sorting system for transparent splat layers ensuring correct back-to-front rendering order.",
+          "acceptance": "Overlapping transparent splats render without z-fighting artifacts from multiple viewing angles."
+        },
+        {
+          "id": "P0-S2-31",
+          "title": "Build Three.js object pool for frequently created/destroyed meshes",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 4,
+          "dependencies": [
+            "P0-S1-10"
+          ],
+          "deliverable": "Generic object pool with acquire/release API, pre-warming, and automatic cleanup on pool resize.",
+          "acceptance": "Acquiring and releasing 1000 meshes causes zero GC pauses; pool reuses existing instances."
+        },
+        {
+          "id": "P0-S2-32",
+          "title": "Create frame time histogram visualization (rolling 120-frame distribution in debug)",
+          "area": "frontend",
+          "owner_role": "Frontend Eng",
+          "est_hours": 3,
+          "dependencies": [
+            "P0-S1-29"
+          ],
+          "deliverable": "Canvas-based histogram showing frame time distribution over the last 120 frames in debug overlay.",
+          "acceptance": "Histogram shows a bell curve around 16.67ms at 60fps; spikes are visually identifiable."
+        },
+        {
+          "id": "P0-S2-33",
+          "title": "Implement dev mode URL parameter system (?debug=true&zone=east&skip-descent=true)",
+          "area": "infra",
+          "owner_role": "DevOps",
+          "est_hours": 3,
+          "dependencies": [
+            "P0-S1-09"
+          ],
+          "deliverable": "URL parameter parser that reads dev flags and injects them into the Zustand debug slice.",
+          "acceptance": "Loading with ?debug=true enables debug overlay; ?zone=east starts camera in East zone."
+        },
+        {
+          "id": "P0-S2-34",
+          "title": "Build Rapier debug wireframe renderer (toggleable collision shape visualization)",
+          "area": "frontend",
+          "owner_role": "Physics Eng",
+          "est_hours": 4,
+          "dependencies": [
+            "P0-S1-13",
+            "P0-S2-29"
+          ],
+          "deliverable": "Wireframe renderer that draws all Rapier collision shapes as semi-transparent colored outlines.",
+          "acceptance": "Toggling debug physics shows wireframe colliders; shapes match actual collision boundaries."
+        },
+        {
+          "id": "P0-S2-35",
+          "title": "Create shared GLSL includes: noise.glsl, brandColors.glsl, math.glsl via #include system",
+          "area": "frontend",
+          "owner_role": "Shader Eng",
+          "est_hours": 4,
+          "dependencies": [
+            "P0-S2-25"
+          ],
+          "deliverable": "GLSL include preprocessor with noise functions, brand color constants, and math utilities.",
+          "acceptance": "A test shader using #include noise.glsl compiles and produces correct Perlin noise output."
+        },
+        {
+          "id": "P0-S2-36",
+          "title": "Build load waterfall optimization (parallel WASM + core asset fetching, target <3s init)",
+          "area": "frontend",
+          "owner_role": "Frontend Eng",
+          "est_hours": 4,
+          "dependencies": [
+            "P0-S2-23"
+          ],
+          "deliverable": "Optimized load sequence that parallelizes WASM, fonts, and core assets with a waterfall diagram.",
+          "acceptance": "Performance timeline shows parallel fetching; total initialization completes under 3 seconds on 4G."
+        },
+        {
+          "id": "P0-S2-37",
+          "title": "Create production Vite config with source maps, asset hashing, minification",
+          "area": "infra",
+          "owner_role": "DevOps",
+          "est_hours": 3,
+          "dependencies": [
+            "P0-S1-02"
+          ],
+          "deliverable": "Production Vite config with terser minification, content-hash filenames, and external source maps.",
+          "acceptance": "bun run build produces hashed assets under 2MB total; source maps are generated but not included in dist."
+        },
+        {
+          "id": "P0-S2-38",
+          "title": "Build zone label debug overlay (current zone name + gravity vector display)",
+          "area": "frontend",
+          "owner_role": "Frontend Eng",
+          "est_hours": 2,
+          "dependencies": [
+            "P0-S2-29",
+            "P0-S2-14"
+          ],
+          "deliverable": "Debug overlay element showing current zone name and gravity vector as formatted text.",
+          "acceptance": "Moving between zones updates the displayed zone name and gravity vector in real time."
+        },
+        {
+          "id": "P0-S2-39",
+          "title": "Implement WASM binary size CI monitor (fail if Rapier + MediaPipe > 6MB total)",
+          "area": "infra",
+          "owner_role": "DevOps",
+          "est_hours": 3,
+          "dependencies": [
+            "P0-S1-28"
+          ],
+          "deliverable": "CI step that measures combined WASM binary size and fails the build if it exceeds 6MB.",
+          "acceptance": "CI passes when WASM is under 6MB; adding a dummy 5MB WASM file causes CI failure."
+        },
+        {
+          "id": "P0-S2-40",
+          "title": "Enforce TypeScript strictNullChecks across all modules (no @ts-ignore)",
+          "area": "qa",
+          "owner_role": "Frontend Eng",
+          "est_hours": 4,
+          "dependencies": [
+            "P0-S1-06"
+          ],
+          "deliverable": "All source files pass tsc with strictNullChecks; ESLint rule bans @ts-ignore comments.",
+          "acceptance": "tsc --noEmit passes with zero errors; grep for @ts-ignore returns zero results."
+        },
+        {
+          "id": "P0-S2-41",
+          "title": "Build degradation tier system skeleton: Tier 0 (full), Tier 1 (-splats), Tier 2 (-post), Tier 3 (minimum)",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 4,
+          "dependencies": [
+            "P0-S2-05"
+          ],
+          "deliverable": "Degradation manager with 4 tiers that progressively disables features to maintain 60fps.",
+          "acceptance": "Forcing Tier 3 disables splats and post-processing; FPS remains above 55 on low-end GPU."
+        },
+        {
+          "id": "P0-S2-42",
+          "title": "Create fallback detection system (WebGL2 support, WASM support, webcam availability)",
+          "area": "frontend",
+          "owner_role": "Frontend Eng",
+          "est_hours": 3,
+          "dependencies": [
+            "P0-S1-10"
+          ],
+          "deliverable": "Capability detection module that checks WebGL2, WASM, and getUserMedia availability at startup.",
+          "acceptance": "Missing WebGL2 shows a styled fallback page; all capabilities report correctly on supported browsers."
+        },
+        {
+          "id": "P0-S2-43",
+          "title": "Build ambient audio system skeleton with Web Audio API AudioContext and GainNode",
+          "area": "frontend",
+          "owner_role": "Audio Eng",
+          "est_hours": 3,
+          "dependencies": [
+            "P0-S1-10"
+          ],
+          "deliverable": "AudioContext initialized on first user interaction with master GainNode and mute toggle.",
+          "acceptance": "A test oscillator plays through the audio system; mute toggle silences and restores audio."
+        },
+        {
+          "id": "P0-S2-44",
+          "title": "Create zone-specific audio configuration (frequency, reverb, volume per zone)",
+          "area": "frontend",
+          "owner_role": "Audio Eng",
+          "est_hours": 3,
+          "dependencies": [
+            "P0-S2-43"
+          ],
+          "deliverable": "Audio config map with per-zone base frequency, reverb parameters, and volume levels.",
+          "acceptance": "Switching zones via debug command changes audio parameters to match zone configuration."
+        },
+        {
+          "id": "P0-S2-45",
+          "title": "Implement audio crossfade system for zone transitions (3-second crossfade)",
+          "area": "frontend",
+          "owner_role": "Audio Eng",
+          "est_hours": 4,
+          "dependencies": [
+            "P0-S2-44"
+          ],
+          "deliverable": "Audio crossfade that blends outgoing and incoming zone audio over 3 seconds during transitions.",
+          "acceptance": "Zone transition produces smooth audio blend with no clicks, pops, or silence gaps."
+        },
+        {
+          "id": "P0-S2-46",
+          "title": "Build localStorage persistence layer for user preferences and session data",
+          "area": "data",
+          "owner_role": "Frontend Eng",
+          "est_hours": 3,
+          "dependencies": [
+            "P0-S1-09"
+          ],
+          "deliverable": "Typed localStorage wrapper with JSON serialization, versioned keys, and quota error handling.",
+          "acceptance": "Saving and loading preferences roundtrips correctly; quota exceeded triggers graceful fallback."
+        },
+        {
+          "id": "P0-S2-47",
+          "title": "Create application state hydration system (restore state from localStorage on reload)",
+          "area": "frontend",
+          "owner_role": "Frontend Eng",
+          "est_hours": 3,
+          "dependencies": [
+            "P0-S2-46",
+            "P0-S2-27"
+          ],
+          "deliverable": "State hydration that reads persisted session data from localStorage into Zustand on app mount.",
+          "acceptance": "Setting a preference, reloading the page, and checking the store shows the persisted value."
+        },
+        {
+          "id": "P0-S2-48",
+          "title": "Implement window resize handler with canvas and camera aspect ratio updates",
+          "area": "frontend",
+          "owner_role": "Frontend Eng",
+          "est_hours": 2,
+          "dependencies": [
+            "P0-S1-10"
+          ],
+          "deliverable": "Resize observer that updates canvas dimensions and camera aspect ratio on window resize.",
+          "acceptance": "Resizing the browser window maintains correct aspect ratio; no stretching or black bars appear."
+        },
+        {
+          "id": "P0-S2-49",
+          "title": "Build pixel ratio detection and capping (max DPR 2.0 for performance)",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 2,
+          "dependencies": [
+            "P0-S2-48"
+          ],
+          "deliverable": "DPR detection that caps renderer pixel ratio at 2.0 regardless of display devicePixelRatio.",
+          "acceptance": "On a 3x DPR display, renderer.getPixelRatio() returns 2.0; render resolution is capped."
+        },
+        {
+          "id": "P0-S2-50",
+          "title": "Create global error handler with stack trace capture and state snapshot",
+          "area": "frontend",
+          "owner_role": "Frontend Eng",
+          "est_hours": 3,
+          "dependencies": [
+            "P0-S1-32"
+          ],
+          "deliverable": "Global error and unhandledrejection handlers that capture stack traces and Zustand state snapshots.",
+          "acceptance": "A deliberately thrown error is caught; error log includes stack trace and current store state."
+        },
+        {
+          "id": "P0-S2-51",
+          "title": "Build development hot-reload preservation (maintain physics state across HMR)",
+          "area": "infra",
+          "owner_role": "DevOps",
+          "est_hours": 4,
+          "dependencies": [
+            "P0-S1-02",
+            "P0-S1-13"
+          ],
+          "deliverable": "Vite HMR handler that preserves physics world state and body positions during module replacement.",
+          "acceptance": "Editing a component file triggers HMR; physics bodies remain in their current positions post-reload."
+        },
+        {
+          "id": "P0-S2-52",
+          "title": "Implement Three.js dispose utility (clean up geometries, materials, textures on unmount)",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 3,
+          "dependencies": [
+            "P0-S1-10"
+          ],
+          "deliverable": "Recursive dispose function that traverses scene graph and releases all GPU resources on unmount.",
+          "acceptance": "Mounting and unmounting a scene 100 times shows stable memory usage with no GPU memory leak."
+        },
+        {
+          "id": "P0-S2-53",
+          "title": "Create typed event bus for decoupled system communication (physics->render, bio->shader)",
+          "area": "frontend",
+          "owner_role": "Frontend Eng",
+          "est_hours": 4,
+          "dependencies": [
+            "P0-S1-09"
+          ],
+          "deliverable": "Typed EventEmitter with generic event map, subscribe/unsubscribe, and automatic cleanup on unmount.",
+          "acceptance": "Emitting a typed event triggers all subscribers; unsubscribing prevents further callbacks."
+        },
+        {
+          "id": "P0-S2-54",
+          "title": "Build scene graph optimization (merge static geometries, instance repeated objects)",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 4,
+          "dependencies": [
+            "P0-S2-26"
+          ],
+          "deliverable": "Scene optimizer that merges static BufferGeometries and creates InstancedMesh for repeated objects.",
+          "acceptance": "A scene with 100 identical cubes uses 1 draw call via instancing instead of 100 draw calls."
+        },
+        {
+          "id": "P0-S2-55",
+          "title": "Implement render target management for post-processing pipeline",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 3,
+          "dependencies": [
+            "P0-S1-22"
+          ],
+          "deliverable": "Render target pool that allocates and reuses WebGLRenderTargets for multi-pass post-processing.",
+          "acceptance": "Post-processing uses pooled render targets; no new targets are allocated after initial setup."
+        },
+        {
+          "id": "P0-S2-56",
+          "title": "Create comprehensive P0 integration test: cube falls with gravity at 60fps, splats render",
+          "area": "qa",
+          "owner_role": "QA",
+          "est_hours": 4,
+          "dependencies": [
+            "P0-S1-21",
+            "P0-S2-03"
+          ],
+          "deliverable": "Playwright integration test verifying physics simulation and splat rendering run together at target FPS.",
+          "acceptance": "Test passes: cube falls to floor, splats are visible, and average FPS is above 55 over 5 seconds."
+        },
+        {
+          "id": "P0-S2-57",
+          "title": "Build CI performance gate: fail if integration test drops below 55fps",
+          "area": "qa",
+          "owner_role": "QA",
+          "est_hours": 3,
+          "dependencies": [
+            "P0-S2-56",
+            "P0-S1-28"
+          ],
+          "deliverable": "CI step that runs the P0 integration test and fails the build if average FPS drops below 55.",
+          "acceptance": "CI passes on performant code; artificially heavy rendering causes CI to fail with FPS report."
+        },
+        {
+          "id": "P0-S2-58",
+          "title": "Create architecture decision record (ADR) for core technology choices (WebGL2, Rapier, SparkJS)",
+          "area": "product",
+          "owner_role": "Frontend Eng",
+          "est_hours": 3,
+          "dependencies": [
+            "P0-S1-33"
+          ],
+          "deliverable": "ADR document covering WebGL2, Rapier, and SparkJS selection rationale with alternatives considered.",
+          "acceptance": "ADR follows standard template with Context, Decision, Consequences sections; merged to docs/."
+        }
+      ]
+    }
+  ]
+}

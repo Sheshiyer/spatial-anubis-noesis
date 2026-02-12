@@ -1,0 +1,356 @@
+{
+  "schema_version": "1.0",
+  "project": {
+    "name": "Spatial Anubis — Selemene Engine Modifications",
+    "repo_root": "https://github.com/Sheshiyer/Selemene-engine.git",
+    "generated_on": "2026-02-12",
+    "generated_by": "task-master-planner",
+    "assumptions": [
+      "Full ownership of Selemene Engine repo — all crates and configs are modifiable",
+      "Swiss Ephemeris C library is available for FFI binding in the Rust workspace",
+      "Existing noesis-orchestrator engine registry pattern is consistent and extendable",
+      "TS engines (Enneagram, Sacred Geometry, Sigil Forge) are already deployed and running via Bun + Elysia",
+      "Biofield, Face Reading, and Nadabrahman Rust engines exist but may not have API routes wired",
+      "Railway deployment target is already configured for the Selemene workspace",
+      "R3F artifact components follow the established Spatial Anubis artifact pattern (mesh + physics + interaction)",
+      "Rapier collision layers are standardized: RITUAL=0x0004, VESSEL=0x0001, ENVIRONMENT=0x0002",
+      "MediaPipe face mesh (468 landmarks) is available as a browser-side dependency",
+      "PIP coherence signal is available as a reactive store value in the frontend"
+    ],
+    "risks": [
+      "Swiss Ephemeris FFI may require unsafe Rust blocks and careful memory management",
+      "Transit aspect calculations depend on accurate planetary longitude — rounding errors compound",
+      "TS engine verification tasks may uncover missing Docker network routes or port misconfigurations",
+      "Procedural geometry generation (Flower of Life, Metatron's Cube) may be GPU-intensive on low-end devices",
+      "MediaPipe 468-landmark model has ~50ms latency per frame — may affect Face Reading Mirror responsiveness",
+      "Railway cold-start times may increase with the additional Transit crate binary size",
+      "Rapier physics interactions (STRIKE mechanic) require precise velocity threshold tuning",
+      "Fresnel shader for Biofield Scanner may conflict with post-processing pipeline (bloom, tone mapping)"
+    ]
+  },
+  "phases": [
+    {
+      "phase_id": "P5",
+      "name": "Selemene Integration — Selemene Modifications",
+      "objective": "Extend the Selemene Engine with a new Transit Overlay crate, verify all bonus engine API accessibility, build 5 new R3F 3D artifacts for engines 14-18, and deploy the updated stack to Railway.",
+      "sprints": [
+        {
+          "sprint_id": "P5-S4",
+          "name": "Transit Engine + Bonus Engine Wiring",
+          "goal": "Create the engine-transits Rust crate with Swiss Ephemeris FFI, implement planetary transit calculations, wire the engine into the orchestrator and API, and verify all 5 bonus engines are accessible via their API endpoints.",
+          "est_total_hours": 32,
+          "tasks": [
+            {
+              "id": "P5-S4-01",
+              "title": "Scaffold engine-transits Rust crate in workspace",
+              "area": "backend",
+              "owner_role": "Backend Eng",
+              "est_hours": 2,
+              "dependencies": [],
+              "deliverable": "New engine-transits crate with Cargo.toml, lib.rs, and workspace member entry in root Cargo.toml.",
+              "acceptance": "cargo check --workspace succeeds with engine-transits listed as a workspace member."
+            },
+            {
+              "id": "P5-S4-02",
+              "title": "Add Swiss Ephemeris FFI bindings to engine-transits",
+              "area": "backend",
+              "owner_role": "Backend Eng",
+              "est_hours": 3,
+              "dependencies": ["P5-S4-01"],
+              "deliverable": "Safe Rust wrapper module around Swiss Ephemeris C library exposing planet position and house calculation functions.",
+              "acceptance": "Unit test calling swe_calc_ut for Sun position on a known date returns longitude within 0.01 degrees of expected value."
+            },
+            {
+              "id": "P5-S4-03",
+              "title": "Implement planetary position calculation for 10 planets + nodes",
+              "area": "backend",
+              "owner_role": "Backend Eng",
+              "est_hours": 3,
+              "dependencies": ["P5-S4-01"],
+              "deliverable": "Function returning TransitPositions struct with longitude, latitude, speed for Sun through Pluto plus Rahu/Ketu.",
+              "acceptance": "Given epoch 2026-01-01T00:00:00Z, all 12 body positions match reference ephemeris within 1 arcminute tolerance."
+            },
+            {
+              "id": "P5-S4-04",
+              "title": "Implement natal-to-transit aspect calculation",
+              "area": "backend",
+              "owner_role": "Backend Eng",
+              "est_hours": 3,
+              "dependencies": ["P5-S4-01"],
+              "deliverable": "Aspect detection function computing conjunction (0), opposition (180), trine (120), square (90), and sextile (60) with configurable orbs.",
+              "acceptance": "Known natal Sun at 15 Aries with transit Jupiter at 14 Aries returns conjunction aspect with orb 1.0 degrees."
+            },
+            {
+              "id": "P5-S4-05",
+              "title": "Implement Transit engine calculate() endpoint",
+              "area": "backend",
+              "owner_role": "Backend Eng",
+              "est_hours": 3,
+              "dependencies": ["P5-S4-03", "P5-S4-04"],
+              "deliverable": "TransitEngine struct implementing the Engine trait with calculate() returning JSON matching Selemene response format.",
+              "acceptance": "Calling calculate() with valid birth data and target date returns a response containing transit_positions array and active_aspects array."
+            },
+            {
+              "id": "P5-S4-06",
+              "title": "Write unit tests for Transit engine calculations",
+              "area": "backend",
+              "owner_role": "Backend Eng",
+              "est_hours": 2,
+              "dependencies": ["P5-S4-05"],
+              "deliverable": "Test module with at least 8 test cases covering known birth data to known transit aspect scenarios.",
+              "acceptance": "cargo test -p engine-transits passes all tests with zero failures and covers position calc, aspect detection, and edge cases."
+            },
+            {
+              "id": "P5-S4-07",
+              "title": "Register Transit engine in noesis-orchestrator registry",
+              "area": "backend",
+              "owner_role": "Backend Eng",
+              "est_hours": 2,
+              "dependencies": ["P5-S4-05"],
+              "deliverable": "Transit engine registered in the orchestrator's engine_registry HashMap with engine_id 'transits'.",
+              "acceptance": "Orchestrator startup logs show 'Registered engine: transits' and engine count increments by one."
+            },
+            {
+              "id": "P5-S4-08",
+              "title": "Add Transit engine to API routes in noesis-api",
+              "area": "backend",
+              "owner_role": "Backend Eng",
+              "est_hours": 2,
+              "dependencies": ["P5-S4-05"],
+              "deliverable": "POST /api/v1/engines/transits/calculate route added to noesis-api with X-API-Key middleware.",
+              "acceptance": "curl POST to /api/v1/engines/transits/calculate with valid API key and birth data returns 200 with transit JSON payload."
+            },
+            {
+              "id": "P5-S4-09",
+              "title": "Verify Enneagram engine API accessibility",
+              "area": "qa",
+              "owner_role": "QA Eng",
+              "est_hours": 2,
+              "dependencies": [],
+              "deliverable": "Verified HTTP 200 response from /api/v1/engines/enneagram/calculate with valid payload and documented response schema.",
+              "acceptance": "POST to /api/v1/engines/enneagram/calculate returns 200 with JSON containing enneagram_type, wing, and growth_direction fields."
+            },
+            {
+              "id": "P5-S4-10",
+              "title": "Verify Sacred Geometry engine API accessibility",
+              "area": "qa",
+              "owner_role": "QA Eng",
+              "est_hours": 2,
+              "dependencies": [],
+              "deliverable": "Verified HTTP 200 response from /api/v1/engines/sacred_geometry/calculate with valid payload and documented response schema.",
+              "acceptance": "POST to /api/v1/engines/sacred_geometry/calculate returns 200 with JSON containing geometry_type and vertex_coordinates fields."
+            },
+            {
+              "id": "P5-S4-11",
+              "title": "Verify Biofield engine API accessibility",
+              "area": "qa",
+              "owner_role": "QA Eng",
+              "est_hours": 2,
+              "dependencies": [],
+              "deliverable": "Verified HTTP 200 response from /api/v1/engines/biofield/calculate with valid payload and documented response schema.",
+              "acceptance": "POST to /api/v1/engines/biofield/calculate returns 200 with JSON containing field_layers array and coherence_score field."
+            },
+            {
+              "id": "P5-S4-12",
+              "title": "Verify Face Reading engine API accessibility",
+              "area": "qa",
+              "owner_role": "QA Eng",
+              "est_hours": 2,
+              "dependencies": [],
+              "deliverable": "Verified HTTP 200 response from /api/v1/engines/face_reading/calculate with valid payload and documented response schema.",
+              "acceptance": "POST to /api/v1/engines/face_reading/calculate returns 200 with JSON containing element_balance and region_analysis fields."
+            },
+            {
+              "id": "P5-S4-13",
+              "title": "Verify Nadabrahman engine API accessibility",
+              "area": "qa",
+              "owner_role": "QA Eng",
+              "est_hours": 2,
+              "dependencies": [],
+              "deliverable": "Verified HTTP 200 response from /api/v1/engines/nadabrahman/calculate with valid payload and documented response schema.",
+              "acceptance": "POST to /api/v1/engines/nadabrahman/calculate returns 200 with JSON containing fundamental_frequency and chakra_resonance fields."
+            },
+            {
+              "id": "P5-S4-14",
+              "title": "Update Docker compose and Railway config for Transit crate",
+              "area": "infra",
+              "owner_role": "DevOps",
+              "est_hours": 2,
+              "dependencies": ["P5-S4-08"],
+              "deliverable": "docker-compose.yml updated with engine-transits build target and Railway nixpacks config including Swiss Ephemeris system dependency.",
+              "acceptance": "docker compose up --build succeeds and /api/v1/engines/transits/calculate returns 200 from the containerized service."
+            }
+          ]
+        },
+        {
+          "sprint_id": "P5-S5",
+          "name": "Bonus Engine Frontend Artifacts + Deployment",
+          "goal": "Build 5 new R3F 3D artifact components (Enneagram Compass, Sacred Geometry Matrix, Biofield Scanner, Face Reading Mirror, Nada Brahman Resonator) with physics, interactions, and data visualization, then deploy the full updated Selemene stack to Railway.",
+          "est_total_hours": 40,
+          "tasks": [
+            {
+              "id": "P5-S5-01",
+              "title": "Build Enneagram Compass 9-pointed star mesh geometry",
+              "area": "frontend",
+              "owner_role": "Frontend Eng",
+              "est_hours": 3,
+              "dependencies": [],
+              "deliverable": "R3F component rendering a 9-pointed star mesh with enneagram inner line connections (9-point, 3-6-9 triangle, 1-4-2-8-5-7 hexad).",
+              "acceptance": "Component renders in Storybook with all 9 vertices visible, inner connection lines matching standard enneagram topology."
+            },
+            {
+              "id": "P5-S5-02",
+              "title": "Add Rapier physics body and interactions to Enneagram Compass",
+              "area": "frontend",
+              "owner_role": "Frontend Eng",
+              "est_hours": 2,
+              "dependencies": ["P5-S5-01"],
+              "deliverable": "RigidBody with RITUAL collision layer (0x0004) and GRASP + ORBIT interaction mechanics on the Enneagram Compass.",
+              "acceptance": "Artifact responds to GRASP (pick up) and ORBIT (rotate around center) gestures without falling through environment colliders."
+            },
+            {
+              "id": "P5-S5-03",
+              "title": "Implement Enneagram type/wing/growth 3D text display",
+              "area": "frontend",
+              "owner_role": "Frontend Eng",
+              "est_hours": 2,
+              "dependencies": ["P5-S5-02"],
+              "deliverable": "Drei Text3D labels showing active type number, wing, and growth direction with Aged Gold (#C5A442) highlight on the active vertex.",
+              "acceptance": "Given Enneagram type 4w5, vertex 4 glows Aged Gold, wing 5 shows secondary highlight, and growth arrow points to vertex 1."
+            },
+            {
+              "id": "P5-S5-04",
+              "title": "Generate procedural Flower of Life / Metatron's Cube geometry",
+              "area": "frontend",
+              "owner_role": "Frontend Eng",
+              "est_hours": 3,
+              "dependencies": [],
+              "deliverable": "R3F component with procedural generation of Flower of Life (19 circles) and Metatron's Cube (13 circles + connecting lines) geometries.",
+              "acceptance": "Component toggles between Flower of Life and Metatron's Cube modes with correct circle counts and line topology."
+            },
+            {
+              "id": "P5-S5-05",
+              "title": "Implement breathe-sync interaction for Sacred Geometry Matrix",
+              "area": "frontend",
+              "owner_role": "Frontend Eng",
+              "est_hours": 3,
+              "dependencies": ["P5-S5-04"],
+              "deliverable": "Sacred Geometry Matrix scales and stabilizes geometry when PIP coherence exceeds 70%, with breathing-rate-linked animation cycle.",
+              "acceptance": "With mock coherence at 80%, geometry stabilizes within 2 seconds; at 50%, geometry continues oscillating with visible jitter."
+            },
+            {
+              "id": "P5-S5-06",
+              "title": "Add golden ratio point visualization and vertex manipulation",
+              "area": "frontend",
+              "owner_role": "Frontend Eng",
+              "est_hours": 2,
+              "dependencies": ["P5-S5-05"],
+              "deliverable": "Golden ratio (phi=1.618) spiral overlay on Sacred Geometry Matrix with draggable vertex points that snap to phi-proportioned positions.",
+              "acceptance": "Dragging a vertex snaps to nearest phi-ratio position and the spiral overlay updates in real-time to reflect the new configuration."
+            },
+            {
+              "id": "P5-S5-07",
+              "title": "Build Biofield Scanner multi-layer shell geometry",
+              "area": "frontend",
+              "owner_role": "Frontend Eng",
+              "est_hours": 3,
+              "dependencies": [],
+              "deliverable": "R3F component with 3 concentric translucent shell meshes around Vessel using Fresnel shader for edge glow effect.",
+              "acceptance": "Three distinct shell layers render around the Vessel with Fresnel-based opacity (transparent at center, opaque at edges)."
+            },
+            {
+              "id": "P5-S5-08",
+              "title": "Implement coherence-driven field layer animation for Biofield Scanner",
+              "area": "frontend",
+              "owner_role": "Frontend Eng",
+              "est_hours": 2,
+              "dependencies": ["P5-S5-07"],
+              "deliverable": "Shell layers animate color based on PIP coherence: healthy zones glow Aged Gold (#C5A442), anomaly zones shift to Terracotta (#C45B28).",
+              "acceptance": "Setting coherence to 90% turns all layers Gold; setting coherence to 30% shifts outer layer to Terracotta with pulsing animation."
+            },
+            {
+              "id": "P5-S5-09",
+              "title": "Add anomaly zone highlighting and hover tooltips to Biofield Scanner",
+              "area": "frontend",
+              "owner_role": "Frontend Eng",
+              "est_hours": 2,
+              "dependencies": ["P5-S5-08"],
+              "deliverable": "Raycast-based hover detection on shell zones showing HTML tooltip with anomaly name, severity, and suggested engine cross-reference.",
+              "acceptance": "Hovering over a Terracotta anomaly zone displays a tooltip with zone label, severity percentage, and related engine link."
+            },
+            {
+              "id": "P5-S5-10",
+              "title": "Build Face Reading Mirror artifact mesh with reflective material",
+              "area": "frontend",
+              "owner_role": "Frontend Eng",
+              "est_hours": 3,
+              "dependencies": [],
+              "deliverable": "Circular mirror R3F mesh with MeshPhysicalMaterial (metalness=1, roughness=0.05, envMapIntensity=1) and ornate frame geometry.",
+              "acceptance": "Mirror reflects the environment map with visible specular highlights and the frame renders with Vessel Bronze (#8B6914) material."
+            },
+            {
+              "id": "P5-S5-11",
+              "title": "Overlay MediaPipe 468-landmark face mesh with regional color mapping",
+              "area": "frontend",
+              "owner_role": "Frontend Eng",
+              "est_hours": 3,
+              "dependencies": ["P5-S5-10"],
+              "deliverable": "Real-time MediaPipe face landmark overlay on the mirror surface with 5 facial regions color-coded by element (Wood, Fire, Earth, Metal, Water).",
+              "acceptance": "Camera feed renders on mirror with 468 landmarks visible, forehead region colored Fire-red, chin region colored Water-blue."
+            },
+            {
+              "id": "P5-S5-12",
+              "title": "Create element balance pentagonal radar chart for Face Reading",
+              "area": "frontend",
+              "owner_role": "Frontend Eng",
+              "est_hours": 2,
+              "dependencies": ["P5-S5-11"],
+              "deliverable": "Floating 3D pentagonal radar chart beside the mirror showing 5-element balance (Wood, Fire, Earth, Metal, Water) from Face Reading engine data.",
+              "acceptance": "Radar chart displays 5 axes with values from engine response, dominant element axis extends furthest, and chart rotates to face camera."
+            },
+            {
+              "id": "P5-S5-13",
+              "title": "Build Nada Brahman Resonator sound bowl mesh with ripple animation",
+              "area": "frontend",
+              "owner_role": "Frontend Eng",
+              "est_hours": 3,
+              "dependencies": [],
+              "deliverable": "R3F singing bowl mesh with concentric ripple ring animation emanating from the bowl surface on activation.",
+              "acceptance": "Bowl mesh renders with metallic material and triggering activation produces 5 expanding concentric rings that fade over 3 seconds."
+            },
+            {
+              "id": "P5-S5-14",
+              "title": "Implement STRIKE interaction mechanic for Nada Brahman Resonator",
+              "area": "frontend",
+              "owner_role": "Frontend Eng",
+              "est_hours": 2,
+              "dependencies": ["P5-S5-13"],
+              "deliverable": "STRIKE interaction detecting THROW gesture contact with velocity > 5 units/second, triggering bowl activation and ripple animation.",
+              "acceptance": "Throwing an object at the bowl with velocity 6 u/s triggers the strike; velocity 3 u/s does not trigger."
+            },
+            {
+              "id": "P5-S5-15",
+              "title": "Build chakra alignment column and frequency display for Resonator",
+              "area": "frontend",
+              "owner_role": "Frontend Eng",
+              "est_hours": 3,
+              "dependencies": ["P5-S5-14"],
+              "deliverable": "Vertical column of 7 chakra spheres above the bowl, each colored per traditional mapping, with frequency Hz label from Nadabrahman engine data.",
+              "acceptance": "All 7 chakra spheres render in correct order (root to crown), active chakra pulses with glow, and frequency text shows engine-returned Hz value."
+            },
+            {
+              "id": "P5-S5-16",
+              "title": "Deploy updated Selemene with Transit engine to Railway",
+              "area": "infra",
+              "owner_role": "DevOps",
+              "est_hours": 2,
+              "dependencies": ["P5-S4-14"],
+              "deliverable": "Full Selemene stack deployed to Railway with Transit engine live and all existing engines healthy.",
+              "acceptance": "Railway deployment succeeds, /api/v1/engines/transits/calculate returns 200, and health check confirms all 18+ engines are responding."
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

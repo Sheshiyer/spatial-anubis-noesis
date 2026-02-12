@@ -1,0 +1,511 @@
+{
+  "gap": "B",
+  "description": "Kinetic verb completion + Threshold sequence polish",
+  "generated": "2026-02-12",
+  "total_tasks": 39,
+  "sprints": [
+    {
+      "sprint_id": "P2-S4",
+      "duration_weeks": 2,
+      "focus": "Kinetic Verb System Completion (THROW, ORBIT, STRIKE, BREATHE-SYNC, REST)",
+      "tasks": [
+        {
+          "id": "P2-S4-01",
+          "title": "5-frame circular velocity buffer for THROW verb",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 4,
+          "dependencies": [
+            "P2-S1-01"
+          ],
+          "deliverable": "VelocityBuffer class storing last 5 frames of cursor/hand position deltas with timestamps, computing averaged velocity vector",
+          "acceptance": "Unit test: buffer of 5 sequential positions returns correct averaged velocity; buffer overwrites oldest entry on frame 6"
+        },
+        {
+          "id": "P2-S4-02",
+          "title": "THROW impulse calculation with 2.5x multiplier and 50.0 cap",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 3,
+          "dependencies": [
+            "P2-S4-01",
+            "P0-S1-13"
+          ],
+          "deliverable": "computeThrowImpulse() function that takes averaged velocity from VelocityBuffer, applies 2.5x multiplier, clamps magnitude to 50.0 max",
+          "acceptance": "Test: velocity (10, 0, 0) produces impulse (25, 0, 0); velocity (30, 0, 0) is capped at magnitude 50.0 not 75.0"
+        },
+        {
+          "id": "P2-S4-03",
+          "title": "Spring joint destruction and impulse application on THROW release",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 4,
+          "dependencies": [
+            "P2-S4-02",
+            "P0-S1-13"
+          ],
+          "deliverable": "THROW verb handler that destroys active spring joint on open-palm (MediaPipe) or cursor release, then applies computed impulse to RigidBody via Rapier applyImpulse()",
+          "acceptance": "Integration test: grasped object released mid-motion travels in direction of averaged velocity with correct impulse magnitude"
+        },
+        {
+          "id": "P2-S4-04",
+          "title": "THROW whoosh audio cue with pitch scaling by impulse magnitude",
+          "area": "frontend",
+          "owner_role": "Audio Engineer",
+          "est_hours": 3,
+          "dependencies": [
+            "P2-S4-03"
+          ],
+          "deliverable": "Whoosh audio trigger on THROW activation; playback rate scaled linearly from 0.8 (impulse=5) to 1.6 (impulse=50) based on impulse magnitude",
+          "acceptance": "Audio plays on every THROW; pitch at impulse 25 is ~1.2x base rate; pitch at impulse 50 is 1.6x; no audio at impulse 0"
+        },
+        {
+          "id": "P2-S4-05",
+          "title": "THROW verb end-to-end integration test via coin toss",
+          "area": "qa",
+          "owner_role": "QA Engineer",
+          "est_hours": 4,
+          "dependencies": [
+            "P2-S4-03",
+            "P2-S4-04"
+          ],
+          "deliverable": "Automated integration test: GRASP coin, move cursor upward for 5 frames, release \u2192 coin travels upward with correct impulse, whoosh plays, spring joint is null",
+          "acceptance": "Test passes: coin Y-position increases after release; impulse magnitude within 2.5x of averaged velocity; spring joint reference is null post-release; audio event fired"
+        },
+        {
+          "id": "P2-S4-06",
+          "title": "ORBIT spherical joint with locked radius on activation",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 5,
+          "dependencies": [
+            "P0-S1-13",
+            "P2-S1-01"
+          ],
+          "deliverable": "ORBIT verb handler: on both-hands (MediaPipe) or right-click hold, create Rapier ImpulseJoint::Spherical between object and anchor point, lock radius to distance at activation frame",
+          "acceptance": "Test: object at distance 5.0 from anchor on activation maintains exactly 5.0 distance throughout orbit; joint type is Spherical"
+        },
+        {
+          "id": "P2-S4-07",
+          "title": "ORBIT angular velocity mapping from hand rotation delta",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 4,
+          "dependencies": [
+            "P2-S4-06"
+          ],
+          "deliverable": "Angular velocity computation: map per-frame hand rotation delta (or cursor angular movement around anchor) to orbital angular velocity applied to spherical joint motor",
+          "acceptance": "Test: 90-degree hand rotation over 1 second produces proportional angular displacement of orbiting object; zero hand rotation produces zero angular acceleration"
+        },
+        {
+          "id": "P2-S4-08",
+          "title": "ORBIT drag coefficient 0.95 deceleration on release",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 3,
+          "dependencies": [
+            "P2-S4-07"
+          ],
+          "deliverable": "On ORBIT release: destroy spherical joint, apply current angular velocity as linear velocity, then apply per-frame damping factor of 0.95 (gentle deceleration to rest)",
+          "acceptance": "Test: object with angular velocity 10 rad/s at release decelerates to <0.5 rad/s within ~60 frames (0.95^60 = 0.046); object does not stop instantly"
+        },
+        {
+          "id": "P2-S4-09",
+          "title": "ORBIT right-click hold activation for non-webcam fallback",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 2,
+          "dependencies": [
+            "P2-S4-06"
+          ],
+          "deliverable": "Right-click mousedown event starts ORBIT mode with anchor at cursor position; mousemove maps to angular velocity; mouseup releases with drag deceleration",
+          "acceptance": "Test: right-click hold on grasped object activates ORBIT; mouse circular motion produces orbital path; right-click release triggers 0.95 drag deceleration"
+        },
+        {
+          "id": "P2-S4-10",
+          "title": "STRIKE target-layer collision detection with 8.0 u/s velocity threshold",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 5,
+          "dependencies": [
+            "P2-S4-03",
+            "P0-S1-13"
+          ],
+          "deliverable": "Collision event handler for TARGET-layer colliders: on contact, read velocity magnitude of incoming object; if >= 8.0 u/s, emit STRIKE event with momentum data; if < 8.0, emit BOUNCE event",
+          "acceptance": "Test: object hitting target at 9.0 u/s triggers STRIKE event; object at 7.0 u/s triggers BOUNCE event; velocity measured at exact contact frame"
+        },
+        {
+          "id": "P2-S4-11",
+          "title": "STRIKE momentum calculation: mass times velocity at contact frame",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 4,
+          "dependencies": [
+            "P2-S4-10"
+          ],
+          "deliverable": "Momentum system: compute mass * velocity.magnitude at contact frame; compare against 12.0 base threshold (modified by Biorhythm multiplier); emit SUCCESS if met, FAILURE if not, RECKLESS if momentum > 30.0 and miss",
+          "acceptance": "Test: mass=2 velocity=7 (momentum=14) exceeds 12.0 base \u2192 SUCCESS; mass=1 velocity=10 but miss with momentum > 30.0 \u2192 RECKLESS shatter event; mass=1 velocity=5 (momentum=5) \u2192 FAILURE bounce"
+        },
+        {
+          "id": "P2-S4-12",
+          "title": "STRIKE sweet spot collider with 0.5u radius and -30% threshold",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 4,
+          "dependencies": [
+            "P2-S4-11"
+          ],
+          "deliverable": "Inner collider at anvil center: 0.5-unit radius sphere sensor; hits within sweet spot reduce required momentum threshold by 30% (12.0 * 0.7 = 8.4 base); dull thud on outer-ring failure, shatter VFX on reckless miss",
+          "acceptance": "Test: sweet-spot hit with momentum 9.0 succeeds (threshold 8.4); same momentum on outer ring fails (threshold 12.0); reckless miss (>30.0 momentum, no contact) triggers crystal shatter audio+VFX"
+        },
+        {
+          "id": "P2-S4-13",
+          "title": "BREATHE-SYNC proximity and coherence gate (< 5u distance, > 60 coherence)",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 3,
+          "dependencies": [
+            "P2-S1-01",
+            "P0-S2-01"
+          ],
+          "deliverable": "BREATHE-SYNC activation gate: continuously check distance between user focus point and target object (< 5.0 units) AND PIP coherence metric (> 60); emit BREATHE_ELIGIBLE when both conditions met",
+          "acceptance": "Test: object at 4.9u with coherence 61 \u2192 eligible; object at 5.1u with coherence 61 \u2192 not eligible; object at 4.9u with coherence 59 \u2192 not eligible"
+        },
+        {
+          "id": "P2-S4-14",
+          "title": "BREATHE-SYNC ColliderDesc scale modulation 0.8x-1.4x synced to breath_phase",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 5,
+          "dependencies": [
+            "P2-S4-13",
+            "P0-S1-13"
+          ],
+          "deliverable": "Dynamic Rapier ColliderDesc scale modulation: read breath_phase (0.0=full exhale, 1.0=full inhale) from PIP metrics; map to collider scale 0.8x at exhale, 1.4x at inhale; interpolate linearly",
+          "acceptance": "Test: breath_phase=0.0 produces collider scale 0.8; breath_phase=0.5 produces scale 1.1; breath_phase=1.0 produces scale 1.4; visual mesh scales in sync"
+        },
+        {
+          "id": "P2-S4-15",
+          "title": "BREATHE-SYNC 3-cycle attunement lock timer",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 3,
+          "dependencies": [
+            "P2-S4-14"
+          ],
+          "deliverable": "Attunement counter: track consecutive full breath cycles (exhale\u2192inhale\u2192exhale) while BREATHE-SYNC is active; after 3 complete cycles, emit ATTUNED event and lock sync state",
+          "acceptance": "Test: 2 complete cycles does not trigger ATTUNED; 3 complete cycles triggers ATTUNED; breaking proximity mid-cycle resets counter to 0"
+        },
+        {
+          "id": "P2-S4-16",
+          "title": "BREATHE-SYNC singing bowl audio with breath-phase frequency modulation",
+          "area": "frontend",
+          "owner_role": "Audio Engineer",
+          "est_hours": 4,
+          "dependencies": [
+            "P2-S4-14"
+          ],
+          "deliverable": "Singing bowl tone triggered on BREATHE-SYNC activation; oscillator frequency modulated by breath_phase: base 256Hz at exhale (phase=0.0), rising to 512Hz at inhale (phase=1.0); smooth interpolation",
+          "acceptance": "Test: audio plays during BREATHE-SYNC; frequency at phase 0.0 is ~256Hz; frequency at phase 1.0 is ~512Hz; audio stops when BREATHE-SYNC deactivates"
+        },
+        {
+          "id": "P2-S4-17",
+          "title": "REST velocity timeout detection (< 0.1 u/s for 2s on WORLD surface)",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 3,
+          "dependencies": [
+            "P0-S1-13",
+            "P2-S1-01"
+          ],
+          "deliverable": "REST detection system: monitor object velocity each frame; if < 0.1 u/s AND in contact with WORLD-layer surface, start 2-second timer; if velocity stays below threshold for full 2s, transition to REST state",
+          "acceptance": "Test: object at 0.05 u/s on WORLD surface for 2.0s \u2192 REST state; object at 0.05 u/s for 1.9s then nudged \u2192 timer resets; object at 0.05 u/s floating (no WORLD contact) \u2192 no REST"
+        },
+        {
+          "id": "P2-S4-18",
+          "title": "REST state: Fixed body type, joint destruction, and 70% opacity dimming",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 4,
+          "dependencies": [
+            "P2-S4-17"
+          ],
+          "deliverable": "On REST activation: set RigidBodyType to Fixed, destroy all active joints on object, reduce mesh opacity to 0.7, disable glow/emissive materials (glow extinguish)",
+          "acceptance": "Test: REST object has RigidBodyType.Fixed; no joints attached; material opacity is 0.7; emissive intensity is 0.0; object does not respond to physics forces"
+        },
+        {
+          "id": "P2-S4-19",
+          "title": "REST proximity re-activation (< 2u triggers AWAKENED state)",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 3,
+          "dependencies": [
+            "P2-S4-18"
+          ],
+          "deliverable": "While in REST state: monitor user focus proximity; if distance < 2.0 units, transition to AWAKENED \u2014 restore RigidBodyType.Dynamic, opacity to 1.0, re-enable glow over 0.5s ease-in",
+          "acceptance": "Test: user at 2.1u from REST object \u2192 stays REST; user at 1.9u \u2192 AWAKENED transition; post-AWAKENED object has Dynamic body type, opacity 1.0, glow restored"
+        }
+      ]
+    },
+    {
+      "sprint_id": "P1-S3",
+      "duration_weeks": 2,
+      "focus": "Threshold Sequence Polish (World Reveal, Fog Banks, Idle States, Zone Audio, Return Protocol)",
+      "tasks": [
+        {
+          "id": "P1-S3-01",
+          "title": "World Reveal center-outward growth front at 10 u/s with alpha mask",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 5,
+          "dependencies": [
+            "P1-S2-01",
+            "P0-S1-10"
+          ],
+          "deliverable": "Growth front system: expanding sphere from world center at 10 units/second; objects beyond front radius have alpha 0.0; objects within radius are fully visible; distance-based alpha gradient at front edge (2-unit fade zone)",
+          "acceptance": "Test: at t=0s front radius is 0; at t=1s radius is 10u; object at 8u is visible (alpha=1.0); object at 11u is invisible (alpha=0.0); object at 10.5u has partial alpha"
+        },
+        {
+          "id": "P1-S3-02",
+          "title": "Splat loading with radial growth front and 500ms fade-in",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 5,
+          "dependencies": [
+            "P1-S3-01",
+            "P0-S2-01"
+          ],
+          "deliverable": "SparkJS splat integration: splats beyond growth front have opacity 0.0; as front passes each splat position, fade opacity from 0.0 to 1.0 over 500ms; no popping or hard edges",
+          "acceptance": "Test: splat at distance 20u from center is invisible at t=1s (front=10u); at t=2s (front=20u) splat begins 500ms fade; at t=2.5s splat is fully opaque"
+        },
+        {
+          "id": "P1-S3-03",
+          "title": "Cardinal direction glows: 4 distinct zone effects",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 6,
+          "dependencies": [
+            "P1-S3-01"
+          ],
+          "deliverable": "Four cardinal glow effects: North = pulsing Gold at 0.5Hz sinusoidal; East = twinkling Bone White with stochastic timing (random 0.1-0.5s intervals); West = steady Terracotta ember glow; South = Stone Grey solidifying opacity ramp (0\u21921 over 3s)",
+          "acceptance": "Test: North glow completes full pulse cycle in 2.0s (0.5Hz); East twinkle intervals are non-uniform; West glow intensity is constant; South opacity reaches 1.0 after 3.0s"
+        },
+        {
+          "id": "P1-S3-04",
+          "title": "Bioluminescent gold floor geometry with growth-front-triggered pulse",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 4,
+          "dependencies": [
+            "P1-S3-01"
+          ],
+          "deliverable": "Floor line geometry (gold emissive): each line pulses once to full brightness as growth front passes its position, then settles to steady low glow (emissive intensity 0.15)",
+          "acceptance": "Test: floor line at 15u pulses when front reaches 15u; pulse peak intensity is 1.0; settled intensity is 0.15; lines at 5u already settled by t=2s"
+        },
+        {
+          "id": "P1-S3-05",
+          "title": "Cartographer path: drift toward North with 15s fading splat trail",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 4,
+          "dependencies": [
+            "P1-S3-01",
+            "P0-S2-01"
+          ],
+          "deliverable": "Cartographer entity drifts toward North cardinal direction after world reveal; leaves splat particle trail behind; trail particles have 15-second lifetime with linear opacity fade from 1.0 to 0.0",
+          "acceptance": "Test: Cartographer moves toward +Z (North); trail particle at t=0 has opacity 1.0; same particle at t=7.5s has opacity ~0.5; particle removed after 15s"
+        },
+        {
+          "id": "P1-S3-06",
+          "title": "World Reveal timing orchestrator: 4 phases over 12 seconds",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 4,
+          "dependencies": [
+            "P1-S3-01",
+            "P1-S3-02",
+            "P1-S3-03",
+            "P1-S3-04",
+            "P1-S3-05"
+          ],
+          "deliverable": "Sequencer coordinating World Reveal phases: Phase 1 (0-3s) growth front begins + floor lines pulse; Phase 2 (3-6s) cardinal glows activate; Phase 3 (6-9s) splat fade-in completes; Phase 4 (9-12s) Cartographer path begins",
+          "acceptance": "Test: growth front starts at t=0; cardinal glows start at t=3s; all splats within 60u radius visible by t=9s; Cartographer movement begins at t=9s; full sequence complete by t=12s"
+        },
+        {
+          "id": "P1-S3-07",
+          "title": "Fog bank SparkJS splat walls: 2000 splats per bank, Deep Ink base",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 5,
+          "dependencies": [
+            "P0-S2-01",
+            "P1-S2-01"
+          ],
+          "deliverable": "Fog bank entity: ~2000 SparkJS splats per bank with Deep Ink (#1A1A2E) base color; turbulence displacement of 0.1 units per frame (gentle roil); positioned as wall geometry blocking zone boundaries",
+          "acceptance": "Test: fog bank renders ~2000 splats; base color is within tolerance of #1A1A2E; splat positions shift by <= 0.1u per frame due to turbulence; bank forms continuous visual wall"
+        },
+        {
+          "id": "P1-S3-08",
+          "title": "Fog density thinning proportional to unlock progress",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 3,
+          "dependencies": [
+            "P1-S3-07"
+          ],
+          "deliverable": "Fog opacity modulation: density = 1.0 - (unlocks_completed / unlocks_required); e.g., 2/3 breaths completed = density 0.33 (67% thinner); opacity of each splat in bank scaled by density value",
+          "acceptance": "Test: 0/3 unlocks \u2192 fog density 1.0 (fully opaque); 1/3 unlocks \u2192 density 0.67; 2/3 unlocks \u2192 density 0.33; 3/3 unlocks \u2192 density 0.0 (fog removed)"
+        },
+        {
+          "id": "P1-S3-09",
+          "title": "Fog movement friction: exponential LinearDamping, 90% reduction at 0.8 density",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 4,
+          "dependencies": [
+            "P1-S3-07",
+            "P0-S1-13"
+          ],
+          "deliverable": "Movement penalty in fog: set Rapier LinearDamping on player body proportional to fog density; at density 0.8 speed reduced by 90%; damping = baseSpeed * (1 - 0.9 * (density/0.8)); exponential curve not linear",
+          "acceptance": "Test: density 0.0 \u2192 no speed reduction; density 0.4 \u2192 ~45% reduction; density 0.8 \u2192 90% reduction; density 1.0 \u2192 >90% reduction (capped, not full stop)"
+        },
+        {
+          "id": "P1-S3-10",
+          "title": "Fog push-through escape valve: 30s sustained input bypasses to void",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 3,
+          "dependencies": [
+            "P1-S3-09"
+          ],
+          "deliverable": "Escape valve: track cumulative sustained directional input while inside fog; if input maintained for 30 continuous seconds, bypass fog wall entirely; beyond fog is empty void (black, no geometry); breaking input resets timer",
+          "acceptance": "Test: 29s sustained input \u2192 still in fog; 30s sustained \u2192 player passes through; 25s + 1s break + 5s \u2192 timer reset at break, still in fog; void beyond fog has no splats or geometry"
+        },
+        {
+          "id": "P1-S3-11",
+          "title": "Idle state tier 1: 60-120s Cartographer drift and splat turbulence increase",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 4,
+          "dependencies": [
+            "P1-S2-01",
+            "P0-S2-01"
+          ],
+          "deliverable": "Idle detection at 60s of no input: Cartographer entity drifts closer to player (reduce distance by 30% over 60s); SparkJS splat turbulence multiplier increases from 1.0 to 1.8; both effects reverse on any input",
+          "acceptance": "Test: at 60s idle, Cartographer begins approach; at 90s idle, turbulence multiplier is ~1.4; at 120s, Cartographer 30% closer and turbulence at 1.8; any input immediately begins reversal"
+        },
+        {
+          "id": "P1-S3-12",
+          "title": "Idle state tier 2: 120-300s binaural shift Alpha to Theta and vignette darken",
+          "area": "frontend",
+          "owner_role": "Audio Engineer",
+          "est_hours": 4,
+          "dependencies": [
+            "P1-S3-11"
+          ],
+          "deliverable": "At 120s idle: binaural beat frequency cross-fades from Alpha (10Hz) to Theta (4Hz) over 60s; screen vignette darkness increases from 0.0 to 0.7 over 120s; both reverse on input",
+          "acceptance": "Test: at 120s idle, binaural is 10Hz; at 180s, binaural is ~7Hz (midpoint); at 240s, binaural is 4Hz; vignette at 120s is 0.0; at 300s vignette is 0.7; input triggers 3s reverse transition"
+        },
+        {
+          "id": "P1-S3-13",
+          "title": "Idle state tier 3: >300s sleep state with desaturation and drone deceleration",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 4,
+          "dependencies": [
+            "P1-S3-12"
+          ],
+          "deliverable": "Sleep State at 300s idle: 60% desaturation (saturation multiplier 0.4); splat animation speed reduced to 30% of normal; ambient drone frequency drops from 60Hz to 30Hz over 30s",
+          "acceptance": "Test: at 300s idle, desaturation begins; at 330s, saturation multiplier is 0.4; splat motion speed is 0.3x; drone frequency is 30Hz; all effects active simultaneously"
+        },
+        {
+          "id": "P1-S3-14",
+          "title": "Idle awakening sequence: 3-second full restoration on any input",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 3,
+          "dependencies": [
+            "P1-S3-13"
+          ],
+          "deliverable": "On any input during any idle tier: 3-second restoration sequence \u2014 saturation 0.4\u21921.0, splat speed 0.3x\u21921.0x, drone 30Hz\u219260Hz, vignette 0.7\u21920.0, binaural 4Hz\u219210Hz, Cartographer retreats; all eased with cubic-out",
+          "acceptance": "Test: input during Sleep State triggers 3s restoration; at t+1.5s values are approximately 70% restored (cubic-out curve); at t+3s all values at normal; no jarring visual snaps"
+        },
+        {
+          "id": "P1-S3-15",
+          "title": "East zone audio: crystalline chimes with stochastic timing (2-8kHz)",
+          "area": "frontend",
+          "owner_role": "Audio Engineer",
+          "est_hours": 3,
+          "dependencies": [
+            "P1-S2-01"
+          ],
+          "deliverable": "East zone audio bed: crystalline chime samples with emphasis in 2-8kHz frequency range; stochastic trigger timing (random intervals 0.5-3.0s between chimes); volume scaled by proximity to East cardinal",
+          "acceptance": "Test: chime intervals are non-uniform (measured variance > 0); frequency content peaks between 2-8kHz; volume at East center is 1.0; volume at 30+ units away is 0.0"
+        },
+        {
+          "id": "P1-S3-16",
+          "title": "West zone audio: low metallic resonance with heat crackle (40-200Hz)",
+          "area": "frontend",
+          "owner_role": "Audio Engineer",
+          "est_hours": 3,
+          "dependencies": [
+            "P1-S2-01"
+          ],
+          "deliverable": "West zone audio bed: low metallic resonance drone with layered heat-crackle texture; emphasis in 40-200Hz frequency range; volume scaled by proximity to West cardinal",
+          "acceptance": "Test: frequency content peaks between 40-200Hz; crackle layer is audible; volume at West center is 1.0; volume at 30+ units away is 0.0; no high-frequency content above 500Hz"
+        },
+        {
+          "id": "P1-S3-17",
+          "title": "Zone audio crossfade system: 30-unit distance-based blend",
+          "area": "frontend",
+          "owner_role": "Audio Engineer",
+          "est_hours": 4,
+          "dependencies": [
+            "P1-S3-15",
+            "P1-S3-16"
+          ],
+          "deliverable": "Audio crossfade manager: within 30 units of a zone boundary, linearly crossfade between adjacent zone audio beds; at boundary midpoint both beds at 50% volume; supports simultaneous crossfade of all active zone pairs",
+          "acceptance": "Test: at East center, East audio=1.0 West=0.0; at midpoint between East and West, both=0.5; crossfade is smooth with no gaps or pops; 3+ zones can crossfade simultaneously"
+        },
+        {
+          "id": "P1-S3-18",
+          "title": "Return visit detection via localStorage and IndexedDB session check",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 3,
+          "dependencies": [
+            "P1-S2-01"
+          ],
+          "deliverable": "Session persistence: on first visit, write session timestamp to both localStorage and IndexedDB; on subsequent visits, read last session timestamp; compute days since last visit; expose isReturningUser boolean and daysSinceLastVisit number",
+          "acceptance": "Test: fresh browser \u2192 isReturningUser=false; after session write + reload \u2192 isReturningUser=true; daysSinceLastVisit computed correctly; works if localStorage cleared but IndexedDB exists (fallback)"
+        },
+        {
+          "id": "P1-S3-19",
+          "title": "Compressed 2s Descent for <7 days return, full 5s for >=7 days",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 4,
+          "dependencies": [
+            "P1-S3-18",
+            "P1-S2-01"
+          ],
+          "deliverable": "Descent duration branching: if daysSinceLastVisit < 7, play compressed 2-second Descent animation (same keyframes, 2.5x speed); if >= 7 days or first visit, play full 5-second Descent; same visual quality at both speeds",
+          "acceptance": "Test: return at 3 days \u2192 Descent completes in 2.0s; return at 8 days \u2192 Descent completes in 5.0s; first visit \u2192 5.0s; both paths reach identical end state"
+        },
+        {
+          "id": "P1-S3-20",
+          "title": "Threshold Memory: South gate luminous trace lines per past session",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 5,
+          "dependencies": [
+            "P1-S3-18",
+            "P1-S3-03"
+          ],
+          "deliverable": "South gate visual history: for each past session stored in IndexedDB, render one luminous line trace at South cardinal; lines accumulate (session 1 = 1 line, session 5 = 5 lines); each line has unique slight color variation within Stone Grey palette; max 50 stored sessions",
+          "acceptance": "Test: first visit \u2192 0 lines at South; second visit \u2192 1 line; fifth visit \u2192 4 lines (representing 4 past sessions); lines persist across page reloads; line count capped at 50"
+        }
+      ]
+    }
+  ]
+}

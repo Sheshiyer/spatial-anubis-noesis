@@ -1,0 +1,1270 @@
+{
+  "phase_id": "P1",
+  "name": "THE MIRROR \u2014 Vessel & Body Tracking",
+  "objective": "Implement MediaPipe body tracking, Gaussian Splat vessel rendering, head-tilt navigation, and the complete onboarding Descent/Calibration sequence.",
+  "sprints": [
+    {
+      "sprint_id": "S1",
+      "duration_weeks": 2,
+      "focus": "MediaPipe Integration & Vessel Rendering",
+      "tasks": [
+        {
+          "id": "P1-S1-01",
+          "title": "Set up MediaPipe Selfie Segmentation (Model 1 Landscape, WASM)",
+          "area": "frontend",
+          "owner_role": "Bio-Integration Eng",
+          "est_hours": 4,
+          "dependencies": [
+            "P0-S2-24"
+          ],
+          "deliverable": "MediaPipe Selfie Segmentation module initialized and producing binary masks from webcam frames via WASM runtime.",
+          "acceptance": "Segmentation model loads within 3 seconds and outputs a valid binary mask for a single webcam frame without errors."
+        },
+        {
+          "id": "P1-S1-02",
+          "title": "Set up MediaPipe Face Mesh with 468 landmark detection",
+          "area": "frontend",
+          "owner_role": "Bio-Integration Eng",
+          "est_hours": 4,
+          "dependencies": [
+            "P0-S2-24"
+          ],
+          "deliverable": "MediaPipe Face Mesh module initialized and returning 468 facial landmark coordinates per detected face.",
+          "acceptance": "Face Mesh returns a 468-element landmark array with x/y/z coordinates for a single face within 50ms per frame."
+        },
+        {
+          "id": "P1-S1-03",
+          "title": "Set up MediaPipe Hand Landmarker with 21 landmarks per hand",
+          "area": "frontend",
+          "owner_role": "Bio-Integration Eng",
+          "est_hours": 4,
+          "dependencies": [
+            "P0-S2-24"
+          ],
+          "deliverable": "MediaPipe Hand Landmarker module initialized and returning 21 landmark positions per detected hand.",
+          "acceptance": "Hand Landmarker detects at least one hand and returns 21 landmarks with confidence scores above 0.7 within 40ms per frame."
+        },
+        {
+          "id": "P1-S1-04",
+          "title": "Implement webcam capture at 30fps using getUserMedia API",
+          "area": "frontend",
+          "owner_role": "Bio-Integration Eng",
+          "est_hours": 3,
+          "dependencies": [
+            "P0-S1-10"
+          ],
+          "deliverable": "Webcam capture module that acquires video stream at 30fps and delivers frames to processing pipeline.",
+          "acceptance": "getUserMedia successfully opens a 640x480 video stream at 30fps and delivers frames to a callback without dropped frames for 10 seconds."
+        },
+        {
+          "id": "P1-S1-05",
+          "title": "Create dedicated Web Worker for all MediaPipe processing",
+          "area": "frontend",
+          "owner_role": "Bio-Integration Eng",
+          "est_hours": 5,
+          "dependencies": [
+            "P0-S2-24",
+            "P1-S1-01",
+            "P1-S1-02"
+          ],
+          "deliverable": "Web Worker that receives webcam frames via transferable objects and returns segmentation masks plus face/hand landmarks off main thread.",
+          "acceptance": "MediaPipe processing runs entirely in a Web Worker with zero main-thread blocking and round-trip latency under 33ms at 30fps."
+        },
+        {
+          "id": "P1-S1-06",
+          "title": "Build segmentation mask processing pipeline (raw mask to refined mask per frame)",
+          "area": "frontend",
+          "owner_role": "Bio-Integration Eng",
+          "est_hours": 4,
+          "dependencies": [
+            "P1-S1-01",
+            "P1-S1-04"
+          ],
+          "deliverable": "Pipeline that takes raw MediaPipe segmentation output and produces a refined, temporally-stable mask suitable for vessel rendering.",
+          "acceptance": "Refined mask output shows no flickering artifacts across 30 consecutive frames and maintains consistent body outline boundaries."
+        },
+        {
+          "id": "P1-S1-07",
+          "title": "Implement smoothstep edge blur shader on segmentation mask (prevent cardboard cutout)",
+          "area": "frontend",
+          "owner_role": "Shader Eng",
+          "est_hours": 4,
+          "dependencies": [
+            "P1-S1-06",
+            "P0-S2-25"
+          ],
+          "deliverable": "Fragment shader that applies smoothstep-based edge blur to the segmentation mask boundary, creating organic falloff rather than hard edges.",
+          "acceptance": "Vessel edges show a smooth 4-8 pixel gradient falloff with no visible hard-cut boundary when rendered at 1080p."
+        },
+        {
+          "id": "P1-S1-08",
+          "title": "Create SparkJS Dynamic Cloud for vessel rendering (map webcam pixels to 3D splats)",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 6,
+          "dependencies": [
+            "P0-S2-01",
+            "P0-S2-07",
+            "P1-S1-06"
+          ],
+          "deliverable": "SparkJS-based dynamic Gaussian Splat cloud that maps masked webcam pixel data onto 3D splat positions forming the user vessel.",
+          "acceptance": "Vessel renders as a coherent 3D splat cloud matching the user silhouette at 60fps with at least 5000 active splats."
+        },
+        {
+          "id": "P1-S1-09",
+          "title": "Implement pixel-to-3D-space mapping on curved plane for splat positioning",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 5,
+          "dependencies": [
+            "P1-S1-08"
+          ],
+          "deliverable": "Mapping function that projects 2D webcam pixel coordinates onto a curved 3D surface to give the vessel depth and volumetric presence.",
+          "acceptance": "Splats are distributed across a curved surface with visible parallax when the camera orbits, producing a non-flat vessel silhouette."
+        },
+        {
+          "id": "P1-S1-10",
+          "title": "Build vessel color grading system (Deep Ink #1A1A2E baseline to Aged Gold #B8860B at peak coherence)",
+          "area": "frontend",
+          "owner_role": "Shader Eng",
+          "est_hours": 4,
+          "dependencies": [
+            "P1-S1-08",
+            "P0-S2-25"
+          ],
+          "deliverable": "Shader uniform-driven color grading system that interpolates vessel splat colors between Deep Ink and Aged Gold based on coherence value.",
+          "acceptance": "Setting coherence to 0.0 renders vessel in #1A1A2E and setting to 1.0 renders in #B8860B with smooth gradient at intermediate values."
+        },
+        {
+          "id": "P1-S1-11",
+          "title": "Implement breathing expansion effect (splat scale = 1.0 + lqd * baseScale)",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 3,
+          "dependencies": [
+            "P1-S1-08"
+          ],
+          "deliverable": "Vessel breathing animation that scales splats based on LQD bio-signal, creating a visible inhale/exhale rhythmic expansion.",
+          "acceptance": "Vessel visibly expands by 5-15% during simulated inhale phase and contracts during exhale at a rate matching the LQD input frequency."
+        },
+        {
+          "id": "P1-S1-12",
+          "title": "Calculate head-tilt vector from Face Mesh (nose tip vs ear/chin plane normal)",
+          "area": "frontend",
+          "owner_role": "Bio-Integration Eng",
+          "est_hours": 4,
+          "dependencies": [
+            "P1-S1-02"
+          ],
+          "deliverable": "Function that computes a 3D tilt vector from Face Mesh landmarks by comparing nose tip position against the ear-chin reference plane.",
+          "acceptance": "Head-tilt vector accurately distinguishes left tilt, right tilt, forward lean, and backward lean with angular precision within 5 degrees."
+        },
+        {
+          "id": "P1-S1-13",
+          "title": "Map head-tilt vectors to Rapier forces: left/right=steering torque, forward=move force, back=brake",
+          "area": "frontend",
+          "owner_role": "Physics Eng",
+          "est_hours": 5,
+          "dependencies": [
+            "P1-S1-12",
+            "P0-S1-13"
+          ],
+          "deliverable": "Physics integration that translates head-tilt vectors into Rapier rigid body forces for steering, forward motion, and braking.",
+          "acceptance": "Tilting head left applies counter-clockwise torque, right applies clockwise, forward applies forward impulse, and backward reduces velocity to zero within 1 second."
+        },
+        {
+          "id": "P1-S1-14",
+          "title": "Implement posture detection (upright=good nav, slouch=camera drift downward)",
+          "area": "frontend",
+          "owner_role": "Bio-Integration Eng",
+          "est_hours": 3,
+          "dependencies": [
+            "P1-S1-12"
+          ],
+          "deliverable": "Posture classification function that detects upright vs slouched position and outputs a normalized posture quality score.",
+          "acceptance": "Upright posture returns score above 0.8 and slouched posture returns score below 0.4 with transition detection within 500ms."
+        },
+        {
+          "id": "P1-S1-15",
+          "title": "Build LinearDamping viscosity system: high coherence=0.5 (fluid), low coherence=5.0 (sluggish)",
+          "area": "frontend",
+          "owner_role": "Physics Eng",
+          "est_hours": 4,
+          "dependencies": [
+            "P0-S1-14",
+            "P1-S1-13"
+          ],
+          "deliverable": "Dynamic linear damping system on the vessel Rapier body that adjusts movement viscosity based on real-time coherence signal.",
+          "acceptance": "At coherence 1.0 vessel moves fluidly with damping 0.5 and at coherence 0.0 vessel feels sluggish with damping 5.0, with smooth interpolation between."
+        },
+        {
+          "id": "P1-S1-16",
+          "title": "Create mock PIP data generator with adjustable coherence, LQD, entropy, breath phase",
+          "area": "frontend",
+          "owner_role": "Frontend Eng",
+          "est_hours": 3,
+          "dependencies": [
+            "P0-S2-27"
+          ],
+          "deliverable": "Mock bio-signal generator that produces realistic PIP-format data streams with configurable coherence, LQD, entropy, and breath phase values.",
+          "acceptance": "Mock generator outputs valid PIP data at 10Hz with all four parameters independently adjustable via debug controls between 0.0 and 1.0."
+        },
+        {
+          "id": "P1-S1-17",
+          "title": "Define vessel state schema: vessel_id, transform, bio_state, visual_config as TypeScript types",
+          "area": "data",
+          "owner_role": "Frontend Eng",
+          "est_hours": 3,
+          "dependencies": [
+            "P0-S2-27"
+          ],
+          "deliverable": "TypeScript type definitions and Zod schemas for complete vessel state including identity, transform, bio-signal state, and visual configuration.",
+          "acceptance": "All vessel state types compile without errors and Zod validation correctly rejects malformed vessel state objects."
+        },
+        {
+          "id": "P1-S1-18",
+          "title": "Implement privacy enforcement: all segmentation browser-local, no video to server",
+          "area": "qa",
+          "owner_role": "Bio-Integration Eng",
+          "est_hours": 2,
+          "dependencies": [
+            "P1-S1-05"
+          ],
+          "deliverable": "Privacy audit confirming that all webcam data and segmentation processing remains client-side with no network transmission of video frames.",
+          "acceptance": "Network tab inspection during 60 seconds of webcam usage shows zero outbound requests containing video or image data."
+        },
+        {
+          "id": "P1-S1-19",
+          "title": "Build webcam permission flow with getUserMedia grant/deny detection",
+          "area": "frontend",
+          "owner_role": "Frontend Eng",
+          "est_hours": 3,
+          "dependencies": [
+            "P1-S1-04"
+          ],
+          "deliverable": "Permission handling module that detects webcam grant, deny, and dismiss states and routes to appropriate Path A or Path B flows.",
+          "acceptance": "Granting permission triggers Path A webcam vessel flow and denying permission triggers Path B geometric fallback within 500ms of user action."
+        },
+        {
+          "id": "P1-S1-20",
+          "title": "Implement Path B geometric fallback: icosahedron vessel on webcam denied",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 3,
+          "dependencies": [
+            "P0-S1-10",
+            "P1-S1-19"
+          ],
+          "deliverable": "Geometric icosahedron vessel that serves as the fallback representation when webcam access is denied.",
+          "acceptance": "On webcam denial, an icosahedron vessel spawns at origin within 200ms with correct Deep Ink coloring and visible wireframe edges."
+        },
+        {
+          "id": "P1-S1-21",
+          "title": "Build Path B mouse/keyboard navigation controls (click-drag rotate, WASD move, scroll zoom)",
+          "area": "frontend",
+          "owner_role": "Frontend Eng",
+          "est_hours": 4,
+          "dependencies": [
+            "P1-S1-20",
+            "P0-S1-13"
+          ],
+          "deliverable": "Traditional mouse and keyboard control scheme for Path B users including rotation, WASD movement, and scroll-based zoom.",
+          "acceptance": "WASD keys move vessel in cardinal directions, mouse drag rotates view, and scroll wheel adjusts zoom between 0.5x and 3.0x without jitter."
+        },
+        {
+          "id": "P1-S1-22",
+          "title": "Synchronize vessel visual position with Rapier physics body",
+          "area": "frontend",
+          "owner_role": "Physics Eng",
+          "est_hours": 3,
+          "dependencies": [
+            "P1-S1-08",
+            "P0-S1-14"
+          ],
+          "deliverable": "Synchronization layer that copies Rapier physics body position and rotation to the vessel visual representation each frame.",
+          "acceptance": "Vessel visual mesh tracks physics body position with less than 1 pixel of visible lag at 60fps during continuous movement."
+        },
+        {
+          "id": "P1-S1-23",
+          "title": "Implement splat transparency at body edges (alpha=0.5 at segmentation boundary)",
+          "area": "frontend",
+          "owner_role": "Shader Eng",
+          "est_hours": 3,
+          "dependencies": [
+            "P1-S1-07",
+            "P1-S1-08"
+          ],
+          "deliverable": "Shader that fades splat alpha to 0.5 at the segmentation mask boundary, creating a ghostly dissolve at vessel edges.",
+          "acceptance": "Splats at the vessel boundary render at 50% opacity while core splats render at full opacity with smooth gradient between."
+        },
+        {
+          "id": "P1-S1-24",
+          "title": "Build vessel turbulence parameter (entropy-driven splat position noise)",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 3,
+          "dependencies": [
+            "P1-S1-08",
+            "P1-S1-16"
+          ],
+          "deliverable": "Turbulence system that displaces splat positions based on entropy value, creating visible agitation at high entropy.",
+          "acceptance": "At entropy 0.0 splats remain stable and at entropy 1.0 splats visibly jitter with 2-5 pixel displacement noise per frame."
+        },
+        {
+          "id": "P1-S1-25",
+          "title": "Implement bilateral filter on segmentation mask for edge noise reduction",
+          "area": "frontend",
+          "owner_role": "Shader Eng",
+          "est_hours": 4,
+          "dependencies": [
+            "P1-S1-06"
+          ],
+          "deliverable": "GPU bilateral filter pass applied to segmentation mask that preserves edges while removing per-pixel noise.",
+          "acceptance": "Filtered mask shows less than 2% pixel-level noise compared to raw mask while maintaining edge sharpness within 1 pixel tolerance."
+        },
+        {
+          "id": "P1-S1-26",
+          "title": "Set vessel spawn position at origin (0, 1.7, 0) facing North (0,0,-50)",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 2,
+          "dependencies": [
+            "P1-S1-22"
+          ],
+          "deliverable": "Vessel initial spawn configuration that places the vessel at coordinates (0, 1.7, 0) oriented toward the North zone.",
+          "acceptance": "Vessel spawns at exactly (0, 1.7, 0) with forward vector pointing toward (0, 0, -50) verified by debug overlay position readout."
+        },
+        {
+          "id": "P1-S1-27",
+          "title": "Build vessel movement speed curve (acceleration ramp 0.5s, max velocity 8 units/sec)",
+          "area": "frontend",
+          "owner_role": "Physics Eng",
+          "est_hours": 3,
+          "dependencies": [
+            "P1-S1-13"
+          ],
+          "deliverable": "Movement speed controller with 0.5-second acceleration ramp and hard-capped maximum velocity of 8 units per second.",
+          "acceptance": "Vessel reaches max velocity of 8 u/s after exactly 0.5 seconds of continuous forward tilt and never exceeds that cap."
+        },
+        {
+          "id": "P1-S1-28",
+          "title": "Implement vessel rotation damping (prevent endless spinning from head-tilt)",
+          "area": "frontend",
+          "owner_role": "Physics Eng",
+          "est_hours": 3,
+          "dependencies": [
+            "P1-S1-13"
+          ],
+          "deliverable": "Angular damping on the vessel physics body that brings rotation to zero within 0.3 seconds of neutral head position.",
+          "acceptance": "After head returns to neutral from 30-degree tilt, vessel rotation decays to below 0.01 rad/s within 300ms."
+        },
+        {
+          "id": "P1-S1-29",
+          "title": "Build multi-face rejection (process only primary/largest face from Face Mesh)",
+          "area": "frontend",
+          "owner_role": "Bio-Integration Eng",
+          "est_hours": 3,
+          "dependencies": [
+            "P1-S1-02"
+          ],
+          "deliverable": "Face selection filter that identifies the largest detected face by bounding box area and discards all other face detections.",
+          "acceptance": "When two faces are visible, only the face with the larger bounding box area is processed and the secondary face data is discarded."
+        },
+        {
+          "id": "P1-S1-30",
+          "title": "Configure vessel physics body: mass=1.0, locked X/Z rotation (yaw only)",
+          "area": "frontend",
+          "owner_role": "Physics Eng",
+          "est_hours": 2,
+          "dependencies": [
+            "P1-S1-22"
+          ],
+          "deliverable": "Rapier rigid body configuration for the vessel with mass 1.0 and rotation locked to Y-axis (yaw) only.",
+          "acceptance": "Vessel physics body has mass 1.0 and applying torque only produces Y-axis rotation with X and Z axes remaining locked at zero."
+        },
+        {
+          "id": "P1-S1-31",
+          "title": "Create hand tracking skeleton debug visualization (21 landmarks visible in debug)",
+          "area": "frontend",
+          "owner_role": "Bio-Integration Eng",
+          "est_hours": 3,
+          "dependencies": [
+            "P1-S1-03",
+            "P0-S2-29"
+          ],
+          "deliverable": "Debug overlay that renders hand tracking skeleton with all 21 landmark points and connecting bones visible on screen.",
+          "acceptance": "When debug mode is enabled, all 21 hand landmarks render as colored dots with bone connections matching the MediaPipe hand topology."
+        },
+        {
+          "id": "P1-S1-32",
+          "title": "Implement MediaPipe warmup (discard first 10 frames to prevent jitter)",
+          "area": "frontend",
+          "owner_role": "Bio-Integration Eng",
+          "est_hours": 2,
+          "dependencies": [
+            "P1-S1-05"
+          ],
+          "deliverable": "Warmup gate that discards the first 10 MediaPipe inference frames before delivering results to the vessel pipeline.",
+          "acceptance": "First 10 frames from MediaPipe are silently discarded and frame 11 is the first frame passed to downstream consumers."
+        },
+        {
+          "id": "P1-S1-33",
+          "title": "Build vessel color transition smoothing (lerp color changes over 500ms, not snap)",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 3,
+          "dependencies": [
+            "P1-S1-10"
+          ],
+          "deliverable": "Color interpolation system that smoothly lerps vessel color changes over 500ms to prevent jarring visual snaps.",
+          "acceptance": "Abruptly changing coherence from 0.0 to 1.0 produces a visible 500ms color transition with no single-frame color jumps."
+        },
+        {
+          "id": "P1-S1-34",
+          "title": "Create webcam frame rate monitor (detect camera dropping below 25fps)",
+          "area": "frontend",
+          "owner_role": "Bio-Integration Eng",
+          "est_hours": 3,
+          "dependencies": [
+            "P1-S1-04"
+          ],
+          "deliverable": "Frame rate monitoring module that measures webcam delivery rate and fires a warning event when rate drops below 25fps.",
+          "acceptance": "Monitor correctly detects when webcam drops below 25fps within 1 second and emits a low-fps warning event."
+        },
+        {
+          "id": "P1-S1-35",
+          "title": "Implement webcam horizontal mirror mode for natural self-viewing",
+          "area": "frontend",
+          "owner_role": "Bio-Integration Eng",
+          "est_hours": 2,
+          "dependencies": [
+            "P1-S1-08"
+          ],
+          "deliverable": "Horizontal flip transform applied to webcam feed before splat mapping so the vessel mirrors the user like a reflection.",
+          "acceptance": "User raising their right hand sees the vessel right hand raise on the corresponding side of the screen (mirror behavior)."
+        },
+        {
+          "id": "P1-S1-36",
+          "title": "Build vessel Zustand slice: position, rotation, bioState, visualConfig, isCalibrated",
+          "area": "frontend",
+          "owner_role": "Frontend Eng",
+          "est_hours": 3,
+          "dependencies": [
+            "P0-S2-27",
+            "P1-S1-17"
+          ],
+          "deliverable": "Zustand store slice containing all vessel runtime state including position, rotation, bio-signal state, visual config, and calibration flag.",
+          "acceptance": "Zustand vessel slice correctly stores and retrieves all five state properties with proper TypeScript typing and selector memoization."
+        },
+        {
+          "id": "P1-S1-37",
+          "title": "Create vessel rendering toggle (splat cloud vs geometric based on webcam status)",
+          "area": "frontend",
+          "owner_role": "Frontend Eng",
+          "est_hours": 3,
+          "dependencies": [
+            "P1-S1-08",
+            "P1-S1-20"
+          ],
+          "deliverable": "Conditional rendering component that switches between splat cloud vessel (Path A) and geometric vessel (Path B) based on webcam availability.",
+          "acceptance": "Component renders splat cloud when webcam is active and icosahedron when webcam is denied, with toggle taking less than 100ms."
+        },
+        {
+          "id": "P1-S1-38",
+          "title": "Implement face mesh landmark confidence filtering (reject frames below 0.8 confidence)",
+          "area": "frontend",
+          "owner_role": "Bio-Integration Eng",
+          "est_hours": 2,
+          "dependencies": [
+            "P1-S1-02"
+          ],
+          "deliverable": "Confidence gate that filters out Face Mesh frames with overall detection confidence below 0.8 threshold.",
+          "acceptance": "Frames with detection confidence below 0.8 are rejected and the previous valid frame data is retained instead."
+        },
+        {
+          "id": "P1-S1-39",
+          "title": "Build head-tilt deadzone (small movements below 3 degrees ignored for stability)",
+          "area": "frontend",
+          "owner_role": "Physics Eng",
+          "est_hours": 2,
+          "dependencies": [
+            "P1-S1-13"
+          ],
+          "deliverable": "Deadzone filter on head-tilt input that ignores angular changes below 3 degrees to prevent micro-drift navigation noise.",
+          "acceptance": "Head movements under 3 degrees in any axis produce zero physics force output while movements above 3 degrees apply proportional force."
+        },
+        {
+          "id": "P1-S1-40",
+          "title": "Create vessel bounding box for collision detection (capsule collider around splat cloud)",
+          "area": "frontend",
+          "owner_role": "Physics Eng",
+          "est_hours": 3,
+          "dependencies": [
+            "P1-S1-22"
+          ],
+          "deliverable": "Rapier capsule collider sized to encompass the vessel splat cloud for physics collision detection with environment.",
+          "acceptance": "Capsule collider fully encloses the vessel splat cloud and correctly reports collision events when contacting scene geometry."
+        },
+        {
+          "id": "P1-S1-41",
+          "title": "Implement background segmentation quality selector (fast/balanced/quality presets)",
+          "area": "frontend",
+          "owner_role": "Bio-Integration Eng",
+          "est_hours": 3,
+          "dependencies": [
+            "P1-S1-01"
+          ],
+          "deliverable": "Quality preset selector that configures MediaPipe segmentation model parameters for fast, balanced, or high-quality processing modes.",
+          "acceptance": "Fast mode runs under 15ms per frame, balanced under 25ms, and quality under 40ms with visibly better edge quality at each tier."
+        },
+        {
+          "id": "P1-S1-42",
+          "title": "Build webcam initialization error handler (camera in use, not found, not supported)",
+          "area": "frontend",
+          "owner_role": "Frontend Eng",
+          "est_hours": 3,
+          "dependencies": [
+            "P1-S1-19"
+          ],
+          "deliverable": "Error handling module that catches and classifies all getUserMedia failure modes and routes to appropriate fallback paths.",
+          "acceptance": "NotFoundError, NotAllowedError, NotReadableError, and OverconstrainedError are all caught and route to Path B with distinct internal error codes."
+        },
+        {
+          "id": "P1-S1-43",
+          "title": "Create segmentation mask texture upload to GPU (efficient transfer via TexSubImage2D)",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 4,
+          "dependencies": [
+            "P1-S1-06"
+          ],
+          "deliverable": "Optimized GPU texture upload path that transfers segmentation mask data using texSubImage2D for minimal CPU-GPU transfer overhead.",
+          "acceptance": "Mask texture upload completes in under 2ms per frame using texSubImage2D with no visible frame stutter during continuous upload."
+        },
+        {
+          "id": "P1-S1-44",
+          "title": "Implement vessel LOD: full splat cloud under 15u, reduced under 30u, point light over 30u",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 3,
+          "dependencies": [
+            "P1-S1-08"
+          ],
+          "deliverable": "Level-of-detail system for the vessel that reduces splat count at medium distance and replaces with a point light at far distance.",
+          "acceptance": "Vessel renders full splat cloud within 15 units, 50% splat count between 15-30 units, and a single point light beyond 30 units."
+        },
+        {
+          "id": "P1-S1-45",
+          "title": "Build MediaPipe model loading progress indicator (percent loaded before first frame)",
+          "area": "frontend",
+          "owner_role": "Frontend Eng",
+          "est_hours": 3,
+          "dependencies": [
+            "P1-S1-01",
+            "P1-S1-02",
+            "P1-S1-03"
+          ],
+          "deliverable": "Progress tracking module that reports combined loading percentage across all three MediaPipe models during initialization.",
+          "acceptance": "Progress value increments from 0 to 100 as models load and reaches 100 exactly when all three models are ready for inference."
+        },
+        {
+          "id": "P1-S1-46",
+          "title": "Create vessel interaction raycast system (detect when vessel approaches objects)",
+          "area": "frontend",
+          "owner_role": "Physics Eng",
+          "est_hours": 3,
+          "dependencies": [
+            "P1-S1-22",
+            "P0-S2-14"
+          ],
+          "deliverable": "Rapier raycast system that projects rays from the vessel in movement direction to detect approaching objects and trigger proximity events.",
+          "acceptance": "Raycasts detect objects within 10 units ahead of vessel movement direction and fire proximity events with distance and object identity."
+        },
+        {
+          "id": "P1-S1-47",
+          "title": "Implement vessel light emission (point light attached to vessel, Gold color, intensity from LQD)",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 3,
+          "dependencies": [
+            "P1-S1-08",
+            "P1-S1-16"
+          ],
+          "deliverable": "Point light component attached to vessel position with Aged Gold color and intensity dynamically driven by LQD signal value.",
+          "acceptance": "Point light renders at vessel position with color #B8860B and intensity scaling linearly from 0.1 at LQD 0.0 to 2.0 at LQD 1.0."
+        },
+        {
+          "id": "P1-S1-48",
+          "title": "Build MediaPipe worker performance counter (processing time per frame in debug)",
+          "area": "qa",
+          "owner_role": "Bio-Integration Eng",
+          "est_hours": 3,
+          "dependencies": [
+            "P1-S1-05",
+            "P0-S2-29"
+          ],
+          "deliverable": "Performance counter in debug overlay showing per-frame MediaPipe processing time, average, and 99th percentile latency.",
+          "acceptance": "Debug overlay displays current frame time, rolling 60-frame average, and p99 latency with values updating every frame."
+        },
+        {
+          "id": "P1-S1-49",
+          "title": "Create comprehensive vessel rendering test: webcam to splat cloud at 60fps with color grading",
+          "area": "qa",
+          "owner_role": "QA",
+          "est_hours": 4,
+          "dependencies": [
+            "P1-S1-08",
+            "P1-S1-10",
+            "P1-S1-11"
+          ],
+          "deliverable": "End-to-end integration test verifying the complete webcam-to-vessel pipeline including segmentation, splat rendering, and color grading at 60fps.",
+          "acceptance": "Test confirms vessel renders at 60fps for 30 seconds with correct color grading response to coherence changes and visible breathing effect."
+        },
+        {
+          "id": "P1-S1-50",
+          "title": "Build vessel state persistence (save vessel config to Zustand plus localStorage on change)",
+          "area": "data",
+          "owner_role": "Frontend Eng",
+          "est_hours": 3,
+          "dependencies": [
+            "P1-S1-36",
+            "P0-S2-46"
+          ],
+          "deliverable": "Persistence layer that automatically saves vessel configuration to localStorage whenever Zustand vessel state changes.",
+          "acceptance": "After modifying vessel config and refreshing the page, the vessel configuration is restored from localStorage matching the pre-refresh state."
+        }
+      ]
+    },
+    {
+      "sprint_id": "S2",
+      "duration_weeks": 2,
+      "focus": "Onboarding Descent & Calibration Ritual",
+      "tasks": [
+        {
+          "id": "P1-S2-01",
+          "title": "Create Descent overlay component (full-screen, React portal, CSS transitions)",
+          "area": "frontend",
+          "owner_role": "Frontend Eng",
+          "est_hours": 3,
+          "dependencies": [
+            "P0-S1-10"
+          ],
+          "deliverable": "Full-screen React portal overlay component with CSS transition support for the onboarding Descent sequence.",
+          "acceptance": "Overlay renders at 100vw/100vh via React portal above all other content with opacity transitions completing in specified durations."
+        },
+        {
+          "id": "P1-S2-02",
+          "title": "Implement T+0ms: Pure black overlay (opacity 1.0, no content)",
+          "area": "frontend",
+          "owner_role": "Frontend Eng",
+          "est_hours": 2,
+          "dependencies": [
+            "P1-S2-01"
+          ],
+          "deliverable": "Initial Descent state rendering a pure black (#000000) overlay at full opacity with no visible content.",
+          "acceptance": "At T+0ms the screen is completely black with opacity 1.0 and zero visible elements confirmed by screenshot comparison."
+        },
+        {
+          "id": "P1-S2-03",
+          "title": "Implement T+1000ms: Deep Ink (#1A1A2E) fade-in with grain shader activating",
+          "area": "frontend",
+          "owner_role": "Shader Eng",
+          "est_hours": 3,
+          "dependencies": [
+            "P1-S2-02",
+            "P0-S1-22"
+          ],
+          "deliverable": "Timed transition at T+1000ms that fades overlay from black to Deep Ink color while activating the film grain post-processing shader.",
+          "acceptance": "At exactly T+1000ms the overlay begins transitioning to #1A1A2E and film grain becomes visible within 200ms of transition start."
+        },
+        {
+          "id": "P1-S2-04",
+          "title": "Implement T+2000ms: First particle (Bone white #F5F0E8 point light fades in at center)",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 3,
+          "dependencies": [
+            "P1-S2-03"
+          ],
+          "deliverable": "Single Bone white point light that fades in at viewport center at T+2000ms as the first visible element in the Descent.",
+          "acceptance": "At T+2000ms a point light with color #F5F0E8 appears at screen center and reaches full intensity within 500ms."
+        },
+        {
+          "id": "P1-S2-05",
+          "title": "Implement T+3000ms: Cartographer entity spawns (200 Gold splats forming humanoid shape)",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 5,
+          "dependencies": [
+            "P0-S2-01",
+            "P0-S2-07",
+            "P1-S2-04"
+          ],
+          "deliverable": "Cartographer entity composed of 200 Aged Gold Gaussian splats arranged in a humanoid silhouette that materializes at T+3000ms.",
+          "acceptance": "At T+3000ms exactly 200 splats with color #B8860B form a recognizable humanoid shape that fully materializes within 1 second."
+        },
+        {
+          "id": "P1-S2-06",
+          "title": "Implement T+4000ms: 60Hz ambient drone onset via Web Audio API oscillator",
+          "area": "frontend",
+          "owner_role": "Audio Eng",
+          "est_hours": 3,
+          "dependencies": [
+            "P0-S2-43"
+          ],
+          "deliverable": "Web Audio API oscillator generating a 60Hz ambient drone that begins at T+4000ms with smooth volume ramp-in.",
+          "acceptance": "At T+4000ms a 60Hz sine wave oscillator starts and ramps from silence to target volume over 2 seconds without audio clicks or pops."
+        },
+        {
+          "id": "P1-S2-07",
+          "title": "Implement T+5000ms: Fade complete (Cartographer stable, overlay fades to transparent)",
+          "area": "frontend",
+          "owner_role": "Frontend Eng",
+          "est_hours": 3,
+          "dependencies": [
+            "P1-S2-05",
+            "P1-S2-06"
+          ],
+          "deliverable": "Final Descent state at T+5000ms where the overlay fades to transparent revealing the 3D scene with Cartographer visible.",
+          "acceptance": "At T+5000ms the overlay opacity transitions to 0.0 over 1 second and the Cartographer entity is fully visible in the 3D scene."
+        },
+        {
+          "id": "P1-S2-08",
+          "title": "Build timing controller orchestrating T+0 through T+5000ms with precise requestAnimationFrame scheduling",
+          "area": "frontend",
+          "owner_role": "Frontend Eng",
+          "est_hours": 4,
+          "dependencies": [
+            "P1-S2-01"
+          ],
+          "deliverable": "Timing controller using requestAnimationFrame that fires Descent milestones at precise intervals from T+0 through T+5000ms.",
+          "acceptance": "All five timing milestones fire within 16ms of their target timestamps as measured by performance.now() across 10 consecutive runs."
+        },
+        {
+          "id": "P1-S2-09",
+          "title": "Create film grain post-processing shader with variable opacity (0 to 0.05 during Descent)",
+          "area": "frontend",
+          "owner_role": "Shader Eng",
+          "est_hours": 3,
+          "dependencies": [
+            "P0-S1-22"
+          ],
+          "deliverable": "Post-processing film grain shader with a uniform-controlled opacity parameter that ramps from 0 to 0.05 during the Descent sequence.",
+          "acceptance": "Film grain is invisible at opacity 0 and subtly visible at opacity 0.05 with random noise pattern that changes every frame."
+        },
+        {
+          "id": "P1-S2-10",
+          "title": "Build Cartographer as SparkJS dynamic splat cloud (200 splats, Gold #B8860B palette, subtle breathing motion)",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 5,
+          "dependencies": [
+            "P0-S2-01"
+          ],
+          "deliverable": "Cartographer entity implemented as a SparkJS dynamic splat cloud with 200 Gold-colored splats and continuous subtle breathing animation.",
+          "acceptance": "Cartographer renders as 200 splats in Gold palette with visible breathing scale oscillation of 0.95-1.05 at 0.2Hz cycle rate."
+        },
+        {
+          "id": "P1-S2-11",
+          "title": "Implement cathedral reverb convolution via Web Audio ConvolverNode",
+          "area": "frontend",
+          "owner_role": "Audio Eng",
+          "est_hours": 4,
+          "dependencies": [
+            "P0-S2-43"
+          ],
+          "deliverable": "Web Audio ConvolverNode loaded with cathedral impulse response that applies reverb to all Descent and calibration audio.",
+          "acceptance": "Audio output exhibits a reverb tail of 2-4 seconds characteristic of cathedral acoustics when a test impulse is played."
+        },
+        {
+          "id": "P1-S2-12",
+          "title": "Build audio volume ramp curve (GainNode 0 to 0.15 exponential ramp over 3 seconds)",
+          "area": "frontend",
+          "owner_role": "Audio Eng",
+          "est_hours": 2,
+          "dependencies": [
+            "P1-S2-06"
+          ],
+          "deliverable": "GainNode exponential ramp from 0 to 0.15 over 3 seconds for smooth non-jarring audio introduction during Descent.",
+          "acceptance": "Audio gain follows an exponential curve from 0.0 to 0.15 over exactly 3 seconds with no audible clicks at ramp start or end."
+        },
+        {
+          "id": "P1-S2-13",
+          "title": "Create silhouette prompt SVG overlay (Bone #F5F0E8, human outline at viewport center)",
+          "area": "frontend",
+          "owner_role": "UX Designer",
+          "est_hours": 3,
+          "dependencies": [
+            "P1-S2-07"
+          ],
+          "deliverable": "SVG silhouette overlay showing a human outline in Bone white color positioned at viewport center for calibration alignment.",
+          "acceptance": "SVG silhouette renders in #F5F0E8 at viewport center with proportions matching an average human upper body outline at arm's length."
+        },
+        {
+          "id": "P1-S2-14",
+          "title": "Implement silhouette flicker shader (opacity oscillation 0.12-0.18 at irregular intervals)",
+          "area": "frontend",
+          "owner_role": "Shader Eng",
+          "est_hours": 3,
+          "dependencies": [
+            "P1-S2-13"
+          ],
+          "deliverable": "Shader effect on the silhouette overlay that creates organic flickering by oscillating opacity between 0.12 and 0.18 at non-uniform intervals.",
+          "acceptance": "Silhouette opacity varies between 0.12 and 0.18 with interval randomization so no two consecutive flicker periods are the same duration."
+        },
+        {
+          "id": "P1-S2-15",
+          "title": "Build alignment score function: compare face mesh landmarks to silhouette target positions",
+          "area": "frontend",
+          "owner_role": "Bio-Integration Eng",
+          "est_hours": 5,
+          "dependencies": [
+            "P1-S1-02",
+            "P1-S2-13"
+          ],
+          "deliverable": "Scoring function that computes a 0-1 alignment value by comparing key Face Mesh landmark positions against silhouette target coordinates.",
+          "acceptance": "Perfectly aligned face returns score above 0.95 and face offset by 50% of viewport width returns score below 0.3."
+        },
+        {
+          "id": "P1-S2-16",
+          "title": "Implement 3-second stillness hold timer (alignment above 0.85 sustained for 3s = calibration pass)",
+          "area": "frontend",
+          "owner_role": "Bio-Integration Eng",
+          "est_hours": 4,
+          "dependencies": [
+            "P1-S2-15"
+          ],
+          "deliverable": "Hold timer that requires alignment score to remain above 0.85 continuously for 3 seconds to trigger calibration completion.",
+          "acceptance": "Timer completes and fires calibration-pass event only after alignment stays above 0.85 for a full 3 seconds without dipping below."
+        },
+        {
+          "id": "P1-S2-17",
+          "title": "Build THOOM unlock transient audio (low-frequency percussion hit plus reverb tail)",
+          "area": "frontend",
+          "owner_role": "Audio Eng",
+          "est_hours": 3,
+          "dependencies": [
+            "P0-S2-43"
+          ],
+          "deliverable": "Low-frequency percussion transient audio (the THOOM) that plays on calibration completion with cathedral reverb tail.",
+          "acceptance": "THOOM audio plays a sub-100Hz percussion hit with peak amplitude at 80Hz and reverb tail lasting 2-3 seconds on calibration success."
+        },
+        {
+          "id": "P1-S2-18",
+          "title": "Create CalibrationState state machine: Waiting to Detecting to Aligning to Holding to Complete",
+          "area": "frontend",
+          "owner_role": "Frontend Eng",
+          "est_hours": 4,
+          "dependencies": [
+            "P1-S2-15",
+            "P1-S2-16"
+          ],
+          "deliverable": "Finite state machine managing calibration flow through five ordered states with valid transitions and timeout handling.",
+          "acceptance": "State machine transitions through all five states in order during successful calibration and handles timeout reset from any state to Waiting."
+        },
+        {
+          "id": "P1-S2-19",
+          "title": "Implement calibration failure handler: 30s timeout triggers gentle silhouette pulse re-prompt",
+          "area": "frontend",
+          "owner_role": "Frontend Eng",
+          "est_hours": 3,
+          "dependencies": [
+            "P1-S2-18"
+          ],
+          "deliverable": "Timeout handler that resets calibration after 30 seconds of failed alignment and triggers a gentle silhouette pulse to re-engage the user.",
+          "acceptance": "After 30 seconds without successful calibration, state machine resets to Waiting and silhouette pulses at 0.5Hz for 3 cycles."
+        },
+        {
+          "id": "P1-S2-20",
+          "title": "Build calibration success to vessel spawn transition (silhouette dissolves, splat vessel materializes)",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 4,
+          "dependencies": [
+            "P1-S2-18",
+            "P1-S1-08"
+          ],
+          "deliverable": "Transition sequence where the silhouette dissolves into particles while the user's splat vessel simultaneously materializes at the same position.",
+          "acceptance": "Silhouette dissolves over 1 second while vessel splats materialize from edges inward, completing within 1.5 seconds total."
+        },
+        {
+          "id": "P1-S2-21",
+          "title": "Implement calibration audio feedback (subtle tone at 0.5, 0.7, 0.8 alignment thresholds)",
+          "area": "frontend",
+          "owner_role": "Audio Eng",
+          "est_hours": 3,
+          "dependencies": [
+            "P1-S2-15",
+            "P0-S2-43"
+          ],
+          "deliverable": "Audio feedback system that plays subtle tonal cues when alignment score crosses 0.5, 0.7, and 0.8 threshold values.",
+          "acceptance": "Distinct tonal cues play at exactly the 0.5, 0.7, and 0.8 alignment thresholds with each tone higher in pitch than the previous."
+        },
+        {
+          "id": "P1-S2-22",
+          "title": "Build calibration timeout progressive prompting (15s: pulse faster, 25s: brighter, 30s: re-prompt)",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 3,
+          "dependencies": [
+            "P1-S2-19"
+          ],
+          "deliverable": "Progressive visual prompting system that increases silhouette urgency at 15s, 25s, and 30s timeout thresholds.",
+          "acceptance": "At 15s silhouette pulse rate doubles, at 25s silhouette brightness increases by 50%, and at 30s the full re-prompt sequence triggers."
+        },
+        {
+          "id": "P1-S2-23",
+          "title": "Create session persistence system in localStorage: ThresholdState with visit_count, calibration_complete, etc.",
+          "area": "data",
+          "owner_role": "Frontend Eng",
+          "est_hours": 4,
+          "dependencies": [
+            "P0-S2-46",
+            "P0-S2-27"
+          ],
+          "deliverable": "localStorage-backed session persistence storing ThresholdState including visit count, calibration status, last visit timestamp, and session history.",
+          "acceptance": "ThresholdState persists across page refreshes with all fields correctly serialized and deserialized including visit_count increment."
+        },
+        {
+          "id": "P1-S2-24",
+          "title": "Build Return Protocol: compressed Descent on returning visit (2s instead of 5s)",
+          "area": "frontend",
+          "owner_role": "Frontend Eng",
+          "est_hours": 4,
+          "dependencies": [
+            "P1-S2-08",
+            "P1-S2-23"
+          ],
+          "deliverable": "Compressed Descent sequence for returning users that runs the same milestones in 2 seconds instead of 5 seconds.",
+          "acceptance": "Returning user Descent completes all visual milestones in 2 seconds total while first-time user Descent takes the full 5 seconds."
+        },
+        {
+          "id": "P1-S2-25",
+          "title": "Implement re-calibration logic: require new calibration after 7+ days since last session",
+          "area": "frontend",
+          "owner_role": "Frontend Eng",
+          "est_hours": 3,
+          "dependencies": [
+            "P1-S2-23"
+          ],
+          "deliverable": "Re-calibration trigger that checks last session timestamp and forces new calibration if more than 7 days have elapsed.",
+          "acceptance": "Users returning within 7 days skip calibration while users returning after 7 days are routed through the full calibration flow."
+        },
+        {
+          "id": "P1-S2-26",
+          "title": "Create Threshold Memory: session history as faint light traces on South zone floor",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 4,
+          "dependencies": [
+            "P1-S2-23",
+            "P0-S2-14"
+          ],
+          "deliverable": "Visual representation of past sessions as faint light traces rendered on the South zone floor, one trace per previous visit.",
+          "acceptance": "Each past session renders as a distinct faint light trace on the South zone floor with older sessions appearing dimmer than recent ones."
+        },
+        {
+          "id": "P1-S2-27",
+          "title": "Enforce anti-tutorial constraint: zero text instructions during entire Descent and Calibration",
+          "area": "qa",
+          "owner_role": "UX Designer",
+          "est_hours": 2,
+          "dependencies": [
+            "P1-S2-01",
+            "P1-S2-13"
+          ],
+          "deliverable": "QA verification that confirms zero text, labels, tooltips, or written instructions appear during the Descent and Calibration sequences.",
+          "acceptance": "Manual and automated scan of all Descent and Calibration DOM elements confirms zero text nodes or aria-label text visible to the user."
+        },
+        {
+          "id": "P1-S2-28",
+          "title": "Build loading screen for slow WebGL initialization (minimal, Deep Ink themed, no text)",
+          "area": "frontend",
+          "owner_role": "Frontend Eng",
+          "est_hours": 3,
+          "dependencies": [
+            "P0-S1-10"
+          ],
+          "deliverable": "Minimal loading screen in Deep Ink color that displays during WebGL context initialization without any text elements.",
+          "acceptance": "Loading screen renders in #1A1A2E with a subtle animated element and contains zero text characters, disappearing when WebGL is ready."
+        },
+        {
+          "id": "P1-S2-29",
+          "title": "Implement vessel spawn animation (splats materialize from edges inward over 1.5s)",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 4,
+          "dependencies": [
+            "P1-S2-20"
+          ],
+          "deliverable": "Vessel materialization animation where splats appear starting from the silhouette edges and fill inward over 1.5 seconds.",
+          "acceptance": "Splats visibly materialize from outer boundary toward center over exactly 1.5 seconds with smooth opacity ramp per splat."
+        },
+        {
+          "id": "P1-S2-30",
+          "title": "Create session start timestamp tracking for visit duration",
+          "area": "frontend",
+          "owner_role": "Frontend Eng",
+          "est_hours": 2,
+          "dependencies": [
+            "P1-S2-23"
+          ],
+          "deliverable": "Session start timestamp recorder that captures the exact moment of session initialization for visit duration calculation.",
+          "acceptance": "Session start timestamp is recorded within 100ms of page load and accurately calculates visit duration on session end."
+        },
+        {
+          "id": "P1-S2-31",
+          "title": "Build session close handler (beforeunload saves ThresholdState to localStorage)",
+          "area": "data",
+          "owner_role": "Frontend Eng",
+          "est_hours": 3,
+          "dependencies": [
+            "P1-S2-23"
+          ],
+          "deliverable": "beforeunload event handler that persists the current ThresholdState to localStorage when the user closes or navigates away.",
+          "acceptance": "ThresholdState is saved to localStorage on tab close and the saved data matches the runtime state at the moment of closing."
+        },
+        {
+          "id": "P1-S2-32",
+          "title": "Implement visit counter increment on each new session start",
+          "area": "data",
+          "owner_role": "Frontend Eng",
+          "est_hours": 2,
+          "dependencies": [
+            "P1-S2-23"
+          ],
+          "deliverable": "Visit counter that increments the ThresholdState visit_count by 1 each time a new session begins.",
+          "acceptance": "After 5 consecutive page loads, ThresholdState.visit_count reads exactly 5 with each increment persisted to localStorage."
+        },
+        {
+          "id": "P1-S2-33",
+          "title": "Build Path B calibration flow: skip silhouette, spawn geometric vessel, show navigation hint glow",
+          "area": "frontend",
+          "owner_role": "Frontend Eng",
+          "est_hours": 4,
+          "dependencies": [
+            "P1-S1-20",
+            "P1-S2-18"
+          ],
+          "deliverable": "Alternative calibration flow for Path B users that skips silhouette alignment, spawns geometric vessel, and shows directional hint glow.",
+          "acceptance": "Path B flow skips calibration silhouette, spawns icosahedron vessel within 500ms, and shows a forward-pointing glow hint toward North zone."
+        },
+        {
+          "id": "P1-S2-34",
+          "title": "Create Cartographer idle animation: slow drift plus splat breathing (scale oscillation 0.95-1.05)",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 3,
+          "dependencies": [
+            "P1-S2-10"
+          ],
+          "deliverable": "Idle animation for the Cartographer entity combining gentle positional drift with splat scale oscillation between 0.95 and 1.05.",
+          "acceptance": "Cartographer visibly drifts in a slow figure-eight pattern while splats oscillate scale between 0.95 and 1.05 at 0.15Hz."
+        },
+        {
+          "id": "P1-S2-35",
+          "title": "Implement Cartographer attention tracking: faces vessel direction as user enters",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 3,
+          "dependencies": [
+            "P1-S2-10"
+          ],
+          "deliverable": "Attention tracking behavior where the Cartographer entity rotates to face the user vessel direction during the onboarding sequence.",
+          "acceptance": "Cartographer forward vector points toward the vessel position within 5 degrees at all times during the calibration sequence."
+        },
+        {
+          "id": "P1-S2-36",
+          "title": "Build Descent skip detection for dev mode (URL param ?skip-descent=true)",
+          "area": "infra",
+          "owner_role": "DevOps",
+          "est_hours": 2,
+          "dependencies": [
+            "P1-S2-08"
+          ],
+          "deliverable": "URL parameter check that skips the entire Descent sequence when ?skip-descent=true is present for development purposes.",
+          "acceptance": "Adding ?skip-descent=true to the URL bypasses all Descent timing and jumps directly to the calibration or exploration state."
+        },
+        {
+          "id": "P1-S2-37",
+          "title": "Create audio mute/unmute toggle (minimal, respects user preference, persisted)",
+          "area": "frontend",
+          "owner_role": "Audio Eng",
+          "est_hours": 2,
+          "dependencies": [
+            "P1-S2-06",
+            "P0-S2-46"
+          ],
+          "deliverable": "Minimal audio mute toggle that persists user preference to localStorage and suspends/resumes the Web Audio context.",
+          "acceptance": "Toggling mute silences all audio immediately and preference persists across page refreshes via localStorage."
+        },
+        {
+          "id": "P1-S2-38",
+          "title": "Implement Descent replay capability (accessible from settings for returning users)",
+          "area": "frontend",
+          "owner_role": "Frontend Eng",
+          "est_hours": 3,
+          "dependencies": [
+            "P1-S2-08",
+            "P1-S2-23"
+          ],
+          "deliverable": "Replay function that allows returning users to re-experience the full 5-second Descent sequence from a settings trigger.",
+          "acceptance": "Triggering replay runs the complete 5-second Descent sequence with all visual and audio milestones identical to the first-run experience."
+        },
+        {
+          "id": "P1-S2-39",
+          "title": "Build webcam permission denied flow: explain nothing textually, show Path B geometric vessel",
+          "area": "frontend",
+          "owner_role": "UX Designer",
+          "est_hours": 3,
+          "dependencies": [
+            "P1-S1-19",
+            "P1-S2-33"
+          ],
+          "deliverable": "Permission-denied flow that transitions to Path B without any text explanation, relying on visual cues to guide the user.",
+          "acceptance": "On webcam denial, Path B vessel appears within 1 second with zero text, labels, or written explanations shown to the user."
+        },
+        {
+          "id": "P1-S2-40",
+          "title": "Create Cartographer navigation hint: drift toward North (Breathfield) after calibration",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 3,
+          "dependencies": [
+            "P1-S2-10",
+            "P0-S2-14"
+          ],
+          "deliverable": "Post-calibration behavior where the Cartographer slowly drifts toward the North zone as a non-verbal navigation hint.",
+          "acceptance": "After calibration completes, Cartographer begins drifting toward North (0,0,-50) at 0.5 units/sec and reaches 10 units North within 20 seconds."
+        },
+        {
+          "id": "P1-S2-41",
+          "title": "Implement calibration data capture: save alignment_score and hold_duration to session",
+          "area": "data",
+          "owner_role": "Frontend Eng",
+          "est_hours": 2,
+          "dependencies": [
+            "P1-S2-16",
+            "P1-S2-23"
+          ],
+          "deliverable": "Data capture module that records peak alignment score and hold duration from the calibration process into the session state.",
+          "acceptance": "After calibration, ThresholdState contains the peak alignment_score and total hold_duration values matching the calibration session metrics."
+        },
+        {
+          "id": "P1-S2-42",
+          "title": "Build Descent performance monitor: track frame times during sequence",
+          "area": "qa",
+          "owner_role": "QA",
+          "est_hours": 3,
+          "dependencies": [
+            "P1-S2-08",
+            "P0-S2-29"
+          ],
+          "deliverable": "Performance monitoring overlay that tracks and displays frame times throughout the Descent sequence for optimization analysis.",
+          "acceptance": "Monitor captures per-frame timing data for all Descent frames and flags any frame exceeding 16.67ms in the debug overlay."
+        },
+        {
+          "id": "P1-S2-43",
+          "title": "Create Calibration state persistence: resume if tab was closed during calibration",
+          "area": "data",
+          "owner_role": "Frontend Eng",
+          "est_hours": 3,
+          "dependencies": [
+            "P1-S2-18",
+            "P1-S2-23"
+          ],
+          "deliverable": "State persistence that saves calibration progress to localStorage so users can resume calibration if the tab is accidentally closed.",
+          "acceptance": "Closing the tab during Aligning state and reopening resumes calibration from the Aligning state rather than restarting from Waiting."
+        },
+        {
+          "id": "P1-S2-44",
+          "title": "Implement Descent audio ducking: reduce music volume during calibration listening phase",
+          "area": "frontend",
+          "owner_role": "Audio Eng",
+          "est_hours": 2,
+          "dependencies": [
+            "P1-S2-06",
+            "P1-S2-18"
+          ],
+          "deliverable": "Audio ducking system that reduces the ambient drone volume by 50% when the calibration state machine enters the Aligning or Holding states.",
+          "acceptance": "Drone volume drops to 50% within 200ms of entering Aligning state and returns to 100% within 200ms of calibration completion."
+        },
+        {
+          "id": "P1-S2-45",
+          "title": "Build first-run detection: distinguish brand new user from returning user",
+          "area": "frontend",
+          "owner_role": "Frontend Eng",
+          "est_hours": 2,
+          "dependencies": [
+            "P1-S2-23"
+          ],
+          "deliverable": "First-run detection function that checks localStorage for existing ThresholdState to distinguish new users from returning users.",
+          "acceptance": "Function returns true for first-ever visit (no localStorage entry) and false for all subsequent visits after ThresholdState is created."
+        },
+        {
+          "id": "P1-S2-46",
+          "title": "Create smooth transition from Descent to exploration (camera easing from Cartographer to vessel)",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 4,
+          "dependencies": [
+            "P1-S2-20",
+            "P0-S1-10"
+          ],
+          "deliverable": "Camera transition that smoothly eases from the Cartographer viewing position to behind-vessel third-person perspective over 2 seconds.",
+          "acceptance": "Camera smoothly transitions using ease-in-out curve from Cartographer view to vessel follow-cam position in exactly 2 seconds."
+        },
+        {
+          "id": "P1-S2-47",
+          "title": "Implement Descent accessibility: reduced motion mode skips animations, shows static states",
+          "area": "frontend",
+          "owner_role": "Frontend Eng",
+          "est_hours": 3,
+          "dependencies": [
+            "P1-S2-08"
+          ],
+          "deliverable": "Reduced motion mode that respects prefers-reduced-motion media query by replacing animated Descent transitions with static state changes.",
+          "acceptance": "With prefers-reduced-motion enabled, all Descent milestones show instantly without animation while maintaining the correct visual end states."
+        },
+        {
+          "id": "P1-S2-48",
+          "title": "Build comprehensive Descent to Calibration to Vessel integration test",
+          "area": "qa",
+          "owner_role": "QA",
+          "est_hours": 5,
+          "dependencies": [
+            "P1-S2-20",
+            "P1-S2-29"
+          ],
+          "deliverable": "End-to-end integration test covering the complete flow from Descent start through calibration completion to vessel spawn and exploration readiness.",
+          "acceptance": "Test verifies all timing milestones, calibration state transitions, vessel spawn, and camera transition complete without errors in under 15 seconds."
+        },
+        {
+          "id": "P1-S2-49",
+          "title": "Create Descent visual regression test (screenshot comparison at each timing milestone)",
+          "area": "qa",
+          "owner_role": "QA",
+          "est_hours": 4,
+          "dependencies": [
+            "P1-S2-48"
+          ],
+          "deliverable": "Visual regression test suite that captures screenshots at each Descent timing milestone and compares against baseline reference images.",
+          "acceptance": "Screenshots at T+0, T+1000, T+2000, T+3000, T+4000, and T+5000ms match baseline references within 2% pixel difference threshold."
+        },
+        {
+          "id": "P1-S2-50",
+          "title": "Build onboarding Zustand slice: descentComplete, calibrationState, isReturningUser, vesselType",
+          "area": "frontend",
+          "owner_role": "Frontend Eng",
+          "est_hours": 3,
+          "dependencies": [
+            "P0-S2-27",
+            "P1-S2-18"
+          ],
+          "deliverable": "Zustand store slice managing onboarding state including descent completion flag, calibration state, returning user flag, and vessel type selection.",
+          "acceptance": "Onboarding slice correctly stores all four state properties with TypeScript types and selectors return memoized values without unnecessary re-renders."
+        }
+      ]
+    }
+  ]
+}

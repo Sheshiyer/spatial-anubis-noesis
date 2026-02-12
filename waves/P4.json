@@ -1,0 +1,1275 @@
+{
+  "phase_id": "P4",
+  "name": "THE THRESHOLD \u2014 Integration & Polish",
+  "objective": "Complete progressive disclosure system, founding rituals, accessibility provisions, comprehensive testing, performance optimization, and production deployment pipeline.",
+  "sprints": [
+    {
+      "sprint_id": "S1",
+      "duration_weeks": 2,
+      "focus": "Progressive Disclosure & Full Ritual Sequence",
+      "tasks": [
+        {
+          "id": "P4-S1-01",
+          "title": "Build fog bank entities using SparkJS with per-zone density control",
+          "dependencies": [
+            "P0-S2-01",
+            "P0-S2-14"
+          ],
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 4,
+          "deliverable": "Build fog bank entities using SparkJS with per-zone density control",
+          "acceptance": "Build fog bank entities using SparkJS with per-zone density control verified and working."
+        },
+        {
+          "id": "P4-S1-02",
+          "title": "Create zone unlock state machine: breath-sync(East) -> engine-interaction(West) -> sigil-forge(South)",
+          "dependencies": [
+            "P0-S2-27",
+            "P3-S3-07"
+          ],
+          "area": "frontend",
+          "owner_role": "Frontend Eng",
+          "est_hours": 5,
+          "deliverable": "Create zone unlock state machine: breath-sync(East) -> engine-interaction(West) -> sigil-forge(South)",
+          "acceptance": "Create zone unlock state machine: breath-sync(East) -> engine-interaction(West) -> sigil-forge(South) verified and working."
+        },
+        {
+          "id": "P4-S1-03",
+          "title": "Wire PIP breath detection to East Wing unlock trigger (3 synced breaths opens East)",
+          "dependencies": [
+            "P2-S3-01",
+            "P4-S1-02"
+          ],
+          "area": "frontend",
+          "owner_role": "Bio-Integration Eng",
+          "est_hours": 4,
+          "deliverable": "Wire PIP breath detection to East Wing unlock trigger (3 synced breaths opens East)",
+          "acceptance": "Wire PIP breath detection to East Wing unlock trigger (3 synced breaths opens East) verified and working."
+        },
+        {
+          "id": "P4-S1-04",
+          "title": "Implement exponential friction for locked zone boundaries (resistance without blocking)",
+          "dependencies": [
+            "P0-S2-15",
+            "P4-S1-02"
+          ],
+          "area": "frontend",
+          "owner_role": "Physics Eng",
+          "est_hours": 3,
+          "deliverable": "Implement exponential friction for locked zone boundaries (resistance without blocking)",
+          "acceptance": "Implement exponential friction for locked zone boundaries (resistance without blocking) verified and working."
+        },
+        {
+          "id": "P4-S1-05",
+          "title": "Build geometric vessel proximity-timer fallback for non-webcam zone unlocks",
+          "dependencies": [
+            "P1-S1-20",
+            "P4-S1-02"
+          ],
+          "area": "frontend",
+          "owner_role": "Frontend Eng",
+          "est_hours": 3,
+          "deliverable": "Build geometric vessel proximity-timer fallback for non-webcam zone unlocks",
+          "acceptance": "Build geometric vessel proximity-timer fallback for non-webcam zone unlocks verified and working."
+        },
+        {
+          "id": "P4-S1-06",
+          "title": "Create binaural beat system with per-zone frequencies: Breathfield=10Hz, Engines=7.83Hz, Forge=4Hz, Threshold=1Hz",
+          "dependencies": [
+            "P0-S2-43"
+          ],
+          "area": "frontend",
+          "owner_role": "Audio Eng",
+          "est_hours": 5,
+          "deliverable": "Create binaural beat system with per-zone frequencies: Breathfield=10Hz, Engines=7.83Hz, Forge=4Hz, Threshold=1Hz",
+          "acceptance": "Create binaural beat system with per-zone frequencies: Breathfield=10Hz, Engines=7.83Hz, Forge=4Hz, Threshold=1Hz verified and working."
+        },
+        {
+          "id": "P4-S1-07",
+          "title": "Build post-processing ramp controller: vignette, grain, bloom curves tied to zone and bio-state",
+          "dependencies": [
+            "P0-S1-22",
+            "P2-S3-01"
+          ],
+          "area": "frontend",
+          "owner_role": "Shader Eng",
+          "est_hours": 4,
+          "deliverable": "Build post-processing ramp controller: vignette, grain, bloom curves tied to zone and bio-state",
+          "acceptance": "Build post-processing ramp controller: vignette, grain, bloom curves tied to zone and bio-state verified and working."
+        },
+        {
+          "id": "P4-S1-08",
+          "title": "Implement zone-specific audio crossfade (3-second transition between zone soundscapes)",
+          "dependencies": [
+            "P0-S2-43",
+            "P4-S1-06"
+          ],
+          "area": "frontend",
+          "owner_role": "Audio Eng",
+          "est_hours": 3,
+          "deliverable": "Implement zone-specific audio crossfade (3-second transition between zone soundscapes)",
+          "acceptance": "Implement zone-specific audio crossfade (3-second transition between zone soundscapes) verified and working."
+        },
+        {
+          "id": "P4-S1-09",
+          "title": "Build Dasha transition cross-fade for returning users when planetary period changes",
+          "dependencies": [
+            "P2-S3-05",
+            "P1-S2-23"
+          ],
+          "area": "frontend",
+          "owner_role": "Shader Eng",
+          "est_hours": 4,
+          "deliverable": "Build Dasha transition cross-fade for returning users when planetary period changes",
+          "acceptance": "Build Dasha transition cross-fade for returning users when planetary period changes verified and working."
+        },
+        {
+          "id": "P4-S1-10",
+          "title": "Create Somatic Canticle artifact: glowing geometric object at vessel chest region (Heart Center)",
+          "dependencies": [
+            "P0-S1-10"
+          ],
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 4,
+          "deliverable": "Create Somatic Canticle artifact: glowing geometric object at vessel chest region (Heart Center)",
+          "acceptance": "Create Somatic Canticle artifact: glowing geometric object at vessel chest region (Heart Center) verified and working."
+        },
+        {
+          "id": "P4-S1-11",
+          "title": "Implement head-tilt inspection for Somatic Canticle (look down to engage)",
+          "dependencies": [
+            "P1-S1-12",
+            "P4-S1-10"
+          ],
+          "area": "frontend",
+          "owner_role": "Bio-Integration Eng",
+          "est_hours": 3,
+          "deliverable": "Implement head-tilt inspection for Somatic Canticle (look down to engage)",
+          "acceptance": "Implement head-tilt inspection for Somatic Canticle (look down to engage) verified and working."
+        },
+        {
+          "id": "P4-S1-12",
+          "title": "Build breath-sync projection: coherence check causes artifact to expand and project text",
+          "dependencies": [
+            "P2-S2-05",
+            "P4-S1-10"
+          ],
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 4,
+          "deliverable": "Build breath-sync projection: coherence check causes artifact to expand and project text",
+          "acceptance": "Build breath-sync projection: coherence check causes artifact to expand and project text verified and working."
+        },
+        {
+          "id": "P4-S1-13",
+          "title": "Render Somatic Canticle text in 3D world (floating, billboard, typewriter effect)",
+          "dependencies": [
+            "P3-S1-30",
+            "P4-S1-12"
+          ],
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 3,
+          "deliverable": "Render Somatic Canticle text in 3D world (floating, billboard, typewriter effect)",
+          "acceptance": "Render Somatic Canticle text in 3D world (floating, billboard, typewriter effect) verified and working."
+        },
+        {
+          "id": "P4-S1-14",
+          "title": "Implement West Wing unlock trigger: any Engine ritual completed causes West fog to dissipate",
+          "dependencies": [
+            "P4-S1-02",
+            "P3-S1-03"
+          ],
+          "area": "frontend",
+          "owner_role": "Frontend Eng",
+          "est_hours": 3,
+          "deliverable": "Implement West Wing unlock trigger: any Engine ritual completed causes West fog to dissipate",
+          "acceptance": "Implement West Wing unlock trigger: any Engine ritual completed causes West fog to dissipate verified and working."
+        },
+        {
+          "id": "P4-S1-15",
+          "title": "Build Stone of Intention ritual: distance-based damping curve (1.0 to 8.0 over 35 units, easeInQuad)",
+          "dependencies": [
+            "P2-S2-01",
+            "P2-S3-06"
+          ],
+          "area": "frontend",
+          "owner_role": "Physics Eng",
+          "est_hours": 4,
+          "deliverable": "Build Stone of Intention ritual: distance-based damping curve (1.0 to 8.0 over 35 units, easeInQuad)",
+          "acceptance": "Build Stone of Intention ritual: distance-based damping curve (1.0 to 8.0 over 35 units, easeInQuad) verified and working."
+        },
+        {
+          "id": "P4-S1-16",
+          "title": "Create Circle of Fire collider and ignition effect at West zone (-35,0,0)",
+          "dependencies": [
+            "P0-S1-13",
+            "P0-S2-14"
+          ],
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 4,
+          "deliverable": "Create Circle of Fire collider and ignition effect at West zone (-35,0,0)",
+          "acceptance": "Create Circle of Fire collider and ignition effect at West zone (-35,0,0) verified and working."
+        },
+        {
+          "id": "P4-S1-17",
+          "title": "Implement crystal spawn from Stone of Intention ash (first Forge material)",
+          "dependencies": [
+            "P4-S1-16"
+          ],
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 3,
+          "deliverable": "Implement crystal spawn from Stone of Intention ash (first Forge material)",
+          "acceptance": "Implement crystal spawn from Stone of Intention ash (first Forge material) verified and working."
+        },
+        {
+          "id": "P4-S1-18",
+          "title": "Build Sigil Forge anvil with sweet spot visual indicator (0.5u radius center Gold glow)",
+          "dependencies": [
+            "P0-S1-10",
+            "P0-S2-14"
+          ],
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 4,
+          "deliverable": "Build Sigil Forge anvil with sweet spot visual indicator (0.5u radius center Gold glow)",
+          "acceptance": "Build Sigil Forge anvil with sweet spot visual indicator (0.5u radius center Gold glow) verified and working."
+        },
+        {
+          "id": "P4-S1-19",
+          "title": "Implement Sigil Strike: momentum evaluation at anvil sweet spot (12.0 base threshold)",
+          "dependencies": [
+            "P2-S2-04",
+            "P4-S1-18"
+          ],
+          "area": "frontend",
+          "owner_role": "Physics Eng",
+          "est_hours": 5,
+          "deliverable": "Implement Sigil Strike: momentum evaluation at anvil sweet spot (12.0 base threshold)",
+          "acceptance": "Implement Sigil Strike: momentum evaluation at anvil sweet spot (12.0 base threshold) verified and working."
+        },
+        {
+          "id": "P4-S1-20",
+          "title": "Build Sigil crystal shatter effect: reckless strike >30.0 momentum breaks crystal",
+          "dependencies": [
+            "P4-S1-19"
+          ],
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 4,
+          "deliverable": "Build Sigil crystal shatter effect: reckless strike >30.0 momentum breaks crystal",
+          "acceptance": "Build Sigil crystal shatter effect: reckless strike >30.0 momentum breaks crystal verified and working."
+        },
+        {
+          "id": "P4-S1-21",
+          "title": "Create FastAPI SigilCompiler endpoint: POST /api/engines/sigil to SVG generation",
+          "dependencies": [
+            "P2-S1-01"
+          ],
+          "area": "backend",
+          "owner_role": "Backend Eng",
+          "est_hours": 6,
+          "deliverable": "Create FastAPI SigilCompiler endpoint: POST /api/engines/sigil to SVG generation",
+          "acceptance": "Create FastAPI SigilCompiler endpoint: POST /api/engines/sigil to SVG generation verified and working."
+        },
+        {
+          "id": "P4-S1-22",
+          "title": "Implement Sigil SVG display in 3D: forged sigil floats above anvil as emissive plane",
+          "dependencies": [
+            "P4-S1-21"
+          ],
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 4,
+          "deliverable": "Implement Sigil SVG display in 3D: forged sigil floats above anvil as emissive plane",
+          "acceptance": "Implement Sigil SVG display in 3D: forged sigil floats above anvil as emissive plane verified and working."
+        },
+        {
+          "id": "P4-S1-23",
+          "title": "Build South Gate unlock trigger: successful sigil forge activates South zone",
+          "dependencies": [
+            "P4-S1-02",
+            "P4-S1-22"
+          ],
+          "area": "frontend",
+          "owner_role": "Frontend Eng",
+          "est_hours": 3,
+          "deliverable": "Build South Gate unlock trigger: successful sigil forge activates South zone",
+          "acceptance": "Build South Gate unlock trigger: successful sigil forge activates South zone verified and working."
+        },
+        {
+          "id": "P4-S1-24",
+          "title": "Create South Gate webcam feed display within gate geometry",
+          "dependencies": [
+            "P4-S1-23",
+            "P1-S1-04"
+          ],
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 5,
+          "deliverable": "Create South Gate webcam feed display within gate geometry",
+          "acceptance": "Create South Gate webcam feed display within gate geometry verified and working."
+        },
+        {
+          "id": "P4-S1-25",
+          "title": "Implement binaural frequency transitions during zone movement (crossfade on boundary)",
+          "dependencies": [
+            "P4-S1-06",
+            "P2-S3-11"
+          ],
+          "area": "frontend",
+          "owner_role": "Audio Eng",
+          "est_hours": 3,
+          "deliverable": "Implement binaural frequency transitions during zone movement (crossfade on boundary)",
+          "acceptance": "Implement binaural frequency transitions during zone movement (crossfade on boundary) verified and working."
+        },
+        {
+          "id": "P4-S1-26",
+          "title": "Build founding ritual completion tracking in session state (4 rituals tracked)",
+          "dependencies": [
+            "P4-S1-15",
+            "P4-S1-03",
+            "P3-S1-03",
+            "P3-S1-15",
+            "P1-S2-23"
+          ],
+          "area": "data",
+          "owner_role": "Frontend Eng",
+          "est_hours": 3,
+          "deliverable": "Build founding ritual completion tracking in session state (4 rituals tracked)",
+          "acceptance": "Build founding ritual completion tracking in session state (4 rituals tracked) verified and working."
+        },
+        {
+          "id": "P4-S1-27",
+          "title": "Create ritual failure recovery: interrupted ritual resumes on return to zone",
+          "dependencies": [
+            "P2-S2-08"
+          ],
+          "area": "frontend",
+          "owner_role": "Frontend Eng",
+          "est_hours": 4,
+          "deliverable": "Create ritual failure recovery: interrupted ritual resumes on return to zone",
+          "acceptance": "Create ritual failure recovery: interrupted ritual resumes on return to zone verified and working."
+        },
+        {
+          "id": "P4-S1-28",
+          "title": "Build founding ritual sequence tracker: completed rituals leave Gold marks on world floor",
+          "dependencies": [
+            "P4-S1-26"
+          ],
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 4,
+          "deliverable": "Build founding ritual sequence tracker: completed rituals leave Gold marks on world floor",
+          "acceptance": "Build founding ritual sequence tracker: completed rituals leave Gold marks on world floor verified and working."
+        },
+        {
+          "id": "P4-S1-29",
+          "title": "Implement cross-session Dasha change detection on return visit (compare stored vs current)",
+          "dependencies": [
+            "P1-S2-23",
+            "P2-S1-07"
+          ],
+          "area": "frontend",
+          "owner_role": "Frontend Eng",
+          "est_hours": 3,
+          "deliverable": "Implement cross-session Dasha change detection on return visit (compare stored vs current)",
+          "acceptance": "Implement cross-session Dasha change detection on return visit (compare stored vs current) verified and working."
+        },
+        {
+          "id": "P4-S1-30",
+          "title": "Build biome cross-fade when Dasha changes (old world dissolves, new materializes)",
+          "dependencies": [
+            "P4-S1-29",
+            "P2-S3-05"
+          ],
+          "area": "frontend",
+          "owner_role": "Shader Eng",
+          "est_hours": 4,
+          "deliverable": "Build biome cross-fade when Dasha changes (old world dissolves, new materializes)",
+          "acceptance": "Build biome cross-fade when Dasha changes (old world dissolves, new materializes) verified and working."
+        },
+        {
+          "id": "P4-S1-31",
+          "title": "Create all 4 founding rituals end-to-end integration test",
+          "dependencies": [
+            "P4-S1-15",
+            "P4-S1-03",
+            "P3-S1-03",
+            "P4-S1-19"
+          ],
+          "area": "qa",
+          "owner_role": "QA",
+          "est_hours": 6,
+          "deliverable": "Create all 4 founding rituals end-to-end integration test",
+          "acceptance": "Create all 4 founding rituals end-to-end integration test verified and working."
+        },
+        {
+          "id": "P4-S1-32",
+          "title": "Build progressive disclosure integration test: unlock sequence E->W->S verified",
+          "dependencies": [
+            "P4-S1-02",
+            "P4-S1-14",
+            "P4-S1-23"
+          ],
+          "area": "qa",
+          "owner_role": "QA",
+          "est_hours": 5,
+          "deliverable": "Build progressive disclosure integration test: unlock sequence E->W->S verified",
+          "acceptance": "Build progressive disclosure integration test: unlock sequence E->W->S verified verified and working."
+        }
+      ]
+    },
+    {
+      "sprint_id": "S2",
+      "duration_weeks": 2,
+      "focus": "Accessibility, Failure States & QA",
+      "tasks": [
+        {
+          "id": "P4-S2-01",
+          "title": "Implement webcam loss handler: graceful fallback to geometric vessel mid-session",
+          "dependencies": [
+            "P1-S1-19",
+            "P1-S1-20"
+          ],
+          "area": "frontend",
+          "owner_role": "Frontend Eng",
+          "est_hours": 4,
+          "deliverable": "Implement webcam loss handler: graceful fallback to geometric vessel mid-session",
+          "acceptance": "Implement webcam loss handler: graceful fallback to geometric vessel mid-session verified and working."
+        },
+        {
+          "id": "P4-S2-02",
+          "title": "Build API timeout handler: pre-cached world substitution on World Labs timeout",
+          "dependencies": [
+            "P2-S1-15"
+          ],
+          "area": "frontend",
+          "owner_role": "Frontend Eng",
+          "est_hours": 3,
+          "deliverable": "Build API timeout handler: pre-cached world substitution on World Labs timeout",
+          "acceptance": "Build API timeout handler: pre-cached world substitution on World Labs timeout verified and working."
+        },
+        {
+          "id": "P4-S2-03",
+          "title": "Implement low FPS handler: automatic degradation tier adjustment when below 45fps",
+          "dependencies": [
+            "P2-S3-14"
+          ],
+          "area": "frontend",
+          "owner_role": "Frontend Eng",
+          "est_hours": 3,
+          "deliverable": "Implement low FPS handler: automatic degradation tier adjustment when below 45fps",
+          "acceptance": "Implement low FPS handler: automatic degradation tier adjustment when below 45fps verified and working."
+        },
+        {
+          "id": "P4-S2-04",
+          "title": "Build idle state handler: 10s Cartographer nudge, 30s ambient mode with reduced processing",
+          "dependencies": [
+            "P0-S2-27"
+          ],
+          "area": "frontend",
+          "owner_role": "Frontend Eng",
+          "est_hours": 4,
+          "deliverable": "Build idle state handler: 10s Cartographer nudge, 30s ambient mode with reduced processing",
+          "acceptance": "Build idle state handler: 10s Cartographer nudge, 30s ambient mode with reduced processing verified and working."
+        },
+        {
+          "id": "P4-S2-05",
+          "title": "Implement connection loss handler: session state persistence plus auto-reconnect",
+          "dependencies": [
+            "P1-S2-23"
+          ],
+          "area": "frontend",
+          "owner_role": "Frontend Eng",
+          "est_hours": 4,
+          "deliverable": "Implement connection loss handler: session state persistence plus auto-reconnect",
+          "acceptance": "Implement connection loss handler: session state persistence plus auto-reconnect verified and working."
+        },
+        {
+          "id": "P4-S2-06",
+          "title": "Conduct WCAG AA compliance audit across all interactive elements",
+          "dependencies": [
+            "P3-S3-05",
+            "P4-S1-02"
+          ],
+          "area": "qa",
+          "owner_role": "QA",
+          "est_hours": 5,
+          "deliverable": "Conduct WCAG AA compliance audit across all interactive elements",
+          "acceptance": "Conduct WCAG AA compliance audit across all interactive elements verified and working."
+        },
+        {
+          "id": "P4-S2-07",
+          "title": "Add ARIA labels to all interactive engine artifacts and navigation elements",
+          "dependencies": [
+            "P4-S2-06"
+          ],
+          "area": "frontend",
+          "owner_role": "Frontend Eng",
+          "est_hours": 4,
+          "deliverable": "Add ARIA labels to all interactive engine artifacts and navigation elements",
+          "acceptance": "Add ARIA labels to all interactive engine artifacts and navigation elements verified and working."
+        },
+        {
+          "id": "P4-S2-08",
+          "title": "Build keyboard navigation for all zones: 1=North, 2=East, 3=West, 4=South teleport",
+          "dependencies": [
+            "P0-S2-14"
+          ],
+          "area": "frontend",
+          "owner_role": "Frontend Eng",
+          "est_hours": 3,
+          "deliverable": "Build keyboard navigation for all zones: 1=North, 2=East, 3=West, 4=South teleport",
+          "acceptance": "Build keyboard navigation for all zones: 1=North, 2=East, 3=West, 4=South teleport verified and working."
+        },
+        {
+          "id": "P4-S2-09",
+          "title": "Implement E key interaction: engage nearest unlocked engine via keyboard",
+          "dependencies": [
+            "P4-S2-08",
+            "P3-S1-29"
+          ],
+          "area": "frontend",
+          "owner_role": "Frontend Eng",
+          "est_hours": 4,
+          "deliverable": "Implement E key interaction: engage nearest unlocked engine via keyboard",
+          "acceptance": "Implement E key interaction: engage nearest unlocked engine via keyboard verified and working."
+        },
+        {
+          "id": "P4-S2-10",
+          "title": "Add screen reader descriptions for all engine readings (ARIA live regions)",
+          "dependencies": [
+            "P4-S2-07"
+          ],
+          "area": "frontend",
+          "owner_role": "Frontend Eng",
+          "est_hours": 4,
+          "deliverable": "Add screen reader descriptions for all engine readings (ARIA live regions)",
+          "acceptance": "Add screen reader descriptions for all engine readings (ARIA live regions) verified and working."
+        },
+        {
+          "id": "P4-S2-11",
+          "title": "Build color-blind palette alternatives: deuteranopia, protanopia, tritanopia modes",
+          "dependencies": [],
+          "area": "frontend",
+          "owner_role": "UX Designer",
+          "est_hours": 5,
+          "deliverable": "Build color-blind palette alternatives: deuteranopia, protanopia, tritanopia modes",
+          "acceptance": "Build color-blind palette alternatives: deuteranopia, protanopia, tritanopia modes verified and working."
+        },
+        {
+          "id": "P4-S2-12",
+          "title": "Implement reduced motion mode: prefers-reduced-motion skips all animations, shows static states",
+          "dependencies": [],
+          "area": "frontend",
+          "owner_role": "Frontend Eng",
+          "est_hours": 4,
+          "deliverable": "Implement reduced motion mode: prefers-reduced-motion skips all animations, shows static states",
+          "acceptance": "Implement reduced motion mode: prefers-reduced-motion skips all animations, shows static states verified and working."
+        },
+        {
+          "id": "P4-S2-13",
+          "title": "Build high contrast mode: increased opacity, stronger borders, brighter text",
+          "dependencies": [
+            "P4-S2-11"
+          ],
+          "area": "frontend",
+          "owner_role": "UX Designer",
+          "est_hours": 3,
+          "deliverable": "Build high contrast mode: increased opacity, stronger borders, brighter text",
+          "acceptance": "Build high contrast mode: increased opacity, stronger borders, brighter text verified and working."
+        },
+        {
+          "id": "P4-S2-14",
+          "title": "Implement focus management system: visible focus ring, logical tab order",
+          "dependencies": [
+            "P4-S2-07"
+          ],
+          "area": "frontend",
+          "owner_role": "Frontend Eng",
+          "est_hours": 3,
+          "deliverable": "Implement focus management system: visible focus ring, logical tab order",
+          "acceptance": "Implement focus management system: visible focus ring, logical tab order verified and working."
+        },
+        {
+          "id": "P4-S2-15",
+          "title": "Build error recovery flows: ritual interrupted offers resume or abandon",
+          "dependencies": [
+            "P4-S1-27"
+          ],
+          "area": "frontend",
+          "owner_role": "Frontend Eng",
+          "est_hours": 3,
+          "deliverable": "Build error recovery flows: ritual interrupted offers resume or abandon",
+          "acceptance": "Build error recovery flows: ritual interrupted offers resume or abandon verified and working."
+        },
+        {
+          "id": "P4-S2-16",
+          "title": "Implement tab visibility handler: pause physics and rendering on background tab",
+          "dependencies": [
+            "P0-S1-14"
+          ],
+          "area": "frontend",
+          "owner_role": "Frontend Eng",
+          "est_hours": 3,
+          "deliverable": "Implement tab visibility handler: pause physics and rendering on background tab",
+          "acceptance": "Implement tab visibility handler: pause physics and rendering on background tab verified and working."
+        },
+        {
+          "id": "P4-S2-17",
+          "title": "Build battery and thermal warning handler for mobile: reduce quality proactively",
+          "dependencies": [
+            "P2-S3-14"
+          ],
+          "area": "frontend",
+          "owner_role": "Frontend Eng",
+          "est_hours": 3,
+          "deliverable": "Build battery and thermal warning handler for mobile: reduce quality proactively",
+          "acceptance": "Build battery and thermal warning handler for mobile: reduce quality proactively verified and working."
+        },
+        {
+          "id": "P4-S2-18",
+          "title": "Create comprehensive unit test suite: physics verbs, state machines, gesture detection",
+          "dependencies": [
+            "P2-S2-23"
+          ],
+          "area": "qa",
+          "owner_role": "QA",
+          "est_hours": 6,
+          "deliverable": "Create comprehensive unit test suite: physics verbs, state machines, gesture detection",
+          "acceptance": "Create comprehensive unit test suite: physics verbs, state machines, gesture detection verified and working."
+        },
+        {
+          "id": "P4-S2-19",
+          "title": "Implement WebGL context lost recovery with full scene re-initialization",
+          "dependencies": [
+            "P0-S1-10"
+          ],
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 5,
+          "deliverable": "Implement WebGL context lost recovery with full scene re-initialization",
+          "acceptance": "Implement WebGL context lost recovery with full scene re-initialization verified and working."
+        },
+        {
+          "id": "P4-S2-20",
+          "title": "Build Rapier WASM init failure fallback: static scene, click-based navigation",
+          "dependencies": [
+            "P0-S1-13"
+          ],
+          "area": "frontend",
+          "owner_role": "Frontend Eng",
+          "est_hours": 4,
+          "deliverable": "Build Rapier WASM init failure fallback: static scene, click-based navigation",
+          "acceptance": "Build Rapier WASM init failure fallback: static scene, click-based navigation verified and working."
+        },
+        {
+          "id": "P4-S2-21",
+          "title": "Implement MediaPipe model load failure fallback: automatic mouse and keyboard switch",
+          "dependencies": [
+            "P1-S1-19"
+          ],
+          "area": "frontend",
+          "owner_role": "Frontend Eng",
+          "est_hours": 3,
+          "deliverable": "Implement MediaPipe model load failure fallback: automatic mouse and keyboard switch",
+          "acceptance": "Implement MediaPipe model load failure fallback: automatic mouse and keyboard switch verified and working."
+        },
+        {
+          "id": "P4-S2-22",
+          "title": "Build IndexedDB quota exceeded handler: LRU eviction of oldest cached worlds",
+          "dependencies": [
+            "P0-S2-12"
+          ],
+          "area": "data",
+          "owner_role": "Frontend Eng",
+          "est_hours": 3,
+          "deliverable": "Build IndexedDB quota exceeded handler: LRU eviction of oldest cached worlds",
+          "acceptance": "Build IndexedDB quota exceeded handler: LRU eviction of oldest cached worlds verified and working."
+        },
+        {
+          "id": "P4-S2-23",
+          "title": "Implement prefers-color-scheme detection (NOESIS always dark, no bright flashes)",
+          "dependencies": [
+            "P0-S2-27"
+          ],
+          "area": "frontend",
+          "owner_role": "Frontend Eng",
+          "est_hours": 2,
+          "deliverable": "Implement prefers-color-scheme detection (NOESIS always dark, no bright flashes)",
+          "acceptance": "Implement prefers-color-scheme detection (NOESIS always dark, no bright flashes) verified and working."
+        },
+        {
+          "id": "P4-S2-24",
+          "title": "Build touch input adapter for mobile: touch=click, pinch=zoom, swipe=navigate",
+          "dependencies": [
+            "P1-S1-21"
+          ],
+          "area": "frontend",
+          "owner_role": "Frontend Eng",
+          "est_hours": 5,
+          "deliverable": "Build touch input adapter for mobile: touch=click, pinch=zoom, swipe=navigate",
+          "acceptance": "Build touch input adapter for mobile: touch=click, pinch=zoom, swipe=navigate verified and working."
+        },
+        {
+          "id": "P4-S2-25",
+          "title": "Implement gyroscope-based head-tilt for mobile devices (DeviceOrientationEvent)",
+          "dependencies": [
+            "P1-S1-13"
+          ],
+          "area": "frontend",
+          "owner_role": "Bio-Integration Eng",
+          "est_hours": 5,
+          "deliverable": "Implement gyroscope-based head-tilt for mobile devices (DeviceOrientationEvent)",
+          "acceptance": "Implement gyroscope-based head-tilt for mobile devices (DeviceOrientationEvent) verified and working."
+        },
+        {
+          "id": "P4-S2-26",
+          "title": "Create accessibility settings overlay: Escape key toggles, Deep Ink themed",
+          "dependencies": [
+            "P4-S2-11",
+            "P4-S2-12"
+          ],
+          "area": "frontend",
+          "owner_role": "UX Designer",
+          "est_hours": 5,
+          "deliverable": "Create accessibility settings overlay: Escape key toggles, Deep Ink themed",
+          "acceptance": "Create accessibility settings overlay: Escape key toggles, Deep Ink themed verified and working."
+        },
+        {
+          "id": "P4-S2-27",
+          "title": "Build zone teleport visual transition: brief fade on keyboard teleport",
+          "dependencies": [
+            "P4-S2-08"
+          ],
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 3,
+          "deliverable": "Build zone teleport visual transition: brief fade on keyboard teleport",
+          "acceptance": "Build zone teleport visual transition: brief fade on keyboard teleport verified and working."
+        },
+        {
+          "id": "P4-S2-28",
+          "title": "Implement user preference persistence schema in localStorage",
+          "dependencies": [
+            "P4-S2-26",
+            "P0-S2-46"
+          ],
+          "area": "data",
+          "owner_role": "Frontend Eng",
+          "est_hours": 3,
+          "deliverable": "Implement user preference persistence schema in localStorage",
+          "acceptance": "Implement user preference persistence schema in localStorage verified and working."
+        },
+        {
+          "id": "P4-S2-29",
+          "title": "Build tab and session synchronization prevention: only one active tab via BroadcastChannel",
+          "dependencies": [
+            "P1-S2-23"
+          ],
+          "area": "frontend",
+          "owner_role": "Frontend Eng",
+          "est_hours": 3,
+          "deliverable": "Build tab and session synchronization prevention: only one active tab via BroadcastChannel",
+          "acceptance": "Build tab and session synchronization prevention: only one active tab via BroadcastChannel verified and working."
+        },
+        {
+          "id": "P4-S2-30",
+          "title": "Create mobile splat rendering budget: 50% of desktop (250k max)",
+          "dependencies": [
+            "P0-S2-05"
+          ],
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 3,
+          "deliverable": "Create mobile splat rendering budget: 50% of desktop (250k max)",
+          "acceptance": "Create mobile splat rendering budget: 50% of desktop (250k max) verified and working."
+        },
+        {
+          "id": "P4-S2-31",
+          "title": "Build gesture recognition unit test suite: 40+ tests for 7 gestures and 2 mudras",
+          "dependencies": [
+            "P2-S2-14",
+            "P2-S2-16"
+          ],
+          "area": "qa",
+          "owner_role": "QA",
+          "est_hours": 5,
+          "deliverable": "Build gesture recognition unit test suite: 40+ tests for 7 gestures and 2 mudras",
+          "acceptance": "Build gesture recognition unit test suite: 40+ tests for 7 gestures and 2 mudras verified and working."
+        },
+        {
+          "id": "P4-S2-32",
+          "title": "Implement spatial audio positioning: Web Audio PannerNode per engine",
+          "dependencies": [
+            "P3-S3-12"
+          ],
+          "area": "frontend",
+          "owner_role": "Audio Eng",
+          "est_hours": 5,
+          "deliverable": "Implement spatial audio positioning: Web Audio PannerNode per engine",
+          "acceptance": "Implement spatial audio positioning: Web Audio PannerNode per engine verified and working."
+        },
+        {
+          "id": "P4-S2-33",
+          "title": "Build automated regression test suite for all failure handlers",
+          "dependencies": [
+            "P4-S2-01",
+            "P4-S2-02",
+            "P4-S2-03",
+            "P4-S2-04",
+            "P4-S2-05"
+          ],
+          "area": "qa",
+          "owner_role": "QA",
+          "est_hours": 6,
+          "deliverable": "Build automated regression test suite for all failure handlers",
+          "acceptance": "Build automated regression test suite for all failure handlers verified and working."
+        }
+      ]
+    },
+    {
+      "sprint_id": "S3",
+      "duration_weeks": 2,
+      "focus": "Performance Optimization, Cross-Browser & Launch",
+      "tasks": [
+        {
+          "id": "P4-S3-01",
+          "title": "Run full performance profiling: all 13 engines plus vessel plus world simultaneously at 60fps",
+          "dependencies": [
+            "P3-S3-05",
+            "P2-S3-12"
+          ],
+          "area": "qa",
+          "owner_role": "QA",
+          "est_hours": 6,
+          "deliverable": "Run full performance profiling: all 13 engines plus vessel plus world simultaneously at 60fps",
+          "acceptance": "Run full performance profiling: all 13 engines plus vessel plus world simultaneously at 60fps verified and working."
+        },
+        {
+          "id": "P4-S3-02",
+          "title": "Detect and resolve all memory leaks (sustained 30-min session heap analysis)",
+          "dependencies": [
+            "P4-S3-01"
+          ],
+          "area": "qa",
+          "owner_role": "QA",
+          "est_hours": 5,
+          "deliverable": "Detect and resolve all memory leaks (sustained 30-min session heap analysis)",
+          "acceptance": "Detect and resolve all memory leaks (sustained 30-min session heap analysis) verified and working."
+        },
+        {
+          "id": "P4-S3-03",
+          "title": "Validate splat budget: 500k total across 3 pools with profiling evidence",
+          "dependencies": [
+            "P0-S2-06",
+            "P0-S2-07",
+            "P0-S2-08"
+          ],
+          "area": "qa",
+          "owner_role": "QA",
+          "est_hours": 3,
+          "deliverable": "Validate splat budget: 500k total across 3 pools with profiling evidence",
+          "acceptance": "Validate splat budget: 500k total across 3 pools with profiling evidence verified and working."
+        },
+        {
+          "id": "P4-S3-04",
+          "title": "Validate triangle budget: 100k total with draw call profiling",
+          "dependencies": [
+            "P3-S3-33"
+          ],
+          "area": "qa",
+          "owner_role": "QA",
+          "est_hours": 3,
+          "deliverable": "Validate triangle budget: 100k total with draw call profiling",
+          "acceptance": "Validate triangle budget: 100k total with draw call profiling verified and working."
+        },
+        {
+          "id": "P4-S3-05",
+          "title": "Validate VRAM budget: 256MB limit with GPU memory profiling",
+          "dependencies": [
+            "P4-S3-01"
+          ],
+          "area": "qa",
+          "owner_role": "QA",
+          "est_hours": 3,
+          "deliverable": "Validate VRAM budget: 256MB limit with GPU memory profiling",
+          "acceptance": "Validate VRAM budget: 256MB limit with GPU memory profiling verified and working."
+        },
+        {
+          "id": "P4-S3-06",
+          "title": "Validate physics budget: 2ms per step under full load with timing profiling",
+          "dependencies": [
+            "P0-S1-14",
+            "P4-S3-01"
+          ],
+          "area": "qa",
+          "owner_role": "QA",
+          "est_hours": 3,
+          "deliverable": "Validate physics budget: 2ms per step under full load with timing profiling",
+          "acceptance": "Validate physics budget: 2ms per step under full load with timing profiling verified and working."
+        },
+        {
+          "id": "P4-S3-07",
+          "title": "Run Chrome 100+ compatibility testing and fix all issues",
+          "dependencies": [
+            "P4-S3-01"
+          ],
+          "area": "qa",
+          "owner_role": "QA",
+          "est_hours": 4,
+          "deliverable": "Run Chrome 100+ compatibility testing and fix all issues",
+          "acceptance": "Run Chrome 100+ compatibility testing and fix all issues verified and working."
+        },
+        {
+          "id": "P4-S3-08",
+          "title": "Run Safari 16+ compatibility testing and fix WebGL2 quirks",
+          "dependencies": [
+            "P4-S3-01"
+          ],
+          "area": "qa",
+          "owner_role": "QA",
+          "est_hours": 5,
+          "deliverable": "Run Safari 16+ compatibility testing and fix WebGL2 quirks",
+          "acceptance": "Run Safari 16+ compatibility testing and fix WebGL2 quirks verified and working."
+        },
+        {
+          "id": "P4-S3-09",
+          "title": "Run Firefox 110+ compatibility testing and fix all issues",
+          "dependencies": [
+            "P4-S3-01"
+          ],
+          "area": "qa",
+          "owner_role": "QA",
+          "est_hours": 4,
+          "deliverable": "Run Firefox 110+ compatibility testing and fix all issues",
+          "acceptance": "Run Firefox 110+ compatibility testing and fix all issues verified and working."
+        },
+        {
+          "id": "P4-S3-10",
+          "title": "Run mobile browser testing: iOS Safari, Chrome Android",
+          "dependencies": [
+            "P4-S2-24",
+            "P4-S2-25"
+          ],
+          "area": "qa",
+          "owner_role": "QA",
+          "est_hours": 5,
+          "deliverable": "Run mobile browser testing: iOS Safari, Chrome Android",
+          "acceptance": "Run mobile browser testing: iOS Safari, Chrome Android verified and working."
+        },
+        {
+          "id": "P4-S3-11",
+          "title": "Execute 30-minute sustained load test with all systems active",
+          "dependencies": [
+            "P4-S3-02"
+          ],
+          "area": "qa",
+          "owner_role": "QA",
+          "est_hours": 4,
+          "deliverable": "Execute 30-minute sustained load test with all systems active",
+          "acceptance": "Execute 30-minute sustained load test with all systems active verified and working."
+        },
+        {
+          "id": "P4-S3-12",
+          "title": "Validate CDN edge caching for splat and WASM assets",
+          "dependencies": [
+            "P0-S2-13"
+          ],
+          "area": "infra",
+          "owner_role": "DevOps",
+          "est_hours": 3,
+          "deliverable": "Validate CDN edge caching for splat and WASM assets",
+          "acceptance": "Validate CDN edge caching for splat and WASM assets verified and working."
+        },
+        {
+          "id": "P4-S3-13",
+          "title": "Optimize bundle size: code splitting, tree shaking, lazy loading",
+          "dependencies": [
+            "P0-S1-02"
+          ],
+          "area": "infra",
+          "owner_role": "DevOps",
+          "est_hours": 5,
+          "deliverable": "Optimize bundle size: code splitting, tree shaking, lazy loading",
+          "acceptance": "Optimize bundle size: code splitting, tree shaking, lazy loading verified and working."
+        },
+        {
+          "id": "P4-S3-14",
+          "title": "Run Lighthouse audit: performance >90, accessibility >90, best practices >90",
+          "dependencies": [
+            "P4-S3-07"
+          ],
+          "area": "qa",
+          "owner_role": "QA",
+          "est_hours": 4,
+          "deliverable": "Run Lighthouse audit: performance >90, accessibility >90, best practices >90",
+          "acceptance": "Run Lighthouse audit: performance >90, accessibility >90, best practices >90 verified and working."
+        },
+        {
+          "id": "P4-S3-15",
+          "title": "Build E2E test: first-time user journey (void to calibration to world to zone to engine to reading)",
+          "dependencies": [
+            "P4-S1-32"
+          ],
+          "area": "qa",
+          "owner_role": "QA",
+          "est_hours": 6,
+          "deliverable": "Build E2E test: first-time user journey (void to calibration to world to zone to engine to reading)",
+          "acceptance": "Build E2E test: first-time user journey (void to calibration to world to zone to engine to reading) verified and working."
+        },
+        {
+          "id": "P4-S3-16",
+          "title": "Build E2E test: returning user journey (compressed descent to re-calibration to progress)",
+          "dependencies": [
+            "P1-S2-24"
+          ],
+          "area": "qa",
+          "owner_role": "QA",
+          "est_hours": 5,
+          "deliverable": "Build E2E test: returning user journey (compressed descent to re-calibration to progress)",
+          "acceptance": "Build E2E test: returning user journey (compressed descent to re-calibration to progress) verified and working."
+        },
+        {
+          "id": "P4-S3-17",
+          "title": "Implement WebGL memory info extension querying for VRAM monitoring",
+          "dependencies": [
+            "P0-S2-29"
+          ],
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 3,
+          "deliverable": "Implement WebGL memory info extension querying for VRAM monitoring",
+          "acceptance": "Implement WebGL memory info extension querying for VRAM monitoring verified and working."
+        },
+        {
+          "id": "P4-S3-18",
+          "title": "Create production build configuration (minification, external source maps, asset hashing)",
+          "dependencies": [
+            "P0-S1-02"
+          ],
+          "area": "infra",
+          "owner_role": "DevOps",
+          "est_hours": 4,
+          "deliverable": "Create production build configuration (minification, external source maps, asset hashing)",
+          "acceptance": "Create production build configuration (minification, external source maps, asset hashing) verified and working."
+        },
+        {
+          "id": "P4-S3-19",
+          "title": "Implement service worker for offline asset caching (WASM, static splats, UI)",
+          "dependencies": [
+            "P0-S2-12"
+          ],
+          "area": "infra",
+          "owner_role": "DevOps",
+          "est_hours": 5,
+          "deliverable": "Implement service worker for offline asset caching (WASM, static splats, UI)",
+          "acceptance": "Implement service worker for offline asset caching (WASM, static splats, UI) verified and working."
+        },
+        {
+          "id": "P4-S3-20",
+          "title": "Build production error reporting endpoint: POST /api/telemetry (anonymous, no PII)",
+          "dependencies": [
+            "P2-S1-01"
+          ],
+          "area": "backend",
+          "owner_role": "Backend Eng",
+          "est_hours": 4,
+          "deliverable": "Build production error reporting endpoint: POST /api/telemetry (anonymous, no PII)",
+          "acceptance": "Build production error reporting endpoint: POST /api/telemetry (anonymous, no PII) verified and working."
+        },
+        {
+          "id": "P4-S3-21",
+          "title": "Implement Content Security Policy headers for WebGL, WASM, Workers, Web Audio",
+          "dependencies": [
+            "P4-S3-18"
+          ],
+          "area": "infra",
+          "owner_role": "DevOps",
+          "est_hours": 3,
+          "deliverable": "Implement Content Security Policy headers for WebGL, WASM, Workers, Web Audio",
+          "acceptance": "Implement Content Security Policy headers for WebGL, WASM, Workers, Web Audio verified and working."
+        },
+        {
+          "id": "P4-S3-22",
+          "title": "Build automated cross-browser screenshot comparison CI job (Playwright)",
+          "dependencies": [
+            "P4-S3-07",
+            "P4-S3-08",
+            "P4-S3-09"
+          ],
+          "area": "qa",
+          "owner_role": "QA",
+          "est_hours": 5,
+          "deliverable": "Build automated cross-browser screenshot comparison CI job (Playwright)",
+          "acceptance": "Build automated cross-browser screenshot comparison CI job (Playwright) verified and working."
+        },
+        {
+          "id": "P4-S3-23",
+          "title": "Create production deployment pipeline: build to test to deploy to smoke test (GitHub Actions)",
+          "dependencies": [
+            "P0-S1-28",
+            "P4-S3-18"
+          ],
+          "area": "infra",
+          "owner_role": "DevOps",
+          "est_hours": 5,
+          "deliverable": "Create production deployment pipeline: build to test to deploy to smoke test (GitHub Actions)",
+          "acceptance": "Create production deployment pipeline: build to test to deploy to smoke test (GitHub Actions) verified and working."
+        },
+        {
+          "id": "P4-S3-24",
+          "title": "Build production performance monitoring dashboard (FPS, errors, load time, duration)",
+          "dependencies": [
+            "P4-S3-20"
+          ],
+          "area": "infra",
+          "owner_role": "DevOps",
+          "est_hours": 4,
+          "deliverable": "Build production performance monitoring dashboard (FPS, errors, load time, duration)",
+          "acceptance": "Build production performance monitoring dashboard (FPS, errors, load time, duration) verified and working."
+        },
+        {
+          "id": "P4-S3-25",
+          "title": "Create bundle analysis report (dependency tree, chunk sizes, unused code detection)",
+          "dependencies": [
+            "P4-S3-13"
+          ],
+          "area": "infra",
+          "owner_role": "DevOps",
+          "est_hours": 3,
+          "deliverable": "Create bundle analysis report (dependency tree, chunk sizes, unused code detection)",
+          "acceptance": "Create bundle analysis report (dependency tree, chunk sizes, unused code detection) verified and working."
+        },
+        {
+          "id": "P4-S3-26",
+          "title": "Build launch checklist documentation: 50+ verification items with sign-off fields",
+          "dependencies": [
+            "P4-S3-15",
+            "P4-S3-16"
+          ],
+          "area": "product",
+          "owner_role": "Frontend Eng",
+          "est_hours": 3,
+          "deliverable": "Build launch checklist documentation: 50+ verification items with sign-off fields",
+          "acceptance": "Build launch checklist documentation: 50+ verification items with sign-off fields verified and working."
+        },
+        {
+          "id": "P4-S3-27",
+          "title": "Implement graceful WASM loading failure UX: retry button, 3 retries, fallback mode",
+          "dependencies": [
+            "P4-S2-20"
+          ],
+          "area": "frontend",
+          "owner_role": "Frontend Eng",
+          "est_hours": 3,
+          "deliverable": "Implement graceful WASM loading failure UX: retry button, 3 retries, fallback mode",
+          "acceptance": "Implement graceful WASM loading failure UX: retry button, 3 retries, fallback mode verified and working."
+        },
+        {
+          "id": "P4-S3-28",
+          "title": "Build World Labs API rate limiting and cost monitoring dashboard",
+          "dependencies": [
+            "P2-S1-29"
+          ],
+          "area": "backend",
+          "owner_role": "Backend Eng",
+          "est_hours": 4,
+          "deliverable": "Build World Labs API rate limiting and cost monitoring dashboard",
+          "acceptance": "Build World Labs API rate limiting and cost monitoring dashboard verified and working."
+        },
+        {
+          "id": "P4-S3-29",
+          "title": "Implement session analytics pipeline: anonymous usage patterns to PostgreSQL",
+          "dependencies": [
+            "P2-S1-02"
+          ],
+          "area": "backend",
+          "owner_role": "Backend Eng",
+          "est_hours": 5,
+          "deliverable": "Implement session analytics pipeline: anonymous usage patterns to PostgreSQL",
+          "acceptance": "Implement session analytics pipeline: anonymous usage patterns to PostgreSQL verified and working."
+        },
+        {
+          "id": "P4-S3-30",
+          "title": "Create architecture decision records (ADRs) for key technology choices",
+          "dependencies": [
+            "P4-S3-26"
+          ],
+          "area": "product",
+          "owner_role": "Frontend Eng",
+          "est_hours": 4,
+          "deliverable": "Create architecture decision records (ADRs) for key technology choices",
+          "acceptance": "Create architecture decision records (ADRs) for key technology choices verified and working."
+        },
+        {
+          "id": "P4-S3-31",
+          "title": "Build 30-minute comprehensive integration test: all systems sustained",
+          "dependencies": [
+            "P4-S3-01",
+            "P4-S3-02"
+          ],
+          "area": "qa",
+          "owner_role": "QA",
+          "est_hours": 8,
+          "deliverable": "Build 30-minute comprehensive integration test: all systems sustained",
+          "acceptance": "Build 30-minute comprehensive integration test: all systems sustained verified and working."
+        },
+        {
+          "id": "P4-S3-32",
+          "title": "Create production-ready Dockerfile for FastAPI backend (multi-stage, slim, health check)",
+          "dependencies": [
+            "P2-S1-01"
+          ],
+          "area": "infra",
+          "owner_role": "DevOps",
+          "est_hours": 4,
+          "deliverable": "Create production-ready Dockerfile for FastAPI backend (multi-stage, slim, health check)",
+          "acceptance": "Create production-ready Dockerfile for FastAPI backend (multi-stage, slim, health check) verified and working."
+        },
+        {
+          "id": "P4-S3-33",
+          "title": "Build database migration and backup strategy documentation",
+          "dependencies": [
+            "P2-S1-02"
+          ],
+          "area": "product",
+          "owner_role": "Backend Eng",
+          "est_hours": 3,
+          "deliverable": "Build database migration and backup strategy documentation",
+          "acceptance": "Build database migration and backup strategy documentation verified and working."
+        },
+        {
+          "id": "P4-S3-34",
+          "title": "Create production smoke test script: Playwright first-time user automated journey",
+          "dependencies": [
+            "P4-S3-23",
+            "P4-S3-15"
+          ],
+          "area": "qa",
+          "owner_role": "QA",
+          "est_hours": 5,
+          "deliverable": "Create production smoke test script: Playwright first-time user automated journey",
+          "acceptance": "Create production smoke test script: Playwright first-time user automated journey verified and working."
+        },
+        {
+          "id": "P4-S3-35",
+          "title": "Build developer onboarding documentation: setup, architecture, contribution guide",
+          "dependencies": [
+            "P4-S3-26"
+          ],
+          "area": "product",
+          "owner_role": "Frontend Eng",
+          "est_hours": 4,
+          "deliverable": "Build developer onboarding documentation: setup, architecture, contribution guide",
+          "acceptance": "Build developer onboarding documentation: setup, architecture, contribution guide verified and working."
+        }
+      ]
+    }
+  ]
+}

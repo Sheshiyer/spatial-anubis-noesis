@@ -1,0 +1,1286 @@
+{
+  "phase_id": "P3",
+  "name": "THE RITUALS \u2014 Engines & Interactions",
+  "objective": "Build all 13 divination engine 3D artifacts with physics interactions, backend API endpoints, Field Journal persistence, and the Cartographer meta-engine.",
+  "weeks": "15\u201320",
+  "total_tasks": 100,
+  "sprints": [
+    {
+      "sprint_id": "S1",
+      "duration_weeks": 2,
+      "focus": "Tier 1 Ancient Instruments (I-Ching, Vimshottari, Tarot, Runes, Numerology)",
+      "task_count": 33,
+      "tasks": [
+        {
+          "id": "P3-S1-01",
+          "title": "Build I-Ching Oracle 3D scene: stone dish on pedestal with Dark Stone material",
+          "dependencies": [
+            "P0-S1-10",
+            "P0-S2-14"
+          ],
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 4,
+          "deliverable": "Create the I-Ching Oracle 3D scene consisting of a stone dish on a pedestal using Dark Stone material. The dish serves as the target for coin tosses. Place within the East Wing spatial coordinate system.",
+          "acceptance": "Stone dish mesh renders on pedestal with Dark Stone PBR material; Dish interior has concave collision shape for coin containment; Positioned within East Wing spatial coordinate system"
+        },
+        {
+          "id": "P3-S1-02",
+          "title": "Create 3 I-Ching coin RigidBodies: Dynamic, mass 0.3, restitution 0.6, Gold material",
+          "dependencies": [
+            "P0-S1-13",
+            "P3-S1-01"
+          ],
+          "area": "frontend",
+          "owner_role": "Physics Engineer",
+          "est_hours": 4,
+          "deliverable": "Create three I-Ching coin rigid bodies using Rapier physics. Each coin is Dynamic type with mass 0.3 and restitution 0.6. Apply Gold PBR material. Coins must have two distinct faces for yin/yang determination.",
+          "acceptance": "3 coin RigidBodies with mass 0.3 and restitution 0.6; Gold material applied to all coins; Coins behave physically (bounce, settle) in the dish"
+        },
+        {
+          "id": "P3-S1-03",
+          "title": "Implement I-Ching coin toss physics: GRASP coins, THROW into dish, settle detection",
+          "dependencies": [
+            "P2-S2-01",
+            "P2-S2-02",
+            "P3-S1-02"
+          ],
+          "area": "frontend",
+          "owner_role": "Physics Engineer",
+          "est_hours": 5,
+          "deliverable": "Implement coin toss interaction using GRASP gesture to pick up coins and THROW gesture to toss them into the dish. Detect when all 3 coins have settled (velocity below threshold for 500ms) to read the result.",
+          "acceptance": "GRASP gesture picks up coins from rest position; THROW gesture tosses coins with physics-based trajectory into dish; Settle detection triggers reading after all coins reach sub-threshold velocity for 500ms"
+        },
+        {
+          "id": "P3-S1-04",
+          "title": "Build I-Ching hexagram builder: 6 throws to lines (solid/broken) to hexagram number",
+          "dependencies": [
+            "P3-S1-03"
+          ],
+          "area": "frontend",
+          "owner_role": "Frontend Engineer",
+          "est_hours": 4,
+          "deliverable": "Build the hexagram construction logic. Each of 6 throws produces a line (solid Yang or broken Yin) based on coin face combination. Stack lines bottom-to-top to form a hexagram. Map the 6-line binary to one of 64 hexagram numbers, including changing line detection.",
+          "acceptance": "6 sequential throws produce 6 lines (solid or broken); Lines stack bottom-to-top following traditional I-Ching order; Correct mapping to 1 of 64 hexagram numbers; Changing lines detected from specific coin combinations"
+        },
+        {
+          "id": "P3-S1-05",
+          "title": "Create FastAPI I-Ching interpretation endpoint: POST /api/engines/i-ching",
+          "dependencies": [
+            "P2-S1-01"
+          ],
+          "area": "backend",
+          "owner_role": "Backend Engineer",
+          "est_hours": 5,
+          "deliverable": "Create FastAPI endpoint that accepts a hexagram number and changing lines, returns the hexagram name, judgment text, image text, and line interpretations. Include transformed hexagram if changing lines exist.",
+          "acceptance": "POST /api/engines/i-ching accepts hexagram_number and changing_lines; Returns hexagram name, judgment, image, and line texts; Returns transformed hexagram when changing lines present; Response time under 200ms"
+        },
+        {
+          "id": "P3-S1-06",
+          "title": "Build I-Ching 3D text rendering: hexagram name + interpretation floating above dish",
+          "dependencies": [
+            "P3-S1-05"
+          ],
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 4,
+          "deliverable": "Render the I-Ching interpretation as 3D billboard text floating above the stone dish. Display hexagram name prominently, followed by interpretation text with typewriter reveal effect. Text faces the user camera.",
+          "acceptance": "Hexagram name renders as billboard text above dish; Interpretation text appears with typewriter effect; Text always faces active camera; Text fades at distance > 15 units"
+        },
+        {
+          "id": "P3-S1-07",
+          "title": "Implement I-Ching coin face materials (inscribed Chinese characters vs plain gold)",
+          "dependencies": [
+            "P3-S1-02"
+          ],
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 4,
+          "deliverable": "Create distinct materials for each coin face. One side has inscribed Chinese characters (Yang/heads), the other is plain gold (Yin/tails). The face-up determination after settling drives the line type.",
+          "acceptance": "Each coin has two visually distinct faces; Character side clearly distinguishable from plain gold side; Face-up detection works correctly after coin settles"
+        },
+        {
+          "id": "P3-S1-08",
+          "title": "Build I-Ching line visualization: Gold bars (Yang) / gaps (Yin) stacking above dish",
+          "dependencies": [
+            "P3-S1-04"
+          ],
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 4,
+          "deliverable": "Visualize each hexagram line as a 3D element stacking above the dish. Yang lines are solid Gold bars, Yin lines are broken bars with a gap. Lines appear one at a time after each throw, building the hexagram visually.",
+          "acceptance": "Yang lines render as solid Gold bars; Yin lines render as two short bars with central gap; Lines stack bottom-to-top with each successive throw; Smooth appearance animation for each new line"
+        },
+        {
+          "id": "P3-S1-09",
+          "title": "Implement I-Ching changing line display: primary + transformed hexagram side by side",
+          "dependencies": [
+            "P3-S1-04"
+          ],
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 4,
+          "deliverable": "When changing lines are present, display both the primary hexagram and the transformed hexagram side by side above the dish. Changing lines glow with a pulsing effect to highlight them. An arrow or transition visual connects the two hexagrams.",
+          "acceptance": "Primary and transformed hexagrams display side by side; Changing lines have pulsing glow effect; Visual transition element connects the two hexagrams; Only appears when changing lines are detected"
+        },
+        {
+          "id": "P3-S1-10",
+          "title": "Create Vimshottari Clock 3D artifact: concentric golden rings on dark pedestal",
+          "dependencies": [
+            "P0-S1-10",
+            "P0-S2-14"
+          ],
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 5,
+          "deliverable": "Build the Vimshottari Dasha Clock as concentric golden rings (Maha, Antar, Pratyantar Dasha levels) mounted on a dark pedestal. Each ring has inscribed planetary period markers. The artifact evokes an astronomical instrument.",
+          "acceptance": "Three concentric golden rings at different radii and heights; Dark pedestal base with appropriate PBR material; Planetary period markers inscribed on each ring; Positioned within East Wing spatial coordinate system"
+        },
+        {
+          "id": "P3-S1-11",
+          "title": "Build Vimshottari ring rotation interaction: ORBIT gesture rotates selected ring",
+          "dependencies": [
+            "P2-S2-03",
+            "P3-S1-10"
+          ],
+          "area": "frontend",
+          "owner_role": "Physics Engineer",
+          "est_hours": 4,
+          "deliverable": "Implement ring rotation interaction using a circular ORBIT gesture. When user hovers a ring, it highlights. The ORBIT gesture then rotates the selected ring to navigate between Dasha periods. Rotation has momentum and damping.",
+          "acceptance": "Hover highlights the targeted ring; ORBIT gesture rotates the selected ring smoothly; Rotation has momentum with damping (settles naturally); Ring snaps to nearest Dasha period on settle"
+        },
+        {
+          "id": "P3-S1-12",
+          "title": "Create FastAPI Vimshottari Dasha calculation endpoint: POST /api/engines/vimshottari",
+          "dependencies": [
+            "P2-S1-01"
+          ],
+          "area": "backend",
+          "owner_role": "Backend Engineer",
+          "est_hours": 5,
+          "deliverable": "Create FastAPI endpoint that accepts birth data (date, time, moon longitude) and calculates the full Vimshottari Dasha timeline. Returns Maha, Antar, and Pratyantar Dasha periods with start/end dates and planetary rulers.",
+          "acceptance": "POST /api/engines/vimshottari accepts birth date, time, and moon longitude; Returns complete Maha Dasha sequence with dates; Returns Antar and Pratyantar sub-periods; Current active period highlighted in response"
+        },
+        {
+          "id": "P3-S1-13",
+          "title": "Build Tarot Spiral: 78 holographic card orbital ring floating at chest height",
+          "dependencies": [
+            "P0-S1-10",
+            "P0-S2-01"
+          ],
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 6,
+          "deliverable": "Create a spiral orbital ring of 78 Tarot cards floating at chest height. Cards are arranged in a gentle spiral with holographic sheen (SparkJS splat-based iridescence). The spiral slowly rotates when idle.",
+          "acceptance": "78 card planes arranged in spiral orbital formation; Spiral floats at approximate chest height (1.3m); Holographic iridescent sheen via SparkJS gaussian splats; Idle rotation at 1 revolution per 120 seconds"
+        },
+        {
+          "id": "P3-S1-14",
+          "title": "Implement Tarot SparkJS veil mechanic: semi-transparent splat curtain over undrawn cards",
+          "dependencies": [
+            "P0-S2-01",
+            "P3-S1-13"
+          ],
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 4,
+          "deliverable": "Create a semi-transparent veil using SparkJS gaussian splats that covers the card spiral. The veil acts as a mystical barrier. Cards behind the veil are partially obscured. The veil parts locally when user hand approaches with sufficient coherence.",
+          "acceptance": "SparkJS splat veil renders as semi-transparent curtain over cards; Cards behind veil are visually obscured but faintly visible; Veil parts locally around user hand position; Veil re-forms when hand withdraws"
+        },
+        {
+          "id": "P3-S1-15",
+          "title": "Build Tarot card draw: gesture reaches through veil, coherence > 60 required to grasp",
+          "dependencies": [
+            "P2-S2-01",
+            "P2-S2-05",
+            "P3-S1-14"
+          ],
+          "area": "frontend",
+          "owner_role": "Physics Engineer",
+          "est_hours": 4,
+          "deliverable": "Implement the card draw mechanic. User reaches through the veil using GRASP gesture. Coherence score must exceed 60% for the grasp to succeed. On successful grasp, the selected card detaches from the spiral and follows the hand. Card can be placed in spread positions.",
+          "acceptance": "GRASP gesture through veil selects nearest card; Coherence threshold of 60% enforced for successful draw; Selected card detaches and follows hand movement; Failed draw (low coherence) shows visual rejection feedback"
+        },
+        {
+          "id": "P3-S1-16",
+          "title": "Create FastAPI Tarot interpretation endpoint: POST /api/engines/tarot",
+          "dependencies": [
+            "P2-S1-01"
+          ],
+          "area": "backend",
+          "owner_role": "Backend Engineer",
+          "est_hours": 5,
+          "deliverable": "Create FastAPI endpoint that accepts drawn card IDs, positions in spread, and orientation (upright/reversed). Returns per-card interpretation, positional meaning, and overall spread narrative synthesis.",
+          "acceptance": "POST /api/engines/tarot accepts card_ids, positions, and orientations; Returns per-card interpretation with positional context; Returns overall spread narrative synthesis; Supports single, three-card, and Celtic Cross spreads"
+        },
+        {
+          "id": "P3-S1-17",
+          "title": "Implement Tarot card face textures: 78 cards as texture atlas (efficient GPU upload)",
+          "dependencies": [
+            "P3-S1-13"
+          ],
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 8,
+          "deliverable": "Create a texture atlas containing all 78 Tarot card faces (22 Major Arcana + 56 Minor Arcana). Use UV offset/scale per card to sample from the atlas. Single texture bind for all cards for GPU efficiency. Card backs use a shared ornate design.",
+          "acceptance": "Single texture atlas contains all 78 card faces; UV offset/scale correctly maps each card to its atlas region; Single GPU texture bind serves all cards; Card back design is shared and ornate"
+        },
+        {
+          "id": "P3-S1-18",
+          "title": "Build Tarot spread layout system: single card, three-card, Celtic Cross positions",
+          "dependencies": [
+            "P3-S1-15"
+          ],
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 5,
+          "deliverable": "Build the spread layout system with predefined 3D positions for different spread types. Single card: centered in front. Three-card: past/present/future in a row. Celtic Cross: 10 positions in traditional layout. Cards animate to their positions when placed.",
+          "acceptance": "Single card spread places card centered in front of user; Three-card spread arranges past/present/future in a horizontal row; Celtic Cross spread positions 10 cards in traditional layout; Cards animate smoothly to target positions on placement"
+        },
+        {
+          "id": "P3-S1-19",
+          "title": "Create Rune Stones: leather pouch mesh + 24 Elder Futhark stone RigidBodies",
+          "dependencies": [
+            "P0-S1-13",
+            "P0-S2-14"
+          ],
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 5,
+          "deliverable": "Create the Rune Stones artifact consisting of a leather pouch mesh and 24 Elder Futhark rune stone rigid bodies. The pouch is a soft-body-like mesh that can be opened. Stones rest inside and can be drawn out.",
+          "acceptance": "Leather pouch mesh with PBR leather material; 24 rune stone RigidBodies contained within pouch; Pouch opens to reveal stones on interaction; Stones are individually graspable"
+        },
+        {
+          "id": "P3-S1-20",
+          "title": "Implement Rune stone irregular pebble geometry (24 unique meshes with carved glyphs)",
+          "dependencies": [
+            "P3-S1-19"
+          ],
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 6,
+          "deliverable": "Create 24 unique irregular pebble-shaped meshes, each with a carved Elder Futhark glyph on one face. Glyphs are geometry-carved (not just texture) for depth. Each stone has a slightly different shape and size for organic feel.",
+          "acceptance": "24 unique pebble meshes with organic irregular shapes; Each stone has a distinct Elder Futhark glyph carved into geometry; Glyphs have visible depth (not flat textures); Stone material has natural stone PBR properties"
+        },
+        {
+          "id": "P3-S1-21",
+          "title": "Build Rune spatial casting: THROW stones from pouch, read based on landing positions/orientations",
+          "dependencies": [
+            "P2-S2-02",
+            "P3-S1-19"
+          ],
+          "area": "frontend",
+          "owner_role": "Physics Engineer",
+          "est_hours": 5,
+          "deliverable": "Implement the rune casting mechanic. User draws stones from pouch with GRASP and THROWs them onto a casting cloth. Reading is determined by which stones land face-up (glyph visible), their positions relative to each other, and proximity to center.",
+          "acceptance": "GRASP draws stones from open pouch; THROW casts stones onto casting surface; Face-up/face-down detection based on glyph normal direction; Position and proximity analysis determines reading context"
+        },
+        {
+          "id": "P3-S1-22",
+          "title": "Create FastAPI Rune interpretation endpoint: POST /api/engines/runes",
+          "dependencies": [
+            "P2-S1-01"
+          ],
+          "area": "backend",
+          "owner_role": "Backend Engineer",
+          "est_hours": 5,
+          "deliverable": "Create FastAPI endpoint that accepts cast rune data (rune IDs, face-up/down, positions, orientations). Returns individual rune meanings, positional context (center vs periphery), and combined narrative interpretation.",
+          "acceptance": "POST /api/engines/runes accepts rune_ids, orientations, and positions; Returns individual rune meanings with facing context; Returns positional interpretation (center = primary, periphery = supporting); Returns combined narrative synthesis"
+        },
+        {
+          "id": "P3-S1-23",
+          "title": "Build Numerology Matrix: input form (name + birthdate) to crystalline number grid",
+          "dependencies": [
+            "P0-S1-10"
+          ],
+          "area": "frontend",
+          "owner_role": "Frontend Engineer",
+          "est_hours": 5,
+          "deliverable": "Build the Numerology Matrix artifact. Starts as a minimal 3D input form where user provides name and birthdate. On submission, the form transforms into a crystalline grid of numbers showing Life Path, Expression, Soul Urge, and other core numbers.",
+          "acceptance": "3D input form accepts name and birthdate; Form transforms into crystalline number grid on submission; Grid displays Life Path, Expression, Soul Urge, and Personality numbers; Crystalline material with transparency and refraction"
+        },
+        {
+          "id": "P3-S1-24",
+          "title": "Implement Numerology cascading number animation (waterfall, 50ms stagger per row)",
+          "dependencies": [
+            "P3-S1-23"
+          ],
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 4,
+          "deliverable": "Implement the cascading waterfall animation for the numerology grid. Numbers appear row by row with 50ms stagger between each row. Each number fades in and scales up from zero. The effect creates a digital rain / Matrix-like waterfall aesthetic.",
+          "acceptance": "Numbers cascade row-by-row with 50ms stagger; Each number fades in and scales from 0 to full size; Animation creates waterfall visual effect; Total animation duration under 3 seconds for full grid"
+        },
+        {
+          "id": "P3-S1-25",
+          "title": "Build Numerology radial mandala: grid transforms to radial layout with Life Path at center",
+          "dependencies": [
+            "P3-S1-23"
+          ],
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 5,
+          "deliverable": "After the grid appears, implement a transformation to a radial mandala layout. The Life Path number moves to the center, with other numbers orbiting in concentric rings by importance. The transition is animated over 2 seconds with easing.",
+          "acceptance": "Grid transforms to radial mandala layout on trigger; Life Path number positioned at center with emphasis; Other numbers orbit in concentric rings by significance; Smooth 2-second animated transition with easing"
+        },
+        {
+          "id": "P3-S1-26",
+          "title": "Create FastAPI Numerology calculation endpoint: POST /api/engines/numerology",
+          "dependencies": [
+            "P2-S1-01"
+          ],
+          "area": "backend",
+          "owner_role": "Backend Engineer",
+          "est_hours": 4,
+          "deliverable": "Create FastAPI endpoint that accepts name and birthdate, calculates all core numerology numbers (Life Path, Expression, Soul Urge, Personality, Birthday, Maturity), and returns interpretations for each.",
+          "acceptance": "POST /api/engines/numerology accepts name and birthdate; Calculates Life Path, Expression, Soul Urge, Personality numbers; Calculates Birthday and Maturity numbers; Returns interpretive text for each number"
+        },
+        {
+          "id": "P3-S1-27",
+          "title": "Implement Tier 1 spatial placement: all 5 engines at radius 5 units from East Wing center (50,0,0)",
+          "dependencies": [
+            "P3-S1-01",
+            "P3-S1-10",
+            "P3-S1-13",
+            "P3-S1-19",
+            "P3-S1-23"
+          ],
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 3,
+          "deliverable": "Position all 5 Tier 1 engines (I-Ching, Vimshottari, Tarot, Runes, Numerology) at radius 5 units from the East Wing center point (50,0,0). Engines are evenly spaced around the circle at 72-degree intervals. Each faces outward from center.",
+          "acceptance": "All 5 Tier 1 engines positioned at radius 5 from (50,0,0); 72-degree spacing between engines; Each engine faces outward from circle center; No z-fighting or overlap between engine artifacts"
+        },
+        {
+          "id": "P3-S1-28",
+          "title": "Build inter-engine filament connections: golden thread geometry between consulted engines",
+          "dependencies": [
+            "P3-S1-27"
+          ],
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 4,
+          "deliverable": "Create golden thread geometry (thin tube or line with glow) that connects engines the user has consulted. Threads appear after second engine consultation and grow with each additional engine. Thread brightness indicates recency of consultation.",
+          "acceptance": "Golden thread geometry connects consulted engines; Threads appear after second engine is consulted; Thread brightness correlates with consultation recency; Thread geometry uses efficient tube or line rendering"
+        },
+        {
+          "id": "P3-S1-29",
+          "title": "Create engine interaction state manager: hovered/engaged/reading_in_progress per engine",
+          "dependencies": [
+            "P3-S1-27"
+          ],
+          "area": "frontend",
+          "owner_role": "Frontend Engineer",
+          "est_hours": 4,
+          "deliverable": "Build a state manager (Zustand store) tracking each engine's interaction state: idle, hovered, engaged (actively being used), reading_in_progress (API call pending), reading_complete. Ensures only one engine can be engaged at a time.",
+          "acceptance": "Zustand store tracks state per engine: idle/hovered/engaged/reading_in_progress/reading_complete; Only one engine can be in engaged state at a time; State transitions trigger appropriate visual/audio feedback; State accessible from any component via hook"
+        },
+        {
+          "id": "P3-S1-30",
+          "title": "Build shared 3D text rendering system: billboard, typewriter effect at 40ms/char, fade at 15u",
+          "dependencies": [
+            "P3-S1-06"
+          ],
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 6,
+          "deliverable": "Create a reusable 3D text rendering system used by all engines. Text renders as camera-facing billboard. Characters appear with typewriter effect at 40ms per character. Text fades to transparent beyond 15 units distance. Supports multi-line with word wrapping.",
+          "acceptance": "Billboard text always faces active camera; Typewriter effect reveals characters at 40ms intervals; Text fades to transparent beyond 15 units; Supports multi-line with configurable word wrapping; Reusable component API for all 13 engines"
+        },
+        {
+          "id": "P3-S1-31",
+          "title": "Implement engine hover expansion: scale 1.1x on raycast, 300ms tween",
+          "dependencies": [
+            "P3-S1-29"
+          ],
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 3,
+          "deliverable": "When the user's hand ray or gaze ray intersects an engine artifact, scale it to 1.1x over 300ms with ease-out tween. Return to 1.0x on ray exit. The expansion provides tactile feedback that the engine is interactive.",
+          "acceptance": "Engine scales to 1.1x when raycast intersects; 300ms ease-out tween for scale up; Returns to 1.0x on ray exit with matching tween; Only triggers for idle/hovered states (not during active use)"
+        },
+        {
+          "id": "P3-S1-32",
+          "title": "Create loading state particle burst for engine API calls (anticipation effect)",
+          "dependencies": [
+            "P3-S1-30"
+          ],
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 3,
+          "deliverable": "When an engine transitions to reading_in_progress state (API call fired), emit a burst of luminous particles from the artifact. Particles spiral outward and upward, creating anticipation. Particles persist until API response arrives.",
+          "acceptance": "Particle burst emits when reading_in_progress state enters; Particles spiral outward and upward from artifact center; Particles persist during API call duration; Particles dissipate on API response arrival"
+        },
+        {
+          "id": "P3-S1-33",
+          "title": "Build engine reading loading animation (artifact glows and emits particles during API wait)",
+          "dependencies": [
+            "P3-S1-32"
+          ],
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 3,
+          "deliverable": "During reading_in_progress, the engine artifact itself glows with increasing intensity (emissive ramp from 0.2 to 0.8 over 3 seconds, then pulse). Combined with the particle burst, this creates a cohesive loading state visual.",
+          "acceptance": "Artifact emissive ramps from 0.2 to 0.8 over 3 seconds; Emissive pulses between 0.6 and 0.8 after initial ramp; Glow ceases on API response and transitions to reading_complete; Works in conjunction with particle burst from P3-S1-32"
+        }
+      ]
+    },
+    {
+      "sprint_id": "S2",
+      "duration_weeks": 2,
+      "focus": "Tier 2 Biological Mirrors + Tier 3 Synthesis Start",
+      "task_count": 31,
+      "tasks": [
+        {
+          "id": "P3-S2-01",
+          "title": "Build Biorhythm Compass: translucent pulsing sphere with 3 sine wave ribbons",
+          "dependencies": [
+            "P0-S1-10",
+            "P0-S2-01"
+          ],
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 5,
+          "deliverable": "Create the Biorhythm Compass artifact as a translucent pulsing sphere with three interwoven sine wave ribbons (Physical=red, Emotional=blue, Intellectual=green). Sphere pulses gently at resting heart rate. SparkJS splats create the translucent volume.",
+          "acceptance": "Translucent sphere renders with SparkJS gaussian splats; Three sine wave ribbons visible within sphere (red, blue, green); Sphere pulses gently at approximately 60 BPM default; Ribbons animate their sine wave phase continuously"
+        },
+        {
+          "id": "P3-S2-02",
+          "title": "Implement Biorhythm PIP sync: Physical/Emotional/Intellectual waves from live bio-data",
+          "dependencies": [
+            "P2-S3-01",
+            "P3-S2-01"
+          ],
+          "area": "frontend",
+          "owner_role": "Bio-Integration Engineer",
+          "est_hours": 4,
+          "deliverable": "Connect the Biorhythm Compass to the PIP bio-data pipeline. Physical wave amplitude modulated by HRV, Emotional by facial affect valence, Intellectual by blink rate patterns. Fallback to birthdate-calculated biorhythms when PIP unavailable.",
+          "acceptance": "Physical wave amplitude modulated by HRV data from PIP; Emotional wave modulated by facial affect valence; Intellectual wave modulated by blink rate patterns; Graceful fallback to birthdate-calculated biorhythms without PIP"
+        },
+        {
+          "id": "P3-S2-03",
+          "title": "Build Biorhythm scrub interaction: click-drag rim for date navigation, 30-day projection",
+          "dependencies": [
+            "P3-S2-01"
+          ],
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 4,
+          "deliverable": "Add an interactive rim to the Biorhythm sphere that can be click-dragged to scrub through time. Dragging right moves forward in time, left moves backward. Shows a 30-day projection of biorhythm cycles. Current date marked with a bright indicator.",
+          "acceptance": "Rim interaction allows click-drag date navigation; Right drag = forward in time, left drag = backward; 30-day projection visible as extended wave ribbons; Current date marked with bright indicator on rim"
+        },
+        {
+          "id": "P3-S2-04",
+          "title": "Create Gene Keys Helix: rotating DNA double helix of light strands",
+          "dependencies": [
+            "P0-S1-10",
+            "P0-S2-01"
+          ],
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 6,
+          "deliverable": "Build the Gene Keys artifact as a rotating DNA double helix made of luminous light strands. The helix has 64 positions (one per Gene Key) marked as nodes along the strands. Nodes pulse with different intensities based on activation status.",
+          "acceptance": "DNA double helix renders with luminous light strand geometry; 64 Gene Key positions marked as nodes along the helix; Helix rotates slowly (1 revolution per 60 seconds); Activated nodes pulse brighter than dormant ones"
+        },
+        {
+          "id": "P3-S2-05",
+          "title": "Implement Gene Keys Shadow-Gift-Siddhi interaction: touch strand to traverse layers",
+          "dependencies": [
+            "P3-S2-04"
+          ],
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 4,
+          "deliverable": "When user touches a Gene Key node on the helix, it expands to reveal three layers: Shadow (dark red), Gift (gold), and Siddhi (white light). User can swipe between layers to explore the spectrum. Each layer shows its keyword and description.",
+          "acceptance": "Touching a node expands it to reveal Shadow/Gift/Siddhi layers; Shadow layer rendered in dark red tonality; Gift layer rendered in gold tonality; Siddhi layer rendered in white light; Swipe gesture traverses between layers"
+        },
+        {
+          "id": "P3-S2-06",
+          "title": "Build Gene Keys birth data to activation mapping (gateway activations from profile)",
+          "dependencies": [
+            "P2-S1-01"
+          ],
+          "area": "backend",
+          "owner_role": "Backend Engineer",
+          "est_hours": 5,
+          "deliverable": "Create backend logic that maps birth data to Gene Key activations. Calculate the activated Gene Keys from the user's birth profile (similar to Human Design gates). Return the activation sequence, primary Gene Key, and associated programming partners.",
+          "acceptance": "Birth data maps to specific Gene Key activations; Returns primary Gene Key (Life's Work); Returns programming partner Gene Keys; Returns full activation profile with Shadow/Gift/Siddhi for each"
+        },
+        {
+          "id": "P3-S2-07",
+          "title": "Create Human Design Bodygraph: 9-center wireframe constellation",
+          "dependencies": [
+            "P0-S1-10"
+          ],
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 6,
+          "deliverable": "Build the Human Design Bodygraph as a 3D wireframe constellation of 9 centers (Head, Ajna, Throat, G, Heart, Sacral, Spleen, Solar Plexus, Root) connected by channels. Centers are geometric shapes, channels are lines. The whole structure floats and gently breathes.",
+          "acceptance": "9 centers rendered as distinct geometric shapes; Channels connect centers as wireframe lines; Bodygraph floats with gentle breathing animation; Centers have distinct shapes matching HD specification"
+        },
+        {
+          "id": "P3-S2-08",
+          "title": "Implement Human Design center highlighting: defined (Gold) vs undefined (Stone Grey)",
+          "dependencies": [
+            "P3-S2-07"
+          ],
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 3,
+          "deliverable": "Based on the user's Human Design chart data, highlight defined centers in Gold with full opacity and undefined centers in Stone Grey with reduced opacity. Defined channels glow gold, undefined channels are dim grey. The visual immediately communicates the user's type.",
+          "acceptance": "Defined centers render in Gold with full opacity; Undefined centers render in Stone Grey with reduced opacity; Defined channels glow gold; Undefined channels render as dim grey lines"
+        },
+        {
+          "id": "P3-S2-09",
+          "title": "Build Human Design Strategy/Authority ambient audio per type",
+          "dependencies": [
+            "P0-S2-43",
+            "P3-S2-07"
+          ],
+          "area": "frontend",
+          "owner_role": "Audio Engineer",
+          "est_hours": 4,
+          "deliverable": "Create ambient audio that plays when the user engages with the Bodygraph. Each HD type (Generator, Manifesting Generator, Projector, Manifestor, Reflector) has a distinct tonal quality. The audio subtly reinforces the Strategy/Authority teaching.",
+          "acceptance": "Distinct ambient audio for each of the 5 HD types; Audio triggers on engagement with Bodygraph; Tonal quality reflects the type's energy dynamic; Audio fades in/out smoothly on state transitions"
+        },
+        {
+          "id": "P3-S2-10",
+          "title": "Create Chronobiology Clock: biological clock face with circadian zones",
+          "dependencies": [
+            "P0-S1-10"
+          ],
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 5,
+          "deliverable": "Build the Chronobiology Clock as a circular clock face divided into circadian zones (sleep, wake, peak alertness, afternoon dip, evening wind-down). Each zone has a distinct color gradient. A radial hand indicates the current time position.",
+          "acceptance": "Circular clock face with circadian zone divisions; Each zone has distinct color gradient (blue=sleep, yellow=peak, etc.); Radial hand indicates current time position; Clock updates in real-time based on device clock"
+        },
+        {
+          "id": "P3-S2-11",
+          "title": "Implement Chronobiology circadian detection from device time + PIP data",
+          "dependencies": [
+            "P2-S3-01",
+            "P3-S2-10"
+          ],
+          "area": "frontend",
+          "owner_role": "Bio-Integration Engineer",
+          "est_hours": 3,
+          "deliverable": "Connect the Chronobiology Clock to device time and PIP bio-data. Use device time for base circadian position. Modulate zone boundaries using PIP heart rate variability and alertness indicators. Shift zones based on detected chronotype.",
+          "acceptance": "Device time drives base circadian position on clock; PIP HRV data modulates zone boundaries; Alertness indicators shift peak/dip zone positions; Chronotype detection adjusts overall phase shift"
+        },
+        {
+          "id": "P3-S2-12",
+          "title": "Build FastAPI Chronobiology endpoint: POST /api/engines/chronobiology",
+          "dependencies": [
+            "P2-S1-01"
+          ],
+          "area": "backend",
+          "owner_role": "Backend Engineer",
+          "est_hours": 5,
+          "deliverable": "Create FastAPI endpoint that accepts current time, timezone, chronotype indicators, and optional PIP summary. Returns circadian phase analysis, optimal activity windows, and personalized timing recommendations.",
+          "acceptance": "POST /api/engines/chronobiology accepts time, timezone, and chronotype data; Returns circadian phase analysis with current zone identification; Returns optimal activity windows for the next 24 hours; Returns personalized timing recommendations"
+        },
+        {
+          "id": "P3-S2-13",
+          "title": "Implement Tier 2 spatial placement: all 4 engines at radius 10 units from East Wing center",
+          "dependencies": [
+            "P3-S2-01",
+            "P3-S2-04",
+            "P3-S2-07",
+            "P3-S2-10"
+          ],
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 3,
+          "deliverable": "Position all 4 Tier 2 engines (Biorhythm, Gene Keys, Human Design, Chronobiology) at radius 10 units from East Wing center (50,0,0). Engines are evenly spaced at 90-degree intervals, offset 45 degrees from Tier 1 positions to avoid radial alignment.",
+          "acceptance": "All 4 Tier 2 engines at radius 10 from (50,0,0); 90-degree spacing between engines; 45-degree offset from Tier 1 angular positions; Each engine faces outward from circle center"
+        },
+        {
+          "id": "P3-S2-14",
+          "title": "Build bio-data gating logic: Tier 2 engines require active webcam/PIP to interact",
+          "dependencies": [
+            "P2-S3-01",
+            "P3-S2-13"
+          ],
+          "area": "frontend",
+          "owner_role": "Frontend Engineer",
+          "est_hours": 3,
+          "deliverable": "Implement gating logic that requires active PIP (webcam bio-data pipeline) for Tier 2 engine interaction. Without PIP, Tier 2 engines appear but are shrouded in fog and non-interactive. A visual prompt suggests activating PIP to unlock.",
+          "acceptance": "Tier 2 engines require active PIP for interaction; Without PIP, engines are shrouded in fog and non-interactive; Visual prompt appears suggesting PIP activation; On PIP activation, fog clears and interaction enables"
+        },
+        {
+          "id": "P3-S2-15",
+          "title": "Create Tier 2 engine unlock animation: fog thins, glow intensifies, audio cue plays",
+          "dependencies": [
+            "P3-S2-14"
+          ],
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 4,
+          "deliverable": "When PIP activates and Tier 2 engines unlock, play a reveal animation. Fog thins over 2 seconds, engine glow intensifies from 0 to full, and a harmonic audio cue plays. Each engine reveals sequentially with 500ms stagger.",
+          "acceptance": "Fog thins over 2 seconds on PIP activation; Engine glow intensifies from 0 to full during reveal; Harmonic audio cue accompanies unlock; Sequential reveal with 500ms stagger between engines"
+        },
+        {
+          "id": "P3-S2-16",
+          "title": "Build Decision Mirror: obsidian tablet artifact with reflective surface shader",
+          "dependencies": [
+            "P0-S1-10",
+            "P0-S2-25"
+          ],
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 5,
+          "deliverable": "Create the Decision Mirror as a large obsidian tablet with a reflective surface shader. The surface uses screen-space reflections or cubemap reflections to create a mirror-like quality. The tablet frame is carved obsidian with gold inlay patterns.",
+          "acceptance": "Obsidian tablet mesh with carved frame geometry; Reflective surface shader creates mirror-like quality; Gold inlay patterns visible on tablet frame; Surface reflects nearby engine artifacts"
+        },
+        {
+          "id": "P3-S2-17",
+          "title": "Implement Decision Mirror multi-engine convergence display: overlay layers from active engines",
+          "dependencies": [
+            "P3-S2-16",
+            "P3-S1-29"
+          ],
+          "area": "frontend",
+          "owner_role": "Frontend Engineer",
+          "est_hours": 5,
+          "deliverable": "The Decision Mirror displays convergence of readings from all consulted engines. Each engine's reading appears as a semi-transparent layer on the mirror surface. Layers can be individually toggled. Overlapping themes create brighter intersection zones.",
+          "acceptance": "Each consulted engine adds a semi-transparent layer to mirror; Layers can be individually toggled on/off; Overlapping themes create brighter intersection zones; At least 2 engine consultations required to activate mirror"
+        },
+        {
+          "id": "P3-S2-18",
+          "title": "Build Decision Mirror convergence score calculation (0-100 based on theme overlap)",
+          "dependencies": [
+            "P3-S2-17"
+          ],
+          "area": "frontend",
+          "owner_role": "Frontend Engineer",
+          "est_hours": 4,
+          "deliverable": "Calculate a convergence score (0-100) based on thematic overlap between engine readings displayed on the Decision Mirror. Higher scores indicate stronger agreement between engines. Score displayed as a luminosity level on the mirror border.",
+          "acceptance": "Convergence score calculated from 0-100; Score reflects degree of thematic overlap between engine readings; Score displayed as luminosity level on mirror border; Score updates dynamically as new engine readings are added"
+        },
+        {
+          "id": "P3-S2-19",
+          "title": "Implement Decision Mirror layer separation: drag engine layers off surface for comparison",
+          "dependencies": [
+            "P3-S2-17"
+          ],
+          "area": "frontend",
+          "owner_role": "Frontend Engineer",
+          "est_hours": 5,
+          "deliverable": "Allow users to drag individual engine layers off the mirror surface for side-by-side comparison. Dragged layers float in 3D space next to the mirror. Lines connect related themes between separated layers. Layers snap back when released near the mirror.",
+          "acceptance": "Engine layers can be dragged off mirror surface; Separated layers float in 3D space adjacent to mirror; Connection lines show related themes between layers; Layers snap back to mirror when released nearby"
+        },
+        {
+          "id": "P3-S2-20",
+          "title": "Create Transit Overlay: celestial sphere with natal + transit planetary positions",
+          "dependencies": [
+            "P0-S1-10"
+          ],
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 6,
+          "deliverable": "Build the Transit Overlay as a celestial sphere showing natal planetary positions (fixed, inner ring) and current transit positions (moving, outer ring). Planets are small luminous spheres with astrological glyphs. The sphere is semi-transparent to see through.",
+          "acceptance": "Celestial sphere with inner (natal) and outer (transit) rings; Planets rendered as luminous spheres with astrological glyphs; Sphere is semi-transparent for see-through visibility; Transit positions update based on current date"
+        },
+        {
+          "id": "P3-S2-21",
+          "title": "Build Transit time scrub: drag outer ring to change date, planetary positions update",
+          "dependencies": [
+            "P3-S2-20"
+          ],
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 5,
+          "deliverable": "Add time scrubbing to the Transit Overlay. Dragging the outer ring changes the date, causing transit planets to move to their positions for that date. Speed of scrub proportional to drag velocity. Date indicator updates in real-time during scrub.",
+          "acceptance": "Dragging outer ring changes transit date; Transit planets animate to new positions during scrub; Scrub speed proportional to drag velocity; Date indicator updates in real-time"
+        },
+        {
+          "id": "P3-S2-22",
+          "title": "Implement Transit aspect highlighting: Gold=harmonious, Terracotta=challenging, Grey=neutral lines",
+          "dependencies": [
+            "P3-S2-20"
+          ],
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 4,
+          "deliverable": "Draw aspect lines between natal and transit planets. Harmonious aspects (trine, sextile) in Gold, challenging aspects (square, opposition) in Terracotta, neutral (conjunction, semi-sextile) in Grey. Lines pulse intensity based on aspect exactness (tighter = brighter).",
+          "acceptance": "Gold lines for trines and sextiles; Terracotta lines for squares and oppositions; Grey lines for conjunctions and semi-sextiles; Line pulse intensity proportional to aspect exactness"
+        },
+        {
+          "id": "P3-S2-23",
+          "title": "Build FastAPI Transit calculation endpoint: POST /api/engines/transit",
+          "dependencies": [
+            "P2-S1-01"
+          ],
+          "area": "backend",
+          "owner_role": "Backend Engineer",
+          "est_hours": 5,
+          "deliverable": "Create FastAPI endpoint that accepts natal chart data and target date. Calculates transit planetary positions using ephemeris, computes aspects between natal and transit planets, and returns aspect interpretations with timing windows.",
+          "acceptance": "POST /api/engines/transit accepts natal data and target date; Calculates transit planetary positions via ephemeris; Computes all aspects between natal and transit planets; Returns aspect interpretations with timing windows"
+        },
+        {
+          "id": "P3-S2-24",
+          "title": "Create Somatic Canticle Index: bio-gated content release artifact",
+          "dependencies": [
+            "P0-S1-10"
+          ],
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 4,
+          "deliverable": "Build the Somatic Canticle Index as a scroll-like artifact that unfurls based on bio-data state. Content (canticles / somatic practices) is locked behind bio-metric gates. Each gate requires a specific physiological state (calm, focused, energized) to open.",
+          "acceptance": "Scroll-like artifact mesh with unfurling animation; Content sections locked behind bio-metric gates; Gates require specific physiological states to open; Visual indicators show current gate readiness"
+        },
+        {
+          "id": "P3-S2-25",
+          "title": "Build FastAPI Somatic Canticle endpoint: POST /api/engines/somatic-canticle",
+          "dependencies": [
+            "P2-S1-01"
+          ],
+          "area": "backend",
+          "owner_role": "Backend Engineer",
+          "est_hours": 5,
+          "deliverable": "Create FastAPI endpoint that accepts bio-data summary (HRV, coherence, affect) and returns appropriate somatic practices and canticle content. Content is tiered by bio-state achievement. Returns personalized practice recommendations.",
+          "acceptance": "POST /api/engines/somatic-canticle accepts bio-data summary; Returns somatic practices tiered by bio-state achievement; Returns personalized practice recommendations; Content gating validated server-side"
+        },
+        {
+          "id": "P3-S2-26",
+          "title": "Implement Tier 3 spatial placement: Decision Mirror, Transit, Somatic at radius 15 from East center",
+          "dependencies": [
+            "P3-S2-16",
+            "P3-S2-20",
+            "P3-S2-24"
+          ],
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 3,
+          "deliverable": "Position all 3 Tier 3 engines (Decision Mirror, Transit Overlay, Somatic Canticle Index) at radius 15 units from East Wing center (50,0,0). Engines spaced at 120-degree intervals, offset from Tier 1 and Tier 2 angular positions.",
+          "acceptance": "All 3 Tier 3 engines at radius 15 from (50,0,0); 120-degree spacing between engines; Angular offset from Tier 1 and Tier 2 positions; Each engine faces outward from circle center"
+        },
+        {
+          "id": "P3-S2-27",
+          "title": "Build Human Design gate-to-Gene Key cross-reference interaction",
+          "dependencies": [
+            "P3-S2-07",
+            "P3-S2-04"
+          ],
+          "area": "frontend",
+          "owner_role": "Frontend Engineer",
+          "est_hours": 4,
+          "deliverable": "Implement cross-referencing between Human Design gates and Gene Keys. When a user taps a gate on the Bodygraph, the corresponding Gene Key node on the Helix highlights and vice versa. A connection line bridges the two artifacts temporarily.",
+          "acceptance": "Tapping HD gate highlights corresponding Gene Key node; Tapping Gene Key node highlights corresponding HD gate; Temporary connection line bridges the two artifacts; Cross-reference uses standard HD gate-to-GK mapping"
+        },
+        {
+          "id": "P3-S2-28",
+          "title": "Implement Transit-to-Vimshottari cross-reference: tapping aspect highlights Dasha period",
+          "dependencies": [
+            "P3-S2-20",
+            "P3-S1-10"
+          ],
+          "area": "frontend",
+          "owner_role": "Frontend Engineer",
+          "est_hours": 4,
+          "deliverable": "Cross-reference Transit aspects with Vimshottari Dasha periods. When a transit aspect is tapped, highlight the corresponding Dasha period on the Vimshottari Clock that governs the same time window. Show temporal overlap visually.",
+          "acceptance": "Tapping a transit aspect highlights corresponding Dasha period; Vimshottari Clock ring rotates to show relevant period; Temporal overlap displayed visually between the two systems; Cross-reference connection line between artifacts"
+        },
+        {
+          "id": "P3-S2-29",
+          "title": "Create FastAPI Human Design endpoint: POST /api/engines/human-design",
+          "dependencies": [
+            "P2-S1-01"
+          ],
+          "area": "backend",
+          "owner_role": "Backend Engineer",
+          "est_hours": 5,
+          "deliverable": "Create FastAPI endpoint that accepts birth data and calculates the full Human Design chart. Returns type, strategy, authority, profile, defined/undefined centers, active channels, and gate activations with interpretations.",
+          "acceptance": "POST /api/engines/human-design accepts birth date, time, and location; Returns type, strategy, authority, and profile; Returns defined/undefined center map; Returns active channels and gate activations with interpretations"
+        },
+        {
+          "id": "P3-S2-30",
+          "title": "Build FastAPI Gene Keys endpoint: POST /api/engines/gene-keys",
+          "dependencies": [
+            "P2-S1-01"
+          ],
+          "area": "backend",
+          "owner_role": "Backend Engineer",
+          "est_hours": 5,
+          "deliverable": "Create FastAPI endpoint that accepts birth data and returns the Gene Keys profile. Includes Life's Work, Evolution, Radiance, and Purpose Gene Keys with Shadow, Gift, and Siddhi for each. Returns programming partner information.",
+          "acceptance": "POST /api/engines/gene-keys accepts birth data; Returns Life's Work, Evolution, Radiance, Purpose keys; Each key includes Shadow, Gift, and Siddhi descriptions; Returns programming partner information"
+        },
+        {
+          "id": "P3-S2-31",
+          "title": "Create FastAPI Biorhythm endpoint: POST /api/engines/biorhythm",
+          "dependencies": [
+            "P2-S1-01"
+          ],
+          "area": "backend",
+          "owner_role": "Backend Engineer",
+          "est_hours": 4,
+          "deliverable": "Create FastAPI endpoint that accepts birthdate and target date range. Calculates Physical (23-day), Emotional (28-day), and Intellectual (33-day) biorhythm cycles. Returns cycle positions, critical days, and interpretive guidance.",
+          "acceptance": "POST /api/engines/biorhythm accepts birthdate and date range; Calculates Physical, Emotional, and Intellectual cycles; Returns cycle positions as percentage and phase; Returns critical days and interpretive guidance"
+        }
+      ]
+    },
+    {
+      "sprint_id": "S3",
+      "duration_weeks": 2,
+      "focus": "Meta-Engine (Cartographer), Polish & Field Journal",
+      "task_count": 36,
+      "tasks": [
+        {
+          "id": "P3-S3-01",
+          "title": "Build Cartographer's Compass: orrery/gyroscope artifact at East Wing apex",
+          "dependencies": [
+            "P0-S1-10",
+            "P0-S2-01"
+          ],
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 6,
+          "deliverable": "Build the Cartographer's Compass as an orrery/gyroscope artifact positioned at the apex of the East Wing engine constellation. Multiple concentric rings rotate on different axes. SparkJS splats create ethereal glow at the center. This is the meta-engine that synthesizes all others.",
+          "acceptance": "Orrery/gyroscope mesh with multiple concentric rings; Rings rotate on different axes independently; SparkJS splat glow at the center core; Positioned at apex of East Wing constellation"
+        },
+        {
+          "id": "P3-S3-02",
+          "title": "Implement Cartographer orbital path activation (concentric rings begin rotating on approach)",
+          "dependencies": [
+            "P3-S3-01"
+          ],
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 4,
+          "deliverable": "When the user's vessel approaches the Cartographer, concentric rings activate sequentially. Innermost ring starts rotating first, then each outer ring with 500ms delay. Rotation speed increases with proximity. Rings are static when vessel is distant.",
+          "acceptance": "Rings activate sequentially on vessel approach; Innermost ring activates first with 500ms delay between each; Rotation speed increases with vessel proximity; Rings decelerate and stop when vessel moves away"
+        },
+        {
+          "id": "P3-S3-03",
+          "title": "Build Cartographer meta-reading synthesis: aggregate patterns from all consulted engines",
+          "dependencies": [
+            "P2-S1-01",
+            "P3-S1-05",
+            "P3-S2-23"
+          ],
+          "area": "backend",
+          "owner_role": "Backend Engineer",
+          "est_hours": 6,
+          "deliverable": "Build the backend meta-reading synthesis engine. Accepts all readings from consulted engines, identifies common themes, contradictions, and complementary patterns. Generates a unified narrative that synthesizes across all divination systems. This is the Cartographer's core intelligence.",
+          "acceptance": "Accepts reading data from all consulted engines; Identifies common themes across different systems; Detects contradictions and complementary patterns; Generates unified narrative synthesis; Quality scales with number of engines consulted"
+        },
+        {
+          "id": "P3-S3-04",
+          "title": "Implement Cartographer 2D map projection: compass unfolds to flat map with weighted connections",
+          "dependencies": [
+            "P3-S3-01"
+          ],
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 5,
+          "deliverable": "When the Cartographer activates, the orrery unfolds into a 2D map projection showing all consulted engines as nodes with weighted connection lines. Line thickness indicates thematic correlation strength. The map provides a bird's-eye view of the reading landscape.",
+          "acceptance": "Orrery unfolds into 2D map projection with animation; Consulted engines appear as nodes on the map; Connection line thickness indicates correlation strength; Map provides clear overview of cross-engine patterns"
+        },
+        {
+          "id": "P3-S3-05",
+          "title": "Build full 13-engine constellation assembly in East Wing (all tiers positioned)",
+          "dependencies": [
+            "P3-S1-27",
+            "P3-S2-13",
+            "P3-S2-26"
+          ],
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 4,
+          "deliverable": "Assemble the complete 13-engine constellation in the East Wing. Tier 1 (5 engines at radius 5), Tier 2 (4 engines at radius 10), Tier 3 (3 engines at radius 15), and the Cartographer at apex. Verify no visual conflicts and proper spacing.",
+          "acceptance": "All 13 engines positioned correctly in their tiers; Cartographer at constellation apex; No visual conflicts or z-fighting between artifacts; Proper spacing verified from all approach angles"
+        },
+        {
+          "id": "P3-S3-06",
+          "title": "Create gravity well system: each engine exerts subtle radial pull on vessel",
+          "dependencies": [
+            "P3-S3-05",
+            "P1-S1-22"
+          ],
+          "area": "frontend",
+          "owner_role": "Physics Engineer",
+          "est_hours": 4,
+          "deliverable": "Implement a gravity well system where each engine exerts a subtle radial pull on the user's vessel when within range. Pull strength follows inverse-square falloff. Prevents jarring navigation by providing gentle guidance toward engines. Max pull force capped to avoid trapping.",
+          "acceptance": "Each engine exerts radial pull on vessel within range; Pull follows inverse-square distance falloff; Max pull force capped to prevent vessel trapping; Pull direction always toward engine center"
+        },
+        {
+          "id": "P3-S3-07",
+          "title": "Build unlock progression system: Tier 1 always, Tier 2 requires PIP, Tier 3 requires 3+ engine consultations",
+          "dependencies": [
+            "P3-S2-14",
+            "P3-S1-29"
+          ],
+          "area": "frontend",
+          "owner_role": "Frontend Engineer",
+          "est_hours": 4,
+          "deliverable": "Implement the progressive unlock system. Tier 1 engines are always accessible. Tier 2 requires active PIP bio-data. Tier 3 requires at least 3 engine consultations from lower tiers. The Cartographer requires 7+ engine consultations. Track unlock state in Zustand.",
+          "acceptance": "Tier 1 engines always accessible without prerequisites; Tier 2 engines require active PIP bio-data; Tier 3 engines require 3+ engine consultations; Cartographer requires 7+ engine consultations; Unlock state persisted in Zustand store"
+        },
+        {
+          "id": "P3-S3-08",
+          "title": "Implement unlock animation sequences (engine materializes from fog with light burst)",
+          "dependencies": [
+            "P3-S3-07"
+          ],
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 4,
+          "deliverable": "When an engine unlocks, play a materialization animation. The engine fades in from fog over 3 seconds, accompanied by a light burst and particle effect. Each tier has increasing dramatic intensity. The Cartographer unlock is the most spectacular.",
+          "acceptance": "Engine materializes from fog over 3 seconds on unlock; Light burst accompanies materialization; Particle effects during unlock animation; Tier-appropriate intensity (Tier 3 > Tier 2 > Tier 1)"
+        },
+        {
+          "id": "P3-S3-09",
+          "title": "Build Field Journal UI component: minimal overlay showing reading history",
+          "dependencies": [
+            "P0-S2-27"
+          ],
+          "area": "frontend",
+          "owner_role": "UX Designer",
+          "est_hours": 5,
+          "deliverable": "Build the Field Journal as a minimal overlay UI component. Shows a chronological list of all readings taken across all engines. Each entry shows engine icon, timestamp, and summary preview. The journal slides in from the right edge of the viewport. Uses Zustand for state.",
+          "acceptance": "Minimal overlay slides in from right viewport edge; Chronological list of all readings across engines; Each entry shows engine icon, timestamp, and summary preview; Scrollable list for many entries"
+        },
+        {
+          "id": "P3-S3-10",
+          "title": "Create Field Journal database persistence: per-engine readings with timestamps",
+          "dependencies": [
+            "P2-S1-02"
+          ],
+          "area": "backend",
+          "owner_role": "Backend Engineer",
+          "est_hours": 4,
+          "deliverable": "Create PostgreSQL schema and CRUD endpoints for Field Journal persistence. Store each engine reading with engine_id, user_id, timestamp, input_data, reading_result, and summary. Support pagination and filtering by engine type.",
+          "acceptance": "PostgreSQL schema for journal entries with all required fields; CRUD endpoints for create, read, list operations; Pagination support for list endpoint; Filtering by engine_id and date range"
+        },
+        {
+          "id": "P3-S3-11",
+          "title": "Build Field Journal cross-session reading continuity (readings persist, accessible on return)",
+          "dependencies": [
+            "P3-S3-09",
+            "P3-S3-10"
+          ],
+          "area": "frontend",
+          "owner_role": "Frontend Engineer",
+          "est_hours": 3,
+          "deliverable": "Connect the Field Journal UI to the persistence backend. On session start, fetch previous readings from the database. New readings are saved immediately. The journal maintains continuity across sessions, allowing users to review past readings on return visits.",
+          "acceptance": "Previous readings fetched from database on session start; New readings saved to database immediately on completion; Journal maintains full history across sessions; Loading state shown during initial fetch"
+        },
+        {
+          "id": "P3-S3-12",
+          "title": "Implement engine activation sound design: 13 unique resonant tones (harmonically related)",
+          "dependencies": [
+            "P0-S2-43"
+          ],
+          "area": "frontend",
+          "owner_role": "Audio Engineer",
+          "est_hours": 6,
+          "deliverable": "Design 13 unique activation tones, one per engine. All tones are harmonically related (based on overtone series or pentatonic scale) so any combination sounds pleasant. Each tone reflects the character of its engine (e.g., deep stone for I-Ching, crystalline for Numerology).",
+          "acceptance": "13 unique activation tones, one per engine; All tones harmonically related for pleasant combinations; Each tone reflects its engine's character; Tones trigger on engine engagement state transition"
+        },
+        {
+          "id": "P3-S3-13",
+          "title": "Build engine interaction completion audio (universal tone with engine-specific coloring)",
+          "dependencies": [
+            "P3-S3-12"
+          ],
+          "area": "frontend",
+          "owner_role": "Audio Engineer",
+          "est_hours": 3,
+          "deliverable": "Create a universal completion tone that plays when any engine reading finishes. The base tone is consistent but colored with engine-specific harmonics. This provides a satisfying conclusion to each reading regardless of engine type.",
+          "acceptance": "Universal completion tone plays on reading_complete state; Base tone is consistent across all engines; Engine-specific harmonic coloring applied; Satisfying sonic conclusion to each reading interaction"
+        },
+        {
+          "id": "P3-S3-14",
+          "title": "Create engine distance-based audio attenuation (inverse-square, only nearby audible)",
+          "dependencies": [
+            "P3-S3-12"
+          ],
+          "area": "frontend",
+          "owner_role": "Audio Engineer",
+          "est_hours": 3,
+          "deliverable": "Implement distance-based audio attenuation for all engine sounds. Use inverse-square falloff so only nearby engines are audible. Beyond 10 units, engine audio is silent. This prevents audio clutter when multiple engines are active in the constellation.",
+          "acceptance": "Audio attenuates with inverse-square distance falloff; Engines beyond 10 units are inaudible; Smooth attenuation transition, no audio popping; Prevents audio clutter with multiple active engines"
+        },
+        {
+          "id": "P3-S3-15",
+          "title": "Build engine LOD: Full(0-5u), Medium(5-15u), Billboard(15-30u), Icon(30u+)",
+          "dependencies": [
+            "P0-S2-11"
+          ],
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 5,
+          "deliverable": "Implement 4-level LOD for all 13 engine artifacts. Full detail (0-5 units), Medium detail with reduced poly count (5-15 units), Billboard sprite (15-30 units), and Icon dot (30+ units). LOD transitions are smooth with cross-fade. Dramatically reduces GPU load.",
+          "acceptance": "Full detail LOD at 0-5 units distance; Medium detail (50% poly reduction) at 5-15 units; Billboard sprite at 15-30 units; Icon dot at 30+ units; Smooth cross-fade between LOD levels"
+        },
+        {
+          "id": "P3-S3-16",
+          "title": "Implement instanced rendering for repeated engine geometry (rings, nodes, bars)",
+          "dependencies": [
+            "P3-S3-05"
+          ],
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 5,
+          "deliverable": "Identify repeated geometry across engines (rings, nodes, bars, spheres) and convert to instanced rendering. Each instance uses per-instance attributes for position, rotation, scale, and color. This consolidates draw calls and reduces CPU overhead.",
+          "acceptance": "Repeated geometry uses instanced rendering; Per-instance attributes for transform and color; Draw call count significantly reduced; No visual difference from non-instanced rendering"
+        },
+        {
+          "id": "P3-S3-17",
+          "title": "Create FastAPI engine router with dynamic registry: POST /{engine_id}",
+          "dependencies": [
+            "P3-S1-05",
+            "P3-S2-12",
+            "P3-S2-23",
+            "P3-S2-25",
+            "P3-S2-29",
+            "P3-S2-30",
+            "P3-S2-31"
+          ],
+          "area": "backend",
+          "owner_role": "Backend Engineer",
+          "est_hours": 4,
+          "deliverable": "Create a unified FastAPI router with dynamic engine registration. All engine endpoints are accessible via POST /api/engines/{engine_id}. The router dynamically dispatches to the appropriate engine handler based on engine_id. Supports listing available engines via GET.",
+          "acceptance": "Unified POST /api/engines/{engine_id} route dispatches to correct handler; Dynamic engine registration supports all 13 engines; GET /api/engines returns list of available engines; Unknown engine_id returns 404 with helpful message"
+        },
+        {
+          "id": "P3-S3-18",
+          "title": "Build FastAPI response validation: Pydantic schemas per engine",
+          "dependencies": [
+            "P3-S3-17"
+          ],
+          "area": "backend",
+          "owner_role": "Backend Engineer",
+          "est_hours": 4,
+          "deliverable": "Create Pydantic response schemas for each of the 13 engine endpoints. Each schema validates the response structure including required fields, types, and constraints. Ensures consistent API contract across all engines.",
+          "acceptance": "Pydantic response schema defined for each of 13 engines; Schemas validate required fields, types, and constraints; Consistent base fields across all engine responses; Validation errors return clear error messages"
+        },
+        {
+          "id": "P3-S3-19",
+          "title": "Implement Gene Key progression visualization: Shadow to Gift to Siddhi changes over time",
+          "dependencies": [
+            "P3-S2-04",
+            "P3-S3-10"
+          ],
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 4,
+          "deliverable": "Visualize Gene Key progression over time using Field Journal history. If a user has consulted Gene Keys multiple times, show the progression from Shadow toward Gift toward Siddhi as a color gradient shift on the helix node. Historical readings inform the current display.",
+          "acceptance": "Helix nodes show progression based on consultation history; Color gradient shifts from red (Shadow) through gold (Gift) to white (Siddhi); Multiple consultations over time advance the progression; Field Journal data drives the progression state"
+        },
+        {
+          "id": "P3-S3-20",
+          "title": "Build cross-session Cartographer narrative continuity (meta-readings reference previous patterns)",
+          "dependencies": [
+            "P3-S3-03",
+            "P3-S3-10"
+          ],
+          "area": "backend",
+          "owner_role": "Backend Engineer",
+          "est_hours": 4,
+          "deliverable": "Enhance the Cartographer meta-reading to reference patterns from previous sessions. Pull reading history from Field Journal database. Identify evolving themes, recurring patterns, and shifts over time. The Cartographer becomes more insightful with more session data.",
+          "acceptance": "Meta-reading incorporates patterns from previous sessions; Identifies evolving themes across session history; Detects recurring patterns and thematic shifts; Narrative quality improves with more historical data"
+        },
+        {
+          "id": "P3-S3-21",
+          "title": "Create engine constellation slow rotation (1 revolution per 300s for ambient motion)",
+          "dependencies": [
+            "P3-S3-05"
+          ],
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 3,
+          "deliverable": "Apply a slow rotation to the entire engine constellation. All engines orbit their tier center at 1 revolution per 300 seconds. Each tier rotates in alternating directions. This creates ambient motion that makes the constellation feel alive when no engine is actively engaged.",
+          "acceptance": "Entire constellation rotates at 1 revolution per 300 seconds; Alternating rotation direction per tier; Rotation pauses for actively engaged engine; Creates ambient living quality to the constellation"
+        },
+        {
+          "id": "P3-S3-22",
+          "title": "Implement engine consultation counter in Zustand (per engine, per session, total)",
+          "dependencies": [
+            "P3-S3-07",
+            "P0-S2-27"
+          ],
+          "area": "frontend",
+          "owner_role": "Frontend Engineer",
+          "est_hours": 3,
+          "deliverable": "Add consultation counters to the Zustand store. Track: per-engine consultation count (how many times each engine has been used), per-session count, and all-time total. These counters drive unlock progression and Cartographer activation logic.",
+          "acceptance": "Per-engine consultation count tracked in Zustand; Per-session consultation count tracked; All-time total consultation count tracked; Counters drive unlock progression logic"
+        },
+        {
+          "id": "P3-S3-23",
+          "title": "Build constellation entry animation: artifacts fade in one-by-one on first East Wing visit",
+          "dependencies": [
+            "P3-S3-05"
+          ],
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 4,
+          "deliverable": "On the user's first visit to the East Wing, play an entry animation where engine artifacts fade in one by one. Start with nearest Tier 1 engine, then fan outward. Each engine appears with a brief sparkle effect. The sequence takes approximately 10 seconds total.",
+          "acceptance": "Artifacts fade in sequentially on first East Wing visit; Sequence starts with nearest Tier 1 engine; Each engine has brief sparkle effect on appearance; Total sequence duration approximately 10 seconds; Only plays on first visit (flag stored in Zustand)"
+        },
+        {
+          "id": "P3-S3-24",
+          "title": "Create Cartographer voice text style: italic, different spacing, distinct color from engine text",
+          "dependencies": [
+            "P3-S3-04"
+          ],
+          "area": "frontend",
+          "owner_role": "UX Designer",
+          "est_hours": 3,
+          "deliverable": "Design a distinct text style for the Cartographer's voice to differentiate it from individual engine readings. Use italic rendering, wider letter spacing, and a unique color (silver-white vs the gold used by engines). This creates a sense of a different, higher-level perspective.",
+          "acceptance": "Cartographer text renders in italic style; Wider letter spacing than engine text; Silver-white color distinct from engine gold; Clearly distinguishable as a different voice/perspective"
+        },
+        {
+          "id": "P3-S3-25",
+          "title": "Build tutorial-free engine hint system: idle artifacts perform suggestive motions (coins rattle, cards orbit)",
+          "dependencies": [
+            "P3-S3-05"
+          ],
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 4,
+          "deliverable": "Instead of tutorials, engines hint at their interaction method through ambient motions. I-Ching coins rattle slightly, Tarot cards orbit invitingly, Rune pouch rustles, Vimshottari rings rotate suggestively, Numerology numbers shimmer. These cues teach without text.",
+          "acceptance": "I-Ching coins rattle with subtle collision sounds; Tarot cards orbit with inviting motion; Rune pouch rustles periodically; Vimshottari rings rotate suggestively when idle; Numerology numbers shimmer to attract attention"
+        },
+        {
+          "id": "P3-S3-26",
+          "title": "Implement Cartographer luminosity: brightness = activeEngineCount/12 (dim with 1, bright with 12)",
+          "dependencies": [
+            "P3-S3-01",
+            "P3-S3-22"
+          ],
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 3,
+          "deliverable": "The Cartographer's luminosity (emissive intensity and particle density) scales with the number of engines consulted. At 1 engine, it's barely visible. At 12 engines, it's brilliantly luminous. Formula: brightness = consultedEngineCount / 12. Visual feedback on completeness.",
+          "acceptance": "Cartographer emissive intensity = consultedEngineCount / 12; Particle density scales with same ratio; Barely visible at 1 engine, brilliant at 12; Smooth transition on each new engine consultation"
+        },
+        {
+          "id": "P3-S3-27",
+          "title": "Build Field Journal summary cards: minimal card per reading with timestamp, engine icon, summary",
+          "dependencies": [
+            "P3-S3-09"
+          ],
+          "area": "frontend",
+          "owner_role": "UX Designer",
+          "est_hours": 5,
+          "deliverable": "Design and implement summary cards for the Field Journal. Each card shows: engine icon (small 3D preview or 2D icon), timestamp, and a 2-line summary of the reading. Cards use the project's Dark Stone / Gold palette. Cards are selectable to expand full reading.",
+          "acceptance": "Each reading displays as a minimal summary card; Card shows engine icon, timestamp, and 2-line summary; Dark Stone / Gold palette consistent with project theme; Selectable cards expand to show full reading"
+        },
+        {
+          "id": "P3-S3-28",
+          "title": "Create Field Journal keyboard shortcut: J toggles overlay, Escape closes",
+          "dependencies": [
+            "P3-S3-09"
+          ],
+          "area": "frontend",
+          "owner_role": "Frontend Engineer",
+          "est_hours": 2,
+          "deliverable": "Implement keyboard shortcuts for the Field Journal. Pressing J toggles the journal overlay open/closed. Pressing Escape closes it if open. Shortcuts are disabled when a text input is focused. Add key hints to the journal UI.",
+          "acceptance": "J key toggles journal overlay open/closed; Escape key closes journal if open; Shortcuts disabled when text input is focused; Key hints shown in journal UI"
+        },
+        {
+          "id": "P3-S3-29",
+          "title": "Implement engine reading persistence to PostgreSQL via Field Journal API endpoints",
+          "dependencies": [
+            "P3-S3-10",
+            "P2-S1-02"
+          ],
+          "area": "backend",
+          "owner_role": "Backend Engineer",
+          "est_hours": 4,
+          "deliverable": "Implement the full persistence pipeline: when an engine reading completes, the frontend sends the reading data to the Field Journal API, which stores it in PostgreSQL. On session start, the frontend fetches all previous readings. Support pagination for heavy users.",
+          "acceptance": "Engine readings automatically persisted on completion; POST endpoint stores reading in PostgreSQL; GET endpoint fetches readings with pagination; Session start fetches full reading history"
+        },
+        {
+          "id": "P3-S3-30",
+          "title": "Build cross-engine reading correlation detection: shared themes, contradictions",
+          "dependencies": [
+            "P3-S3-03"
+          ],
+          "area": "backend",
+          "owner_role": "Backend Engineer",
+          "est_hours": 6,
+          "deliverable": "Build a correlation detection system that analyzes readings from multiple engines to find shared themes and contradictions. Uses semantic similarity between reading texts to identify correlations. Feeds into the Cartographer meta-reading and Decision Mirror convergence.",
+          "acceptance": "Detects shared themes across engine readings using semantic similarity; Identifies contradictions between engine readings; Correlation results feed Cartographer meta-reading; Correlation results feed Decision Mirror convergence score"
+        },
+        {
+          "id": "P3-S3-31",
+          "title": "Create engine-specific FastAPI response validation tests",
+          "dependencies": [
+            "P3-S3-18"
+          ],
+          "area": "qa",
+          "owner_role": "QA",
+          "est_hours": 4,
+          "deliverable": "Write comprehensive tests validating each engine's FastAPI response schema. Test valid inputs, edge cases, and invalid inputs for all 13 engine endpoints. Ensure Pydantic schemas reject malformed data and return appropriate error messages.",
+          "acceptance": "Tests for all 13 engine endpoint response schemas; Valid input tests pass with correct response structure; Edge case inputs handled gracefully; Invalid inputs rejected with appropriate error messages"
+        },
+        {
+          "id": "P3-S3-32",
+          "title": "Implement max 3 active physics engines (nearest to vessel, others kinematic)",
+          "dependencies": [
+            "P3-S3-06",
+            "P3-S3-15"
+          ],
+          "area": "frontend",
+          "owner_role": "Physics Engineer",
+          "est_hours": 3,
+          "deliverable": "Optimize physics performance by limiting active physics simulation to the 3 engines nearest to the vessel. All other engines switch to kinematic mode (no physics simulation). Active set updates as vessel moves. Transition is seamless with no visible pop.",
+          "acceptance": "Maximum 3 engines have active physics simulation at once; Active engines are the 3 nearest to vessel position; Other engines use kinematic mode; Seamless transition as vessel moves (no visible physics pop)"
+        },
+        {
+          "id": "P3-S3-33",
+          "title": "Build 50K triangle budget enforcement for all 13 engines combined",
+          "dependencies": [
+            "P3-S3-16"
+          ],
+          "area": "qa",
+          "owner_role": "QA",
+          "est_hours": 3,
+          "deliverable": "Create a validation tool that counts total triangles across all 13 engine artifacts at their current LOD level. Enforce a 50K triangle budget for the entire East Wing engine constellation. Report per-engine triangle counts and flag any engine exceeding its fair share.",
+          "acceptance": "Total triangle count tool for all 13 engines; 50K triangle budget enforced at worst-case LOD scenario; Per-engine triangle count reported; Budget violation flags engines exceeding fair share"
+        },
+        {
+          "id": "P3-S3-34",
+          "title": "Create max 30 draw call enforcement for East Wing (instancing validation)",
+          "dependencies": [
+            "P3-S3-16"
+          ],
+          "area": "qa",
+          "owner_role": "QA",
+          "est_hours": 3,
+          "deliverable": "Create a validation tool that counts draw calls for the entire East Wing engine constellation. Enforce a maximum of 30 draw calls. Verify that instanced rendering is working correctly. Report per-engine draw call contribution.",
+          "acceptance": "Draw call counter for East Wing constellation; Maximum 30 draw call budget enforced; Instanced rendering verification included; Per-engine draw call contribution reported"
+        },
+        {
+          "id": "P3-S3-35",
+          "title": "Build integration test: consult 7+ engines then Cartographer meta-reading appears",
+          "dependencies": [
+            "P3-S3-03",
+            "P3-S3-07"
+          ],
+          "area": "qa",
+          "owner_role": "QA",
+          "est_hours": 5,
+          "deliverable": "Create an end-to-end integration test that simulates consulting 7 or more engines and verifies that the Cartographer meta-engine unlocks and produces a meta-reading. Test the full pipeline from engine interactions through API calls to Cartographer synthesis.",
+          "acceptance": "Test simulates consulting 7+ different engines; Verifies Cartographer unlocks after 7th consultation; Verifies meta-reading synthesis produces valid output; Full pipeline tested: interaction -> API -> synthesis -> display"
+        },
+        {
+          "id": "P3-S3-36",
+          "title": "Create engine constellation performance benchmark (all 13 visible at 60fps)",
+          "dependencies": [
+            "P3-S3-15",
+            "P3-S3-16"
+          ],
+          "area": "qa",
+          "owner_role": "QA",
+          "est_hours": 4,
+          "deliverable": "Build a performance benchmark that renders all 13 engines simultaneously and measures frame rate. The benchmark must achieve and maintain 60fps on target hardware. Test with all engines at various LOD levels. Report frame time breakdown per engine.",
+          "acceptance": "Benchmark renders all 13 engines simultaneously; Achieves and maintains 60fps on target hardware; Tests multiple LOD level combinations; Reports frame time breakdown per engine contribution"
+        }
+      ]
+    }
+  ]
+}

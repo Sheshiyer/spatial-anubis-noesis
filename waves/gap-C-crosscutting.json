@@ -1,0 +1,704 @@
+{
+  "gap": "C",
+  "description": "Cross-cutting systems, integration wiring, and missing QA",
+  "generated": "2026-02-12",
+  "task_count": 51,
+  "sprints": [
+    {
+      "sprint_id": "P0-S3",
+      "duration_weeks": 3,
+      "focus": "Audio Architecture + 3D Typography + State Persistence",
+      "tasks": [
+        {
+          "id": "P0-S3-01",
+          "title": "Web Audio API context initialization + lifecycle management",
+          "area": "frontend",
+          "owner_role": "Audio Engineer",
+          "est_hours": 4,
+          "dependencies": [
+            "P0-S1-10"
+          ],
+          "deliverable": "AudioContextManager class: creates AudioContext on first user gesture (click/tap), handles suspend on visibilitychange='hidden', resume on 'visible', exposes context.state observable, graceful fallback when autoplay policy blocks creation",
+          "acceptance": "AudioContext transitions through suspended->running on user gesture, auto-suspends when tab hidden, resumes when tab visible, and emits state change events verified by unit test"
+        },
+        {
+          "id": "P0-S3-02",
+          "title": "Audio asset loading pipeline with decode cache",
+          "area": "frontend",
+          "owner_role": "Audio Engineer",
+          "est_hours": 5,
+          "dependencies": [
+            "P0-S3-01"
+          ],
+          "deliverable": "AudioAssetLoader: preloads audio files via fetch+decodeAudioData, caches decoded AudioBuffers in Map keyed by asset ID, supports three source types (oscillator configs, sample URLs, procedural generator params), exposes loading progress 0-1 for preload screen",
+          "acceptance": "Loading 10 audio assets completes without memory leak (no duplicate buffers), cache hit returns same AudioBuffer reference, loading progress increments monotonically from 0 to 1"
+        },
+        {
+          "id": "P0-S3-03",
+          "title": "Spatial audio positioning system with HRTF panning",
+          "area": "frontend",
+          "owner_role": "Audio Engineer",
+          "est_hours": 6,
+          "dependencies": [
+            "P0-S3-01",
+            "P0-S1-10"
+          ],
+          "deliverable": "SpatialAudioManager: wraps PannerNode per audio source, panningModel='HRTF', distanceModel='inverse', refDistance=1, maxDistance=30, rolloffFactor=1.5, syncs panner position to R3F Object3D world position each frame via useFrame hook",
+          "acceptance": "Audio source panned to world position (10,0,0) is audibly louder in right ear than left ear when camera faces +Z, verified by inspector showing PannerNode.positionX matches object worldPosition.x"
+        },
+        {
+          "id": "P0-S3-04",
+          "title": "Four-channel audio mixing bus with per-channel gain",
+          "area": "frontend",
+          "owner_role": "Audio Engineer",
+          "est_hours": 4,
+          "dependencies": [
+            "P0-S3-01"
+          ],
+          "deliverable": "AudioMixBus: 4 GainNode channels (Ambient, Effects, UI, Binaural) routed through master GainNode to AudioContext.destination, per-channel gain 0-1, master gain 0-1, setVolume method with optional rampTime using linearRampToValueAtTime",
+          "acceptance": "Setting Ambient channel gain to 0 silences all ambient sources while Effects channel remains audible, master gain 0 silences all channels, gain ramp from 1 to 0 over 500ms produces no audible click"
+        },
+        {
+          "id": "P0-S3-05",
+          "title": "Binaural beat generator with frequency presets",
+          "area": "frontend",
+          "owner_role": "Audio Engineer",
+          "est_hours": 6,
+          "dependencies": [
+            "P0-S3-04"
+          ],
+          "deliverable": "BinauralBeatGenerator: two OscillatorNodes (left=baseFreq, right=baseFreq+beatFreq) routed through ChannelMergerNode for stereo separation into Binaural bus, presets map {theta:{base:200,beat:4}, schumann:{base:200,beat:7.83}, alpha:{base:200,beat:10}, gamma:{base:200,beat:40}}, crossfade method transitions between presets over configurable duration (default 3s) using exponentialRampToValueAtTime",
+          "acceptance": "AnalyserNode FFT on left channel shows peak at 200Hz and right channel at 204Hz when theta preset active, crossfade from theta to alpha completes in 3s with no audible discontinuity"
+        },
+        {
+          "id": "P0-S3-06",
+          "title": "Audio LOD system with distance-based source management",
+          "area": "frontend",
+          "owner_role": "Audio Engineer",
+          "est_hours": 5,
+          "dependencies": [
+            "P0-S3-03"
+          ],
+          "deliverable": "AudioLODManager: calculates distance from listener to each audio source per frame, applies 4-tier LOD (full quality <10u: all processing, reduced <20u: disable reverb, minimal <30u: mono downmix, off >30u: disconnect source node), enforces max 8 simultaneous connected sources by priority queue (ritual>effects>ambient)",
+          "acceptance": "With 12 audio sources in scene, only 8 are connected to audio graph at any time, source at distance 35u has its node disconnected, source moving from 25u to 5u transitions through all LOD tiers"
+        },
+        {
+          "id": "P0-S3-07",
+          "title": "Cathedral reverb convolver with impulse response",
+          "area": "frontend",
+          "owner_role": "Audio Engineer",
+          "est_hours": 4,
+          "dependencies": [
+            "P0-S3-02",
+            "P0-S3-04"
+          ],
+          "deliverable": "CathedralReverb: ConvolverNode loaded with cathedral IR sample (2.5s decay), dry/wet GainNode pair per channel, setWetMix(0-1) method, default wet=0.3 for Ambient, wet=0.15 for Effects, wet=0 for UI, wet=0 for Binaural",
+          "acceptance": "Impulse test (single click sample) through convolver produces audible 2+ second reverb tail, wet mix 0 produces dry-only signal, wet mix 1 produces reverb-only signal"
+        },
+        {
+          "id": "P0-S3-08",
+          "title": "Zone audio crossfade manager with distance blending",
+          "area": "frontend",
+          "owner_role": "Audio Engineer",
+          "est_hours": 5,
+          "dependencies": [
+            "P0-S3-04",
+            "P0-S3-03"
+          ],
+          "deliverable": "ZoneAudioCrossfader: manages 5 zone audio beds (center:drone, north:breath, east:chimes, west:metallic, south:ambient), calculates blend weights from avatar distance to each zone center, crossfade range 30u, GainNode.gain.linearRampToValueAtTime over 2s transition, ensures total gain across all zones sums to 1.0",
+          "acceptance": "Avatar at center hears only center drone at gain=1.0, moving to north zone over 2s smoothly fades center to 0 and north to 1 with no audible pop/click, at midpoint both zones audible at approximately 0.5 gain each"
+        },
+        {
+          "id": "P0-S3-09",
+          "title": "Procedural audio generators for verb interactions",
+          "area": "frontend",
+          "owner_role": "Audio Engineer",
+          "est_hours": 7,
+          "dependencies": [
+            "P0-S3-04",
+            "P0-S3-02"
+          ],
+          "deliverable": "Three procedural generators: (1) WhooshGenerator for THROW verb - white noise through BiquadFilter(bandpass, Q=5), frequency=300+velocity*20, gain envelope 0->1->0 over 200ms; (2) ImpactGenerator for STRIKE verb - sine oscillator at 80+mass*40 Hz with sharp attack 5ms and exponential decay 300ms; (3) SingingBowlGenerator for BREATHE-SYNC - sine at 396Hz with slow LFO (0.5Hz, depth=3Hz) frequency modulation, sustain until stopped",
+          "acceptance": "WhooshGenerator at velocity=5 produces audible bandpass-filtered noise centered at 400Hz lasting ~200ms, ImpactGenerator at mass=2 produces 160Hz transient with audible decay, SingingBowl produces sustained tone with audible vibrato at 0.5Hz rate"
+        },
+        {
+          "id": "P0-S3-10",
+          "title": "Audio preferences and mute system with localStorage persistence",
+          "area": "frontend",
+          "owner_role": "Audio Engineer",
+          "est_hours": 3,
+          "dependencies": [
+            "P0-S3-04"
+          ],
+          "deliverable": "AudioPreferences: global mute toggle, per-channel mute toggles (Ambient/Effects/UI/Binaural), master volume 0-100 stored in localStorage key 'anubis:audio:prefs', loads on init, saves on change with 500ms debounce, visual-only fallback mode when AudioContext state='suspended' after 3 failed resume attempts",
+          "acceptance": "Setting master volume to 50 persists across page reload, muting Effects channel silences only effects, visual-only mode activates when AudioContext blocked and no audio errors thrown"
+        },
+        {
+          "id": "P0-S3-11",
+          "title": "SDF/MSDF font atlas loader with multi-script support",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 6,
+          "dependencies": [
+            "P0-S1-10"
+          ],
+          "deliverable": "FontAtlasManager using troika-three-text: loads MSDF font atlases for Latin (primary brand font), Devanagari (Engine 01 Navagraha), Chinese (Engine 02 BaZi), Elder Futhark (Engine 04 Runes), exposes loadFont(scriptId)->Promise<Font>, caches loaded fonts, preloads Latin on startup",
+          "acceptance": "All 4 font atlases load without error, Latin renders 'Triambhakam' correctly, Devanagari renders test string correctly, Chinese renders test characters, Elder Futhark renders rune glyphs"
+        },
+        {
+          "id": "P0-S3-12",
+          "title": "Billboard text component with camera-facing behavior",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 4,
+          "dependencies": [
+            "P0-S3-11",
+            "P0-S1-10"
+          ],
+          "deliverable": "BillboardText React component: wraps troika-three-text <Text>, applies billboard constraint (lookAt camera each frame via useFrame), props: text, color, fontSize (world units), opacity (0-1), maxWidth, anchorX/Y, font (scriptId from FontAtlasManager), renders on a transparent plane that always faces camera",
+          "acceptance": "Text rendered at world position (5,2,0) visually faces camera regardless of camera orbit angle, text wraps at maxWidth, opacity=0.5 produces semi-transparent text"
+        },
+        {
+          "id": "P0-S3-13",
+          "title": "Typewriter text animation system",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 5,
+          "dependencies": [
+            "P0-S3-12"
+          ],
+          "deliverable": "TypewriterText component: reveals characters one by one at configurable rate (default 40ms/char), mode='character' for standard reveal, mode='word' for Somatic Canticle breath-paced reveal (word appears on each breath cycle), props: text, speed, mode, onCharReveal callback, onComplete callback, exposes imperative skip() method to reveal all immediately",
+          "acceptance": "100-character text in character mode takes approximately 4 seconds to fully reveal, word mode reveals one word per trigger call, skip() immediately shows full text, onComplete fires exactly once when text fully revealed"
+        },
+        {
+          "id": "P0-S3-14",
+          "title": "Keyword highlighting system for reading output text",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 4,
+          "dependencies": [
+            "P0-S3-12"
+          ],
+          "deliverable": "HighlightedText component: parses reading text for tagged keywords, renders gold (#B8860B) for positive/gift keywords and terracotta (#C65D3B) for shadow/warning keywords, accepts keyword map {word: 'positive'|'shadow'}, renders inline color changes within single troika-three-text instance using troika's colorRanges feature",
+          "acceptance": "Text 'Your gift is clarity but beware of isolation' with keywords {clarity:'positive', isolation:'shadow'} renders 'clarity' in #B8860B and 'isolation' in #C65D3B while remaining text stays default white"
+        },
+        {
+          "id": "P0-S3-15",
+          "title": "Distance-fade text shader for depth-based readability",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 5,
+          "dependencies": [
+            "P0-S3-11",
+            "P0-S1-10"
+          ],
+          "deliverable": "DistanceFadeTextMaterial: custom ShaderMaterial extending troika-three-text material, vertex shader passes world position to fragment, fragment computes distance to cameraPosition, applies smoothstep opacity (1.0 at <5u, lerp 5-15u, 0.0 at >15u), configurable nearDistance and farDistance uniforms",
+          "acceptance": "Text at camera distance 3u renders at full opacity, at 10u renders at approximately 0.5 opacity, at 16u renders fully transparent, transition is smooth with no hard edge"
+        },
+        {
+          "id": "P0-S3-16",
+          "title": "Floating text layout manager with collision avoidance",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 6,
+          "dependencies": [
+            "P0-S3-12"
+          ],
+          "deliverable": "TextLayoutManager: positions multiple BillboardText blocks around a central artifact, layout modes: radial (Numerology - texts arranged in circle at configurable radius), columnar (Gene Keys - vertical stack with even spacing), orbital (Tarot - texts orbit center at configurable speed), collision avoidance via AABB overlap detection pushing overlapping texts apart by minimum 0.5u",
+          "acceptance": "Radial layout with 9 texts (Numerology) places them evenly around center with no overlaps, columnar layout with 6 texts stacks vertically, orbital layout animates text positions in circular path, no two text AABBs overlap after layout resolution"
+        },
+        {
+          "id": "P0-S3-17",
+          "title": "Multi-tier state persistence strategy implementation",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 6,
+          "dependencies": [
+            "P0-S1-10"
+          ],
+          "deliverable": "StatePersistenceManager with three tiers: (1) localStorage for preferences (volume, last camera position, unlocked zones array, vessel type, color theme), (2) IndexedDB 'anubis-sessions' store for session readings (engine results, field journal entries, progression timestamps), (3) API adapter interface for PostgreSQL sync (user profiles, natal data, cross-session analytics) via FastAPI endpoints, all keys prefixed 'anubis:', version-stamped schema",
+          "acceptance": "Preferences survive page reload via localStorage, session reading data persists to IndexedDB and retrieves correctly after tab close/reopen, API adapter interface matches FastAPI endpoint signatures from P2-S1-01"
+        },
+        {
+          "id": "P0-S3-18",
+          "title": "Session resume and restore flow",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 5,
+          "dependencies": [
+            "P0-S3-17"
+          ],
+          "deliverable": "SessionRestoreManager: on app load checks localStorage for 'anubis:session:token' and 'anubis:session:timestamp', if token exists and age < 24h restores camera position (Vector3 + Quaternion), unlocked zones set, vessel type, audio preferences from StatePersistenceManager, validates data integrity via JSON schema check, falls back to fresh session on validation failure",
+          "acceptance": "After completing threshold sequence and navigating to East zone, closing and reopening tab within 24h restores camera to East zone position and East zone shows as unlocked, session older than 24h starts fresh"
+        },
+        {
+          "id": "P0-S3-19",
+          "title": "Cross-tab synchronization via BroadcastChannel",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 4,
+          "dependencies": [
+            "P0-S3-17",
+            "P0-S3-01"
+          ],
+          "deliverable": "CrossTabSync: BroadcastChannel('anubis-sync') for multi-tab coordination, messages: 'audio-claim' (first tab claims AudioContext, others defer), 'webcam-claim' (first tab claims webcam, others use PIP-less mode), 'state-update' (sync zone unlocks, reading results across tabs), 'tab-close' (release claims), leader election via timestamp-based priority",
+          "acceptance": "Opening two tabs: only first tab creates AudioContext and accesses webcam, second tab shows visual-only mode indicator, unlocking a zone in tab 1 reflects in tab 2 within 500ms"
+        },
+        {
+          "id": "P0-S3-20",
+          "title": "Data migration strategy with version-stamped schemas",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 4,
+          "dependencies": [
+            "P0-S3-17"
+          ],
+          "deliverable": "DataMigrationManager: each localStorage/IndexedDB schema has version number in 'anubis:schema:version', migration registry maps version pairs to transform functions (e.g., v1->v2, v2->v3), runs migrations sequentially on app startup if stored version < current version, supports backward compatibility for 2 prior versions, logs migration results to console",
+          "acceptance": "App with schema v3 encountering v1 data runs v1->v2 then v2->v3 migrations sequentially, data is correctly transformed, version stamp updates to v3, v1 data fields are preserved or mapped correctly"
+        },
+        {
+          "id": "P0-S3-21",
+          "title": "Offline support via service worker and request queue",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 6,
+          "dependencies": [
+            "P0-S3-17",
+            "P0-S1-10"
+          ],
+          "deliverable": "Service worker using Workbox: precaches core assets (JS bundles, WASM files, font atlases, audio samples, GLTF models), runtime caches API responses with stale-while-revalidate strategy, OfflineQueue class stores failed POST/PUT requests in IndexedDB and replays on navigator.onLine event, subtle offline indicator (desaturated 10% filter on canvas, small 'offline' badge in corner, no blocking modal)",
+          "acceptance": "After initial load, disabling network still renders full 3D scene with zone navigation and cached engine readings, API calls made offline are queued and replayed when network restored, offline badge appears within 2s of disconnection"
+        }
+      ]
+    },
+    {
+      "sprint_id": "P4-S4",
+      "duration_weeks": 3,
+      "focus": "Integration Wiring + Missing QA Coverage",
+      "tasks": [
+        {
+          "id": "P4-S4-01",
+          "title": "Wire 13 engine audio tones to spatial audio positioning",
+          "area": "frontend",
+          "owner_role": "Audio Engineer",
+          "est_hours": 7,
+          "dependencies": [
+            "P0-S3-03",
+            "P0-S3-04",
+            "P3-S1-01",
+            "P3-S1-02",
+            "P3-S1-03",
+            "P3-S1-04",
+            "P3-S1-05",
+            "P3-S2-01",
+            "P3-S2-02",
+            "P3-S2-03",
+            "P3-S2-04",
+            "P3-S2-05",
+            "P3-S3-01",
+            "P3-S3-02",
+            "P3-S3-03"
+          ],
+          "deliverable": "SpatialEngineAudio integration layer: each engine artifact's Object3D world position is passed to its associated PannerNode via SpatialAudioManager, audio source bus assignment (Navagraha drone->Ambient, Tarot shuffle->Effects, Rune carve->Effects, I-Ching toss->Effects, Numerology pulse->UI), all 13 engines produce spatially positioned audio matching their 3D artifact locations",
+          "acceptance": "Walking around Navagraha engine in VR/orbit mode produces audible spatial panning matching visual position of engine artifact, all 13 engines have spatially accurate audio verified by A/B comparison of visual and audio direction"
+        },
+        {
+          "id": "P4-S4-02",
+          "title": "Wire PIP bio-feedback to all engine interaction modifiers",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 6,
+          "dependencies": [
+            "P2-S3-01",
+            "P2-S3-02",
+            "P2-S3-03",
+            "P3-S1-01",
+            "P3-S2-01",
+            "P3-S3-01"
+          ],
+          "deliverable": "BioFeedbackBridge: subscribes to PIP heart rate and breath rate observables, exposes coherenceScore (0-1) derived from HRV stability, feeds coherenceScore into all 13 engine interaction systems as intensity modifier (e.g., Tarot card glow intensity = baseGlow * coherenceScore, Navagraha planet orbit speed modulated by breath rate), engines degrade gracefully to coherenceScore=0.5 default when PIP unavailable",
+          "acceptance": "With PIP active, high coherence (>0.7) visibly intensifies engine visual effects compared to low coherence (<0.3), with PIP disabled all engines still function at default intensity, no errors thrown when PIP stream disconnects mid-ritual"
+        },
+        {
+          "id": "P4-S4-03",
+          "title": "Wire Field Journal save to all engine reading outputs",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 5,
+          "dependencies": [
+            "P1-S2-01",
+            "P3-S1-01",
+            "P3-S2-01",
+            "P3-S3-01"
+          ],
+          "deliverable": "FieldJournalBridge: listens to engine 'reading-complete' events from all 13 engines, formats reading data (engine ID, timestamp, input params, output text, keywords, coherenceScore at time of reading) into FieldJournalEntry schema, auto-saves to IndexedDB via StatePersistenceManager, provides 'save to journal' confirmation toast in UI channel audio",
+          "acceptance": "Completing a Tarot reading automatically creates a Field Journal entry with engine='tarot', timestamp, card positions, reading text, and keywords, entry retrievable from IndexedDB after page reload"
+        },
+        {
+          "id": "P4-S4-04",
+          "title": "Wire Cartographer's Compass to all engine consultation states",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 5,
+          "dependencies": [
+            "P1-S1-01",
+            "P3-S1-01",
+            "P3-S2-01",
+            "P3-S3-01"
+          ],
+          "deliverable": "CompassIntegration: Cartographer's Compass HUD element tracks which of 13 engines have been consulted in current session, displays filled/empty indicator per engine, compass needle points toward nearest unconsulted engine, uses engine 'reading-complete' events to mark engines as consulted, persists consultation state to session storage",
+          "acceptance": "After consulting 3 engines, compass shows 3 filled and 10 empty indicators, needle points toward nearest unconsulted engine by world distance, state persists across tab refresh"
+        },
+        {
+          "id": "P4-S4-05",
+          "title": "Wire zone audio beds to crossfade manager",
+          "area": "frontend",
+          "owner_role": "Audio Engineer",
+          "est_hours": 4,
+          "dependencies": [
+            "P0-S3-08",
+            "P2-S2-01",
+            "P2-S2-02"
+          ],
+          "deliverable": "ZoneAudioIntegration: connects world generation zone definitions (center/north/east/west/south with their world-space boundaries) to ZoneAudioCrossfader, loads zone-specific audio beds (center: 60Hz drone, north: filtered breath texture, east: pentatonic chime sequence, west: metallic resonance pad, south: nature ambient mix), zone positions pulled from world generation config",
+          "acceptance": "Moving avatar from center to north zone produces smooth 2s crossfade from drone to breath audio, all 5 zones have distinct audio beds that blend correctly at zone boundaries"
+        },
+        {
+          "id": "P4-S4-06",
+          "title": "Wire fog bank density to zone unlock progression state",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 4,
+          "dependencies": [
+            "P1-S2-01",
+            "P0-S3-17"
+          ],
+          "deliverable": "FogProgressionBridge: reads unlocked zones from StatePersistenceManager, sets fog bank density per zone (locked zones: density=0.95 near-opaque, unlocked zones: density=0.05 near-clear), threshold unlock event triggers fog dissipation animation (density 0.95->0.05 over 3s using GSAP/tween), fog ShaderMaterial uniform 'u_fogDensity' driven by progression state",
+          "acceptance": "Initially all non-center zones show dense fog, completing threshold sequence for North zone triggers visible 3-second fog clearing animation, fog density persists correctly after page reload"
+        },
+        {
+          "id": "P4-S4-07",
+          "title": "Wire Viscosity of Consciousness to all interactive object physics",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 6,
+          "dependencies": [
+            "P0-S1-13",
+            "P3-S1-01",
+            "P3-S2-01",
+            "P3-S3-01"
+          ],
+          "deliverable": "ViscosityBridge: Viscosity of Consciousness system (time-dilation factor 0.1-1.0) modulates all Rapier physics interactions: GRASP verb drag responsiveness scaled by viscosity, THROW verb release velocity multiplied by viscosity, ORBIT verb angular velocity scaled, each engine's interactive object physics parameters receive viscosity uniform, allows ritual moments to feel 'heavy' (viscosity=0.2) vs exploratory moments 'light' (viscosity=0.9)",
+          "acceptance": "At viscosity=0.2, THROW verb launch velocity is visibly 5x slower than at viscosity=1.0, GRASP drag feels sluggish at low viscosity and responsive at high viscosity, all 13 engine artifacts respond to viscosity changes"
+        },
+        {
+          "id": "P4-S4-08",
+          "title": "Wire binaural beat generator to threshold sequence phases",
+          "area": "frontend",
+          "owner_role": "Audio Engineer",
+          "est_hours": 4,
+          "dependencies": [
+            "P0-S3-05",
+            "P1-S2-01"
+          ],
+          "deliverable": "ThresholdBinauralBridge: threshold sequence phase transitions trigger binaural preset changes: Descent phase->theta(4Hz) for deep trance, Dissolution phase->schumann(7.83Hz) for grounding, Emergence phase->alpha(10Hz) for alertness, Integration phase->gamma(40Hz) for synthesis, uses BinauralBeatGenerator.crossfade() with 3s transition between phases",
+          "acceptance": "Entering Descent phase triggers theta binaural within 3s, transitioning to Dissolution shifts to schumann preset, all 4 phase transitions produce correct binaural frequencies verified by AnalyserNode FFT"
+        },
+        {
+          "id": "P4-S4-09",
+          "title": "Wire keyboard navigation to all 13 engine interactions",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 6,
+          "dependencies": [
+            "P4-S1-01",
+            "P3-S1-01",
+            "P3-S2-01",
+            "P3-S3-01"
+          ],
+          "deliverable": "KeyboardEngineNav: each engine registers its interactive elements with a focus management system, Tab cycles between engines in zone, Arrow keys navigate within engine's interactive elements, Enter activates GRASP/STRIKE verb on focused element, Space activates ORBIT/BREATHE-SYNC, Escape releases current interaction, focus ring rendered as subtle glow shader outline on focused 3D object",
+          "acceptance": "Tab key cycles focus between engines in current zone with visible focus indicator, Enter on focused Tarot card triggers GRASP, Space on Navagraha planet triggers ORBIT, all 13 engines are keyboard-operable without mouse"
+        },
+        {
+          "id": "P4-S4-10",
+          "title": "Wire screen reader ARIA to zone transitions and engine states",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 5,
+          "dependencies": [
+            "P4-S1-02",
+            "P2-S2-01",
+            "P3-S1-01"
+          ],
+          "deliverable": "ARIABridge: maintains hidden DOM overlay synced with 3D scene state, aria-live='polite' region announces zone transitions ('Entering North Zone - Breath Sanctuary'), aria-live='assertive' for ritual state changes ('Tarot reading complete - 3 cards revealed'), each engine exposes current state as aria-label on its DOM proxy element, role='application' on canvas with aria-roledescription='3D divination space'",
+          "acceptance": "Screen reader (VoiceOver/NVDA) announces zone entry/exit, engine interaction start/complete, and reading output text, all 5 zones and 13 engines have corresponding ARIA labels"
+        },
+        {
+          "id": "P4-S4-11",
+          "title": "Wire post-processing ramp to threshold sequence timing",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 4,
+          "dependencies": [
+            "P4-S2-01",
+            "P1-S2-01"
+          ],
+          "deliverable": "PostProcessThresholdBridge: threshold sequence phases drive post-processing stack intensity: Descent (vignette=0.8, filmGrain=0.3, saturation=0.4), Dissolution (bloom=1.5, chromaticAberration=0.02), Emergence (bloom=0.5, saturation=1.2, contrast=1.1), Integration (all effects to subtle defaults), transitions between phase configs use lerp over 2s matching phase transition duration",
+          "acceptance": "Entering Descent phase visibly darkens edges and desaturates over 2s, Emergence phase brightens and saturates, all transitions smooth with no jarring pop between post-processing states"
+        },
+        {
+          "id": "P4-S4-12",
+          "title": "Wire accessibility color palettes to all engine materials",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 5,
+          "dependencies": [
+            "P4-S1-03",
+            "P3-S1-01",
+            "P3-S2-01",
+            "P3-S3-01"
+          ],
+          "deliverable": "ColorPaletteBridge: accessibility color palette system (normal, protanopia, deuteranopia, tritanopia modes) propagates to all engine ShaderMaterial uniforms, engine-specific colors remapped per palette (e.g., Tarot red/green distinction uses blue/orange in deuteranopia mode), all 13 engines register their color-significant materials with palette manager, palette change triggers uniform update on next frame",
+          "acceptance": "Switching to deuteranopia palette visibly changes all engine materials that relied on red/green distinction, no engine has color-only information that becomes invisible in any accessibility mode"
+        },
+        {
+          "id": "P4-S4-13",
+          "title": "Wire Rapier collision groups to all 13 engine artifact colliders",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 5,
+          "dependencies": [
+            "P0-S1-13",
+            "P3-S1-01",
+            "P3-S2-01",
+            "P3-S3-01"
+          ],
+          "deliverable": "CollisionGroupRegistry: assigns Rapier collision groups to engine artifacts (Group 1: Avatar, Group 2: Zone boundaries, Group 3: Engine artifacts, Group 4: Thrown objects, Group 5: UI elements), configures interaction matrix (Avatar collides with Zones+Artifacts, Thrown objects collide with Artifacts, Artifacts don't collide with each other), each engine registers its artifact colliders with correct group on mount",
+          "acceptance": "Avatar can collide with and interact with engine artifacts, thrown objects hit engine artifacts and trigger Impact audio, two engine artifacts in close proximity do not push each other, group assignments verified via Rapier debug renderer"
+        },
+        {
+          "id": "P4-S4-14",
+          "title": "Wire Object State machine to all 13 engine artifacts",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 6,
+          "dependencies": [
+            "P3-S1-01",
+            "P3-S2-01",
+            "P3-S3-01"
+          ],
+          "deliverable": "ArtifactStateMachine: finite state machine with states Dormant->Awakened->Active->Ritual->Integrated, all 13 engine artifacts implement this FSM, transitions: proximity triggers Dormant->Awakened (glow intensifies), GRASP triggers Awakened->Active (interaction enabled), ritual completion triggers Active->Ritual (special visual state), reading output triggers Ritual->Integrated (settled glow + reading cached), state persisted per-artifact in session storage",
+          "acceptance": "Engine artifact starts Dormant with dim appearance, approaching within 5u triggers Awakened glow, GRASPing enters Active with interaction UI, completing ritual shows Ritual visual state, reading complete settles to Integrated state, state survives page reload"
+        },
+        {
+          "id": "P4-S4-15",
+          "title": "Wire inter-engine visual filament connections",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 5,
+          "dependencies": [
+            "P4-S4-14",
+            "P4-S4-04"
+          ],
+          "deliverable": "FilamentRenderer: when 2+ engines reach Integrated state, renders glowing line (THREE.Line2 with MeshLineMaterial, width=0.02, color=gold #B8860B at 0.3 opacity) connecting their 3D positions, line pulses with subtle sine wave amplitude modulation, filaments only appear between engines consulted in same session, uses BufferGeometry updated per frame to follow engine positions",
+          "acceptance": "Consulting Tarot then Numerology engines produces visible golden filament connecting them, filament pulses subtly, filament does not appear between unconsulted engines, 3+ engines produce filament mesh connecting all consulted pairs"
+        },
+        {
+          "id": "P4-S4-16",
+          "title": "Wire gravity well system to unlocked engine positions",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 4,
+          "dependencies": [
+            "P0-S1-13",
+            "P0-S3-17",
+            "P3-S1-01"
+          ],
+          "deliverable": "GravityWellConfig: each unlocked engine position acts as subtle gravity attractor for avatar movement, Rapier force field applies radial force toward engine when avatar within 8u range, force magnitude = 0.5 * (1 - distance/8) to create gentle pull, only active for Awakened+ state engines, disabled during active ritual (to prevent unwanted drift), configurable per-engine pull strength",
+          "acceptance": "Avatar moving past an Awakened engine within 8u experiences visible drift toward engine, force increases as avatar gets closer, force disabled during active ritual, locked/Dormant engines exert no pull"
+        },
+        {
+          "id": "P4-S4-17",
+          "title": "Wire Return Protocol to session persistence",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 4,
+          "dependencies": [
+            "P0-S3-18",
+            "P0-S3-17"
+          ],
+          "deliverable": "ReturnProtocolBridge: on session restore, if previous session had active ritual (state=Ritual in any engine), show Return Protocol UI (brief summary of where user left off, option to resume or restart), resume loads exact artifact state + reading progress, restart clears ritual state but keeps zone unlocks and journal entries, 'Welcome back' ambient audio cue on return",
+          "acceptance": "Closing tab during active Tarot ritual, reopening shows Return Protocol with 'Resume Tarot reading' option, clicking resume restores exact card positions and reading progress, choosing restart keeps journal entries but resets Tarot to Awakened state"
+        },
+        {
+          "id": "P4-S4-18",
+          "title": "Wire Dasha transition biome regeneration to world system",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 5,
+          "dependencies": [
+            "P3-S2-05",
+            "P2-S2-01",
+            "P2-S2-02"
+          ],
+          "deliverable": "DashaBiomeBridge: Vimshottari Dasha engine period transitions (e.g., Sun period -> Moon period) trigger world biome regeneration, new Dasha period maps to biome palette (Sun=warm desert, Moon=cool ocean, Mars=volcanic, Mercury=forest, Jupiter=sky, Venus=garden, Saturn=stone, Rahu=void, Ketu=mist), biome change animates over 5s with terrain color/fog/skybox lerp, world generation system receives new biome seed",
+          "acceptance": "Triggering Dasha period transition from Sun to Moon visibly shifts terrain palette from warm to cool tones over 5s, fog color changes, skybox transitions, no visual pop or discontinuity"
+        },
+        {
+          "id": "P4-S4-19",
+          "title": "End-to-end integration test: Threshold to Forge complete flow",
+          "area": "qa",
+          "owner_role": "QA Engineer",
+          "est_hours": 8,
+          "dependencies": [
+            "P1-S2-01",
+            "P2-S2-01",
+            "P3-S1-01",
+            "P4-S3-01"
+          ],
+          "deliverable": "E2E test suite (Playwright): complete user journey from landing->threshold sequence (Descent/Dissolution/Emergence/Integration)->breathfield entry->zone navigation to first engine->engine consultation (Tarot card draw)->reading output display->Field Journal save->Forge entry, test verifies each transition, state persistence across steps, audio context active, no console errors, completes in under 120s",
+          "acceptance": "Playwright test passes: threshold sequence completes all 4 phases, breathfield renders, zone fog clears on unlock, Tarot engine responds to interaction, reading displays via typewriter, journal entry saved, Forge accessible, zero uncaught exceptions in console"
+        },
+        {
+          "id": "P4-S4-20",
+          "title": "End-to-end integration test: multi-engine reading to Decision Mirror",
+          "area": "qa",
+          "owner_role": "QA Engineer",
+          "est_hours": 8,
+          "dependencies": [
+            "P3-S1-01",
+            "P3-S1-02",
+            "P3-S1-03",
+            "P3-S3-03"
+          ],
+          "deliverable": "E2E test suite (Playwright): consult 3 engines (Tarot, Numerology, I-Ching) in single session, verify each produces reading output and journal entry, verify inter-engine filaments appear connecting consulted engines, navigate to Decision Mirror, verify convergence summary synthesizes all 3 readings, verify Cartographer's Compass shows 3/13 consulted, completes in under 180s",
+          "acceptance": "Playwright test passes: 3 engine consultations complete with readings saved, filaments visible between all 3, Decision Mirror shows convergence text referencing all 3 engine outputs, compass shows 3 filled indicators, zero console errors"
+        },
+        {
+          "id": "P4-S4-21",
+          "title": "QA: Audio context initialization across browsers",
+          "area": "qa",
+          "owner_role": "QA Engineer",
+          "est_hours": 4,
+          "dependencies": [
+            "P0-S3-01"
+          ],
+          "deliverable": "Cross-browser test suite: verify AudioContext creation and user gesture requirement handling in Chrome 120+, Firefox 121+, Safari 17+, test autoplay policy blocking and recovery, test suspend/resume on tab visibility change, test graceful fallback to visual-only mode when AudioContext permanently blocked",
+          "acceptance": "All tests pass on Chrome, Firefox, Safari: AudioContext reaches 'running' state after user gesture, suspends on tab hide, resumes on tab show, visual-only mode activates cleanly when AudioContext blocked"
+        },
+        {
+          "id": "P4-S4-22",
+          "title": "QA: Binaural beat frequency accuracy verification",
+          "area": "qa",
+          "owner_role": "QA Engineer",
+          "est_hours": 4,
+          "dependencies": [
+            "P0-S3-05"
+          ],
+          "deliverable": "Frequency accuracy test suite: use AnalyserNode FFT to capture frequency spectrum from left and right channels independently, verify theta preset produces 200Hz left / 204Hz right (+/- 0.5Hz tolerance), verify all 4 presets (theta/schumann/alpha/gamma) produce correct beat frequencies, verify crossfade transition does not produce frequencies outside expected range",
+          "acceptance": "FFT analysis confirms all 4 binaural presets produce beat frequencies within 0.5Hz of specified values (4Hz, 7.83Hz, 10Hz, 40Hz), crossfade between presets shows monotonic frequency transition with no unexpected peaks"
+        },
+        {
+          "id": "P4-S4-23",
+          "title": "QA: Spatial audio positioning matches 3D engine positions",
+          "area": "qa",
+          "owner_role": "QA Engineer",
+          "est_hours": 5,
+          "dependencies": [
+            "P0-S3-03",
+            "P4-S4-01"
+          ],
+          "deliverable": "Spatial accuracy test: for each of 13 engines, compare PannerNode.positionX/Y/Z values against engine artifact Object3D.getWorldPosition() values, verify match within 0.01 units, test with camera at 4 orthogonal positions (N/S/E/W) to verify stereo panning direction correctness, verify audio silence beyond 30u maxDistance",
+          "acceptance": "All 13 engine PannerNode positions match Object3D world positions within 0.01u tolerance, audio from engine at (10,0,0) is louder in right channel when camera faces +Z, audio at distance 31u produces silence (gain < -60dB)"
+        },
+        {
+          "id": "P4-S4-24",
+          "title": "QA: Zone audio crossfade smoothness verification",
+          "area": "qa",
+          "owner_role": "QA Engineer",
+          "est_hours": 4,
+          "dependencies": [
+            "P0-S3-08",
+            "P4-S4-05"
+          ],
+          "deliverable": "Crossfade smoothness test: record audio output (via OfflineAudioContext or ScriptProcessorNode) during zone transitions, analyze for discontinuities (amplitude jumps > 0.1 in single sample), verify total gain across all zone buses stays within 0.95-1.05 range during crossfade, test all 10 zone-pair transitions (center<->N, center<->E, center<->S, center<->W, N<->E, etc.)",
+          "acceptance": "No audio discontinuities (clicks/pops) detected in any of 10 zone transition pairs, total zone gain stays within 0.95-1.05 throughout transitions, crossfade duration is 2s +/- 100ms"
+        },
+        {
+          "id": "P4-S4-25",
+          "title": "QA: Audio LOD distance-based attenuation curve validation",
+          "area": "qa",
+          "owner_role": "QA Engineer",
+          "est_hours": 4,
+          "dependencies": [
+            "P0-S3-06"
+          ],
+          "deliverable": "LOD curve test: programmatically move audio source from distance 0 to 40u in 1u increments, measure output gain at each distance via AnalyserNode, verify 4-tier LOD transitions (full <10u, reduced <20u, minimal <30u, off >30u), verify max 8 simultaneous sources enforcement by creating 12 sources and checking only 8 are connected, verify priority queue (ritual sources survive, ambient dropped first)",
+          "acceptance": "Gain measurements show monotonically decreasing curve from 0-30u with distinct LOD transition points at 10u and 20u, gain at 31u is effectively zero, 12-source test shows exactly 8 connected nodes, ritual-priority source remains connected when ambient source is dropped"
+        },
+        {
+          "id": "P4-S4-26",
+          "title": "QA: Ground ripple vertex shader rendering across GPU vendors",
+          "area": "qa",
+          "owner_role": "QA Engineer",
+          "est_hours": 5,
+          "dependencies": [
+            "P1-S1-01"
+          ],
+          "deliverable": "Cross-GPU shader test: verify ground ripple vertex displacement shader renders correctly on Apple Silicon (M1/M2/M3), Intel integrated (UHD 630+), NVIDIA discrete (GTX 1060+), AMD discrete (RX 580+), test for: ripple propagation from impact point, displacement amplitude attenuation over distance, correct UV preservation during displacement, no z-fighting or vertex flickering",
+          "acceptance": "Ground ripple shader produces visible circular displacement wave on all 4 GPU vendor categories, no visual artifacts (z-fighting, flickering, UV distortion), ripple amplitude decays to 0 within 20u of impact point"
+        },
+        {
+          "id": "P4-S4-27",
+          "title": "QA: Film grain post-processing shader performance benchmark",
+          "area": "qa",
+          "owner_role": "QA Engineer",
+          "est_hours": 3,
+          "dependencies": [
+            "P4-S2-01"
+          ],
+          "deliverable": "Shader performance test: measure film grain post-processing pass GPU time using EXT_disjoint_timer_query (Chrome) or performance.now delta (fallback), test at resolutions 1080p, 1440p, 4K, test with grain intensity at 0.0, 0.15 (default), 0.5 (max), record average frame time contribution over 300 frames, verify grain temporal noise pattern changes each frame (not static)",
+          "acceptance": "Film grain pass contributes < 2ms at 1080p on mid-range GPU (GTX 1060 equivalent), < 4ms at 4K, grain pattern visually changes each frame (not static), enabling/disabling grain shows measurable but within-budget performance delta"
+        },
+        {
+          "id": "P4-S4-28",
+          "title": "QA: SparkJS Gaussian Splat rendering quality at varying counts",
+          "area": "qa",
+          "owner_role": "QA Engineer",
+          "est_hours": 5,
+          "dependencies": [
+            "P0-S2-01"
+          ],
+          "deliverable": "Splat rendering quality test: render SparkJS Gaussian Splat scenes at 100K, 500K, 1M, 2M splat counts, measure FPS at each tier, verify visual quality (no missing splats, correct depth sorting, alpha blending correctness), test WebGL2 sort pass performance, verify LOD transition (reduce splat count at distance) functions without visual pop, test on integrated and discrete GPUs",
+          "acceptance": "100K splats renders at 60fps on discrete GPU and 30fps on integrated, 1M splats renders at 30fps on discrete, depth sorting produces no visible z-order artifacts, LOD transition at 20u distance reduces splat count without visible pop"
+        },
+        {
+          "id": "P4-S4-29",
+          "title": "QA: Distance-fade text shader readability at boundary distances",
+          "area": "qa",
+          "owner_role": "QA Engineer",
+          "est_hours": 3,
+          "dependencies": [
+            "P0-S3-15"
+          ],
+          "deliverable": "Text readability test: render 12pt equivalent BillboardText with DistanceFadeTextMaterial at distances 3u, 5u, 8u, 10u, 12u, 15u, 18u, capture screenshots, verify text is fully opaque and legible at 3u, partially transparent but readable at 10u, invisible at 18u, test with all 4 font scripts (Latin, Devanagari, Chinese, Elder Futhark), verify smoothstep produces no banding artifacts",
+          "acceptance": "Screenshot comparison confirms: text at 3u is fully opaque (alpha > 0.95), at 10u is partially transparent (alpha 0.4-0.6), at 16u is invisible (alpha < 0.05), all 4 scripts render legibly at 5u, no visible banding in opacity gradient"
+        },
+        {
+          "id": "P4-S4-30",
+          "title": "QA: Bloom threshold shader interaction with engine materials",
+          "area": "qa",
+          "owner_role": "QA Engineer",
+          "est_hours": 4,
+          "dependencies": [
+            "P4-S2-01",
+            "P3-S1-01",
+            "P3-S2-01"
+          ],
+          "deliverable": "Bloom interaction test: verify bloom post-processing threshold correctly identifies emissive engine materials without over-blooming, test each engine's primary emissive material (Navagraha planet glow, Tarot card aura, Rune carving light, etc.), verify bloom intensity scales with material emissive value, verify non-emissive materials (terrain, fog, text) do not trigger bloom, test bloom at threshold values 0.5, 0.8, 1.0",
+          "acceptance": "At threshold 0.8: engine emissive materials (emissive > 0.8) produce visible bloom halo, terrain and text do not bloom, no engine produces 'nuclear glow' over-bloom artifact, reducing threshold to 0.5 expands bloom to more materials without clipping"
+        }
+      ]
+    }
+  ]
+}

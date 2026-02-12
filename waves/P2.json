@@ -1,0 +1,1290 @@
+{
+  "phase_id": "P2",
+  "name": "THE GENERATION \u2014 World & Physics",
+  "objective": "Integrate World Labs API for procedural world generation, implement all 6 Kinetic Verbs with Rapier physics, connect PIP bio-feedback for responsive rendering, and build Aletheos/Pichet Witness Agent physics modifiers.",
+  "sprints": [
+    {
+      "sprint_id": "S1",
+      "duration_weeks": 2,
+      "focus": "World Generation Pipeline & Backend",
+      "tasks": [
+        {
+          "id": "P2-S1-01",
+          "title": "Create FastAPI project scaffold with uvicorn, pydantic, CORS middleware",
+          "area": "backend",
+          "owner_role": "Backend Eng",
+          "est_hours": 4,
+          "dependencies": [],
+          "deliverable": "FastAPI application boots with CORS enabled, health endpoint returns 200, pydantic settings loaded from env vars.",
+          "acceptance": "Running uvicorn main:app starts server on port 8000 and GET /health returns status ok."
+        },
+        {
+          "id": "P2-S1-02",
+          "title": "Set up PostgreSQL database with sessions, worlds, readings, artifacts tables",
+          "area": "backend",
+          "owner_role": "Backend Eng",
+          "est_hours": 5,
+          "dependencies": [
+            "P2-S1-01"
+          ],
+          "deliverable": "PostgreSQL schema with sessions, worlds, readings, and artifacts tables created via migration script.",
+          "acceptance": "Running the migration creates all 4 tables and a SELECT on each returns zero rows without error."
+        },
+        {
+          "id": "P2-S1-03",
+          "title": "Implement SQLAlchemy ORM models for all database tables",
+          "area": "backend",
+          "owner_role": "Backend Eng",
+          "est_hours": 4,
+          "dependencies": [
+            "P2-S1-02"
+          ],
+          "deliverable": "SQLAlchemy ORM model classes for Session, World, Reading, and Artifact with relationships and type annotations.",
+          "acceptance": "Creating and querying a Session with related World via ORM succeeds without raw SQL."
+        },
+        {
+          "id": "P2-S1-04",
+          "title": "Build JWT authentication system for API endpoints",
+          "area": "backend",
+          "owner_role": "Backend Eng",
+          "est_hours": 5,
+          "dependencies": [
+            "P2-S1-01"
+          ],
+          "deliverable": "JWT-based auth with login, token refresh, and protected route decorator implemented.",
+          "acceptance": "A request without valid JWT to a protected endpoint returns 401 and a request with valid JWT returns 200."
+        },
+        {
+          "id": "P2-S1-05",
+          "title": "Create World Labs API client: prompt submission, generation polling, asset download",
+          "area": "backend",
+          "owner_role": "Backend Eng",
+          "est_hours": 6,
+          "dependencies": [
+            "P2-S1-01"
+          ],
+          "deliverable": "Async client class that submits prompts, polls generation status, and downloads .glb and .splat assets on completion.",
+          "acceptance": "Client submits a test prompt and returns downloaded asset bytes within the polling timeout period."
+        },
+        {
+          "id": "P2-S1-06",
+          "title": "Build prompt construction system: Dasha planet + archetype to biome description text",
+          "area": "backend",
+          "owner_role": "Backend Eng",
+          "est_hours": 4,
+          "dependencies": [
+            "P2-S1-05"
+          ],
+          "deliverable": "Function that takes a Dasha planet enum and archetype string and returns a formatted World Labs prompt string.",
+          "acceptance": "Calling construct_prompt with Saturn and seeker returns a non-empty string containing both biome keywords and archetype modifiers."
+        },
+        {
+          "id": "P2-S1-07",
+          "title": "Create 9 Planetary Dasha biome prompt templates (Saturn=obsidian void, Venus=crystalline garden, etc.)",
+          "area": "product",
+          "owner_role": "Backend Eng",
+          "est_hours": 5,
+          "dependencies": [
+            "P2-S1-06"
+          ],
+          "deliverable": "JSON file with 9 Dasha biome templates containing material keywords, atmosphere description, and lighting direction per planet.",
+          "acceptance": "All 9 planetary Dasha entries (Sun, Moon, Mars, Mercury, Jupiter, Venus, Saturn, Rahu, Ketu) exist and each has non-empty prompt_template field."
+        },
+        {
+          "id": "P2-S1-08",
+          "title": "Implement server-side collision mesh extraction from generated .glb worlds",
+          "area": "backend",
+          "owner_role": "Backend Eng",
+          "est_hours": 6,
+          "dependencies": [
+            "P2-S1-05"
+          ],
+          "deliverable": "Pipeline that parses .glb, extracts terrain geometry, simplifies to low-poly collision mesh, and exports as separate .glb.",
+          "acceptance": "A generated world .glb produces a collision mesh .glb with less than 5000 triangles and matching XZ bounds."
+        },
+        {
+          "id": "P2-S1-09",
+          "title": "Build splat compression pipeline: downsample + quantize generated Gaussian data",
+          "area": "backend",
+          "owner_role": "Backend Eng",
+          "est_hours": 5,
+          "dependencies": [
+            "P2-S1-05"
+          ],
+          "deliverable": "Pipeline that takes raw Gaussian splat data, downsamples by configurable factor, and quantizes SH coefficients to 8-bit.",
+          "acceptance": "Compressed splat file is less than 40% the size of the original with PSNR above 30dB on test scene."
+        },
+        {
+          "id": "P2-S1-10",
+          "title": "Create progressive client-side world loader (blurry to sharp materialization)",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 6,
+          "dependencies": [
+            "P0-S2-04",
+            "P2-S1-09"
+          ],
+          "deliverable": "React component that streams splat data in LOD tiers, rendering blurry approximation first then refining to full quality.",
+          "acceptance": "World visually appears within 1 second as blurry and reaches full quality within 5 seconds on a 50Mbps connection."
+        },
+        {
+          "id": "P2-S1-11",
+          "title": "Implement ground ripple vertex shader (radial displacement wave from center)",
+          "area": "frontend",
+          "owner_role": "Shader Eng",
+          "est_hours": 5,
+          "dependencies": [
+            "P0-S2-25"
+          ],
+          "deliverable": "GLSL vertex shader that displaces ground mesh vertices in a radial sinusoidal wave expanding from a configurable origin point.",
+          "acceptance": "Shader produces a visible ripple expanding outward from center at configurable speed without mesh artifacts."
+        },
+        {
+          "id": "P2-S1-12",
+          "title": "Build world reveal: progressive splat loading with distance-based alpha mask",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 5,
+          "dependencies": [
+            "P2-S1-10",
+            "P0-S2-01"
+          ],
+          "deliverable": "Alpha mask shader that reveals splats from center outward based on distance, synced to loading progress.",
+          "acceptance": "Splats fade in from center with smooth alpha gradient and no visible seam at the reveal boundary."
+        },
+        {
+          "id": "P2-S1-13",
+          "title": "Create four cardinal direction glow effects (shader atmospheric lights)",
+          "area": "frontend",
+          "owner_role": "Shader Eng",
+          "est_hours": 4,
+          "dependencies": [
+            "P0-S2-25",
+            "P0-S2-14"
+          ],
+          "deliverable": "Four directional glow post-processing effects at N/E/S/W positions with configurable color and intensity per zone.",
+          "acceptance": "All four cardinal glows render at correct world-space positions and change color when zone config is updated."
+        },
+        {
+          "id": "P2-S1-14",
+          "title": "Build Cartographer path trail (fading splat particles leading toward Breathfield)",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 4,
+          "dependencies": [
+            "P0-S2-01"
+          ],
+          "deliverable": "Particle trail system using splat-style rendering that creates a fading path from vessel position toward the Breathfield zone.",
+          "acceptance": "Trail particles render along a spline path, fade over 3 seconds, and update direction when Breathfield position changes."
+        },
+        {
+          "id": "P2-S1-15",
+          "title": "Implement pre-cached fallback worlds (static .splat + .glb for all 9 Dashas)",
+          "area": "backend",
+          "owner_role": "Backend Eng",
+          "est_hours": 4,
+          "dependencies": [
+            "P2-S1-07"
+          ],
+          "deliverable": "9 pre-generated static world bundles stored in CDN-ready format with matching collision meshes.",
+          "acceptance": "Each of the 9 Dasha fallback worlds loads successfully client-side when World Labs API is unreachable."
+        },
+        {
+          "id": "P2-S1-16",
+          "title": "Build world state persistence (save generated world_id + config to PostgreSQL + IndexedDB)",
+          "area": "data",
+          "owner_role": "Backend Eng",
+          "est_hours": 4,
+          "dependencies": [
+            "P2-S1-02"
+          ],
+          "deliverable": "Dual persistence layer saving world generation results server-side in PostgreSQL and client-side in IndexedDB for offline access.",
+          "acceptance": "After generating a world, refreshing the page loads the same world from IndexedDB without a new API call."
+        },
+        {
+          "id": "P2-S1-17",
+          "title": "Create world generation orchestration endpoint: POST /api/worlds/generate",
+          "area": "backend",
+          "owner_role": "Backend Eng",
+          "est_hours": 4,
+          "dependencies": [
+            "P2-S1-05",
+            "P2-S1-06"
+          ],
+          "deliverable": "REST endpoint that accepts Dasha + archetype, orchestrates World Labs generation, and returns world assets URL.",
+          "acceptance": "POST /api/worlds/generate with valid Dasha returns 202 with job_id, and polling GET /api/worlds/{job_id} eventually returns asset URLs."
+        },
+        {
+          "id": "P2-S1-18",
+          "title": "Build World Labs API mock server for offline development (all 9 Dashas pre-generated)",
+          "area": "backend",
+          "owner_role": "Backend Eng",
+          "est_hours": 4,
+          "dependencies": [
+            "P2-S1-05"
+          ],
+          "deliverable": "Mock server that mimics World Labs API responses with pre-generated assets for all 9 Dasha biomes.",
+          "acceptance": "Mock server responds to prompt submission and returns pre-generated assets with realistic polling delays."
+        },
+        {
+          "id": "P2-S1-19",
+          "title": "Implement world generation retry with simplified prompt on API failure",
+          "area": "backend",
+          "owner_role": "Backend Eng",
+          "est_hours": 3,
+          "dependencies": [
+            "P2-S1-05"
+          ],
+          "deliverable": "Retry logic that simplifies the prompt on World Labs API failure up to 3 attempts then falls back to cached world.",
+          "acceptance": "On simulated API failure, system retries with progressively simpler prompts and falls back to cached world after 3 failures."
+        },
+        {
+          "id": "P2-S1-20",
+          "title": "Create world generation cost estimator (track API calls per user in PostgreSQL)",
+          "area": "backend",
+          "owner_role": "Backend Eng",
+          "est_hours": 3,
+          "dependencies": [
+            "P2-S1-02",
+            "P2-S1-05"
+          ],
+          "deliverable": "Database tracking of API call count, estimated cost, and per-user usage statistics with admin query endpoint.",
+          "acceptance": "After 5 generation calls, GET /api/admin/usage returns accurate count and estimated cost for the test user."
+        },
+        {
+          "id": "P2-S1-21",
+          "title": "Build progressive world reveal timing controller (ripple to materialize to glows to trail sequence)",
+          "area": "frontend",
+          "owner_role": "Frontend Eng",
+          "est_hours": 4,
+          "dependencies": [
+            "P2-S1-10",
+            "P2-S1-11",
+            "P2-S1-12",
+            "P2-S1-13"
+          ],
+          "deliverable": "Timeline controller that orchestrates the world reveal sequence: ripple(0-1s), materialize(0.5-3s), glows(2-3.5s), trail(3-5s).",
+          "acceptance": "World reveal plays the complete 4-stage sequence in order with smooth overlapping transitions totaling under 5 seconds."
+        },
+        {
+          "id": "P2-S1-22",
+          "title": "Create world biome metadata schema (material keywords, lighting preset, fog config per biome)",
+          "area": "data",
+          "owner_role": "Backend Eng",
+          "est_hours": 3,
+          "dependencies": [
+            "P2-S1-07"
+          ],
+          "deliverable": "TypeScript type and JSON schema defining biome metadata including material_keywords, lighting_preset, fog_density, fog_color, ambient_color.",
+          "acceptance": "All 9 biome metadata entries validate against the schema and contain all required fields with correct types."
+        },
+        {
+          "id": "P2-S1-23",
+          "title": "Implement collision mesh loading into Rapier (generated .glb to trimesh collider)",
+          "area": "frontend",
+          "owner_role": "Physics Eng",
+          "est_hours": 5,
+          "dependencies": [
+            "P0-S1-13",
+            "P2-S1-08"
+          ],
+          "deliverable": "Loader that parses collision mesh .glb, extracts vertices and indices, and creates a Rapier trimesh collider.",
+          "acceptance": "A dynamic rigid body dropped onto the loaded trimesh collider rests on the terrain surface without falling through."
+        },
+        {
+          "id": "P2-S1-24",
+          "title": "Build world LOD system: distance-based quality for generated terrain splats",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 4,
+          "dependencies": [
+            "P0-S2-11",
+            "P2-S1-10"
+          ],
+          "deliverable": "LOD manager that swaps splat quality tiers based on camera distance with hysteresis to prevent thrashing.",
+          "acceptance": "Moving camera from near to far reduces rendered splat count by at least 60% with no visible pop-in."
+        },
+        {
+          "id": "P2-S1-25",
+          "title": "Create FastAPI health check and readiness endpoints",
+          "area": "backend",
+          "owner_role": "Backend Eng",
+          "est_hours": 2,
+          "dependencies": [
+            "P2-S1-01"
+          ],
+          "deliverable": "GET /health (liveness) and GET /ready (readiness checking DB + World Labs API connectivity) endpoints.",
+          "acceptance": "GET /health returns 200 always, GET /ready returns 200 when DB is connected and 503 when DB is down."
+        },
+        {
+          "id": "P2-S1-26",
+          "title": "Implement FastAPI request logging and error tracking middleware",
+          "area": "backend",
+          "owner_role": "Backend Eng",
+          "est_hours": 3,
+          "dependencies": [
+            "P2-S1-01"
+          ],
+          "deliverable": "Middleware that logs request method, path, status code, duration, and captures unhandled exceptions with stack traces.",
+          "acceptance": "Every API request produces a structured JSON log line and unhandled exceptions are logged with full traceback."
+        },
+        {
+          "id": "P2-S1-27",
+          "title": "Build database migration system with Alembic",
+          "area": "backend",
+          "owner_role": "Backend Eng",
+          "est_hours": 3,
+          "dependencies": [
+            "P2-S1-02"
+          ],
+          "deliverable": "Alembic configuration with initial migration, auto-generation support, and upgrade/downgrade scripts.",
+          "acceptance": "Running alembic upgrade head on empty database creates all tables and alembic downgrade -1 cleanly removes the last migration."
+        },
+        {
+          "id": "P2-S1-28",
+          "title": "Create API documentation with OpenAPI/Swagger auto-generation",
+          "area": "backend",
+          "owner_role": "Backend Eng",
+          "est_hours": 2,
+          "dependencies": [
+            "P2-S1-01"
+          ],
+          "deliverable": "Auto-generated OpenAPI spec accessible at /docs with all endpoints, request/response schemas, and auth requirements documented.",
+          "acceptance": "Navigating to /docs shows interactive Swagger UI with all API endpoints and executing a test request returns valid response."
+        },
+        {
+          "id": "P2-S1-29",
+          "title": "Implement world generation rate limiting (1 world/user/hour, serve cached for repeats)",
+          "area": "backend",
+          "owner_role": "Backend Eng",
+          "est_hours": 3,
+          "dependencies": [
+            "P2-S1-17"
+          ],
+          "deliverable": "Rate limiter that restricts world generation to 1 per user per hour and returns cached world data for repeated Dasha requests.",
+          "acceptance": "Second generation request within 1 hour returns 429 with cached world URL, and request after 1 hour succeeds."
+        },
+        {
+          "id": "P2-S1-30",
+          "title": "Build integration test: Dasha input to world loads progressively within 5 seconds",
+          "area": "qa",
+          "owner_role": "QA",
+          "est_hours": 5,
+          "dependencies": [
+            "P2-S1-10",
+            "P2-S1-17"
+          ],
+          "deliverable": "End-to-end test that submits a Dasha, waits for generation, loads world client-side, and asserts progressive reveal completes.",
+          "acceptance": "Test passes asserting world is visually loaded (first splat rendered) within 5 seconds of generation completion."
+        }
+      ]
+    },
+    {
+      "sprint_id": "S2",
+      "duration_weeks": 2,
+      "focus": "Kinetic Verbs & Physics Interaction",
+      "tasks": [
+        {
+          "id": "P2-S2-01",
+          "title": "Implement GRASP verb: spring joint creation between vessel and object on hold gesture",
+          "area": "frontend",
+          "owner_role": "Physics Eng",
+          "est_hours": 5,
+          "dependencies": [
+            "P0-S1-13",
+            "P1-S1-22"
+          ],
+          "deliverable": "GRASP verb that creates a Rapier spring joint between the vessel and target object when a hold gesture is detected.",
+          "acceptance": "Holding gesture near a dynamic object creates a spring joint that visually connects vessel to object with elastic behavior."
+        },
+        {
+          "id": "P2-S2-02",
+          "title": "Implement THROW verb: velocity transfer from hand to object on release, magnitude from hand speed",
+          "area": "frontend",
+          "owner_role": "Physics Eng",
+          "est_hours": 5,
+          "dependencies": [
+            "P2-S2-01"
+          ],
+          "deliverable": "THROW verb that transfers hand velocity to the grasped object on release, scaling impulse by tracked hand speed.",
+          "acceptance": "Releasing a grasped object with hand moving at greater than 2m/s applies proportional impulse and object travels in hand direction."
+        },
+        {
+          "id": "P2-S2-03",
+          "title": "Implement ORBIT verb: spherical joint constraining object to vessel orbit on two-hand gesture",
+          "area": "frontend",
+          "owner_role": "Physics Eng",
+          "est_hours": 5,
+          "dependencies": [
+            "P0-S1-13",
+            "P1-S1-22"
+          ],
+          "deliverable": "ORBIT verb that creates a spherical joint constraining an object to orbit the vessel at a fixed radius on two-hand gesture.",
+          "acceptance": "Two-hand gesture causes target object to orbit vessel at constant radius with orbit speed proportional to hand separation."
+        },
+        {
+          "id": "P2-S2-04",
+          "title": "Implement STRIKE verb: collision detection + momentum threshold (12.0 base), 4 outcome tiers",
+          "area": "frontend",
+          "owner_role": "Physics Eng",
+          "est_hours": 6,
+          "dependencies": [
+            "P0-S1-13"
+          ],
+          "deliverable": "STRIKE verb with momentum-based collision detection and 4 outcome tiers: Perfect(>20), Adequate(12-20), Weak(5-12), Reckless(>30).",
+          "acceptance": "Striking an object with momentum 15.0 triggers Adequate tier and momentum 25.0 triggers Perfect tier with correct outcomes."
+        },
+        {
+          "id": "P2-S2-05",
+          "title": "Implement BREATHE-SYNC verb: collider scale modulation from breath rate (coherence > 70 for 3 cycles)",
+          "area": "frontend",
+          "owner_role": "Physics Eng",
+          "est_hours": 5,
+          "dependencies": [
+            "P0-S1-13",
+            "P1-S1-16"
+          ],
+          "deliverable": "BREATHE-SYNC verb that modulates target collider scale based on breath rate when coherence exceeds 70 for 3 consecutive cycles.",
+          "acceptance": "With coherence at 75 for 3 breath cycles, target object collider scale oscillates in sync with breath phase."
+        },
+        {
+          "id": "P2-S2-06",
+          "title": "Implement REST verb: velocity timeout detection to transition RigidBody to Fixed type",
+          "area": "frontend",
+          "owner_role": "Physics Eng",
+          "est_hours": 3,
+          "dependencies": [
+            "P0-S1-13"
+          ],
+          "deliverable": "REST verb that detects when an object velocity stays below 0.1 for 2 seconds and transitions its RigidBody to Fixed.",
+          "acceptance": "A dropped object that comes to rest transitions to Fixed type within 2 seconds and no longer responds to forces."
+        },
+        {
+          "id": "P2-S2-07",
+          "title": "Build mouse/trackpad input mapping: click-hold=GRASP, release=THROW, right-drag=ORBIT, shift-click=STRIKE, scroll=BREATHE, double-click=REST",
+          "area": "frontend",
+          "owner_role": "Frontend Eng",
+          "est_hours": 4,
+          "dependencies": [
+            "P2-S2-01",
+            "P2-S2-02",
+            "P2-S2-03",
+            "P2-S2-04",
+            "P2-S2-05",
+            "P2-S2-06"
+          ],
+          "deliverable": "Input handler mapping mouse and trackpad events to all 6 Kinetic Verbs with configurable keybindings.",
+          "acceptance": "Each of the 6 mouse/trackpad inputs triggers the corresponding Kinetic Verb and no two inputs conflict."
+        },
+        {
+          "id": "P2-S2-08",
+          "title": "Create object state machine: Dormant to Awakened to Active to Ritual to Integrated with transition rules",
+          "area": "frontend",
+          "owner_role": "Physics Eng",
+          "est_hours": 5,
+          "dependencies": [
+            "P0-S1-13"
+          ],
+          "deliverable": "Finite state machine for ritual objects with 5 states and validated transition rules preventing illegal state changes.",
+          "acceptance": "Object transitions follow Dormant then Awakened then Active then Ritual then Integrated order and direct Dormant to Ritual is rejected."
+        },
+        {
+          "id": "P2-S2-09",
+          "title": "Implement proximity wake system: objects within 10 units transition DORMANT to AWAKENED",
+          "area": "frontend",
+          "owner_role": "Physics Eng",
+          "est_hours": 3,
+          "dependencies": [
+            "P2-S2-08",
+            "P1-S1-22"
+          ],
+          "deliverable": "Spatial query system that checks vessel distance to dormant objects each frame and triggers Awakened transition within 10 units.",
+          "acceptance": "Moving vessel within 10 units of a dormant object transitions it to Awakened within 1 frame and moving beyond 15 units reverts it."
+        },
+        {
+          "id": "P2-S2-10",
+          "title": "Build state transition visual effects: scale oscillation for Awakened, glow for Active, dissolve for Integrated",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 5,
+          "dependencies": [
+            "P2-S2-08"
+          ],
+          "deliverable": "Visual effect system that applies distinct animations per object state: gentle scale pulse for Awakened, emissive glow for Active, dissolve particles for Integrated.",
+          "acceptance": "Each of the 5 object states has a visually distinct effect and transitions between effects are smooth over 0.5 seconds."
+        },
+        {
+          "id": "P2-S2-11",
+          "title": "Implement RigidBody type transitions per state: Fixed(dormant), Dynamic(active), KinematicPositionBased(ritual)",
+          "area": "frontend",
+          "owner_role": "Physics Eng",
+          "est_hours": 3,
+          "dependencies": [
+            "P2-S2-08"
+          ],
+          "deliverable": "System that changes Rapier RigidBody type when object state changes: Fixed for Dormant, Dynamic for Active, KinematicPositionBased for Ritual.",
+          "acceptance": "Object in Dormant state ignores forces, in Active state responds to physics, and in Ritual state follows scripted position."
+        },
+        {
+          "id": "P2-S2-12",
+          "title": "Build sleep/wake policy: objects >20u from vessel sleep, <10u wake",
+          "area": "frontend",
+          "owner_role": "Physics Eng",
+          "est_hours": 3,
+          "dependencies": [
+            "P2-S2-08",
+            "P1-S1-22"
+          ],
+          "deliverable": "Physics sleep policy that deactivates Rapier simulation for objects beyond 20 units and reactivates within 10 units of vessel.",
+          "acceptance": "Objects at 25 units are sleeping (zero CPU cost) and objects at 8 units are actively simulated."
+        },
+        {
+          "id": "P2-S2-13",
+          "title": "Create hand velocity tracker with rolling 5-frame buffer for THROW/STRIKE momentum calculation",
+          "area": "frontend",
+          "owner_role": "Bio-Integration Eng",
+          "est_hours": 4,
+          "dependencies": [
+            "P1-S1-03"
+          ],
+          "deliverable": "Rolling buffer tracking hand landmark positions over 5 frames to compute smoothed velocity vector for momentum-based verbs.",
+          "acceptance": "Velocity tracker outputs stable velocity vector that matches hand movement direction and magnitude within 10% of manual measurement."
+        },
+        {
+          "id": "P2-S2-14",
+          "title": "Build gesture-to-verb mapping: Open Palm=GRASP ready, Fist=HOLD, Swipe=THROW, Pinch=fine GRASP",
+          "area": "frontend",
+          "owner_role": "Bio-Integration Eng",
+          "est_hours": 5,
+          "dependencies": [
+            "P1-S1-03",
+            "P2-S2-13"
+          ],
+          "deliverable": "Gesture classifier that maps hand landmark configurations to Kinetic Verb intents with confidence thresholds.",
+          "acceptance": "Each of the 4 gesture types is recognized with greater than 85% accuracy on a 50-sample test set per gesture."
+        },
+        {
+          "id": "P2-S2-15",
+          "title": "Implement gesture debouncing: 150ms confirmation (5 frames at 30fps), 100ms release (3 frames)",
+          "area": "frontend",
+          "owner_role": "Bio-Integration Eng",
+          "est_hours": 3,
+          "dependencies": [
+            "P2-S2-14"
+          ],
+          "deliverable": "Debounce layer that requires gesture hold for 150ms before activation and 100ms of non-detection before release.",
+          "acceptance": "Brief accidental gestures under 150ms do not trigger verbs and sustained gestures activate after exactly 150ms."
+        },
+        {
+          "id": "P2-S2-16",
+          "title": "Build Mudra detection: Anjali (palms pressed) to invoke Breathfield, Chin (index-thumb pinch) to contemplation",
+          "area": "frontend",
+          "owner_role": "Bio-Integration Eng",
+          "est_hours": 4,
+          "dependencies": [
+            "P1-S1-03",
+            "P2-S2-14"
+          ],
+          "deliverable": "Two-hand mudra detector for Anjali (prayer) and Chin mudra poses using bilateral hand landmark comparison.",
+          "acceptance": "Anjali mudra detected when palms face each other within 5cm and Chin mudra detected when index touches thumb tip on both hands."
+        },
+        {
+          "id": "P2-S2-17",
+          "title": "Implement object hover highlighting: scale 1.1x + glow increase on raycast",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 3,
+          "dependencies": [
+            "P2-S2-08"
+          ],
+          "deliverable": "Raycast-based hover system that scales hovered objects to 1.1x and increases emissive intensity when pointer intersects.",
+          "acceptance": "Hovering over an interactive object visually scales it up and adds glow, and moving away restores original appearance within 0.2s."
+        },
+        {
+          "id": "P2-S2-18",
+          "title": "Build CCD (Continuous Collision Detection) for fast THROW/STRIKE (prevent tunneling)",
+          "area": "qa",
+          "owner_role": "Physics Eng",
+          "est_hours": 4,
+          "dependencies": [
+            "P2-S2-02",
+            "P2-S2-04"
+          ],
+          "deliverable": "CCD enabled on all throwable/strikeable objects to prevent fast-moving bodies from passing through thin colliders.",
+          "acceptance": "Object thrown at maximum velocity (50.0) at a thin wall collider does not tunnel through and registers collision."
+        },
+        {
+          "id": "P2-S2-19",
+          "title": "Implement velocity multiplier cap at 50.0 (prevent physics explosion)",
+          "area": "frontend",
+          "owner_role": "Physics Eng",
+          "est_hours": 3,
+          "dependencies": [
+            "P2-S2-02"
+          ],
+          "deliverable": "Velocity clamping system that caps linear and angular velocity magnitudes at 50.0 units/second on all dynamic bodies.",
+          "acceptance": "Applying an impulse that would produce velocity greater than 50.0 results in exactly 50.0 magnitude velocity with preserved direction."
+        },
+        {
+          "id": "P2-S2-20",
+          "title": "Build STRIKE visual feedback: Perfect=Gold particles+shake, Adequate=Terracotta, Weak=bounce, Reckless=shatter",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 5,
+          "dependencies": [
+            "P2-S2-04"
+          ],
+          "deliverable": "4-tier visual feedback system for STRIKE outcomes with distinct particle effects, colors, and camera reactions per tier.",
+          "acceptance": "Each of the 4 STRIKE tiers produces visually distinct feedback and the correct tier triggers based on momentum value."
+        },
+        {
+          "id": "P2-S2-21",
+          "title": "Create BREATHE-SYNC attunement timer with progressive glow (3 breath cycles to lock)",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 4,
+          "dependencies": [
+            "P2-S2-05"
+          ],
+          "deliverable": "Visual timer showing breath cycle progress toward attunement lock with progressive glow intensity per completed cycle.",
+          "acceptance": "Glow increases by 33% per completed breath cycle and reaches full intensity after 3 cycles with visual lock confirmation."
+        },
+        {
+          "id": "P2-S2-22",
+          "title": "Implement dissolve shader for INTEGRATED state (alpha to 0 over 5s + gold particles)",
+          "area": "frontend",
+          "owner_role": "Shader Eng",
+          "est_hours": 5,
+          "dependencies": [
+            "P2-S2-08",
+            "P0-S2-25"
+          ],
+          "deliverable": "GLSL dissolve shader that reduces object alpha to 0 over 5 seconds while emitting gold particle sprites from the surface.",
+          "acceptance": "Object entering Integrated state dissolves smoothly over exactly 5 seconds with gold particles and no visual artifacts."
+        },
+        {
+          "id": "P2-S2-23",
+          "title": "Build unit tests for all 6 Kinetic Verb physics calculations (30+ test cases)",
+          "area": "qa",
+          "owner_role": "QA",
+          "est_hours": 5,
+          "dependencies": [
+            "P2-S2-01",
+            "P2-S2-02",
+            "P2-S2-03",
+            "P2-S2-04",
+            "P2-S2-05",
+            "P2-S2-06"
+          ],
+          "deliverable": "Test suite with 30+ unit tests covering all 6 Kinetic Verbs including edge cases and boundary conditions.",
+          "acceptance": "All 30+ tests pass, covering at least 5 test cases per verb including nominal, boundary, and error conditions."
+        },
+        {
+          "id": "P2-S2-24",
+          "title": "Implement two-hand detection for ORBIT verb (both hands Open Palm confidence > 0.80)",
+          "area": "frontend",
+          "owner_role": "Bio-Integration Eng",
+          "est_hours": 4,
+          "dependencies": [
+            "P1-S1-03",
+            "P2-S2-03"
+          ],
+          "deliverable": "Bilateral hand detector that confirms both hands are in Open Palm pose with confidence above 0.80 before activating ORBIT.",
+          "acceptance": "ORBIT activates only when both hands show Open Palm at greater than 0.80 confidence and deactivates when either drops below 0.70."
+        },
+        {
+          "id": "P2-S2-25",
+          "title": "Build gesture/mouse input mode toggle (seamless switch, active joints transferred)",
+          "area": "frontend",
+          "owner_role": "Frontend Eng",
+          "est_hours": 3,
+          "dependencies": [
+            "P2-S2-07",
+            "P2-S2-14"
+          ],
+          "deliverable": "Input mode toggle that seamlessly switches between gesture and mouse control, transferring any active physics joints.",
+          "acceptance": "Switching from gesture to mouse mid-GRASP preserves the spring joint and object follows mouse cursor without dropping."
+        },
+        {
+          "id": "P2-S2-26",
+          "title": "Create object pickup audio (mass-dependent resonant frequency: heavy=low, light=high)",
+          "area": "frontend",
+          "owner_role": "Audio Eng",
+          "est_hours": 3,
+          "dependencies": [
+            "P2-S2-01",
+            "P0-S2-43"
+          ],
+          "deliverable": "Audio system that plays a resonant tone on object pickup with frequency inversely proportional to object mass.",
+          "acceptance": "Picking up a heavy object (mass greater than 10) plays tone below 200Hz and light object (mass less than 1) plays tone above 800Hz."
+        },
+        {
+          "id": "P2-S2-27",
+          "title": "Build Kinetic Verb state machine: idle to ready to active to cooldown (prevent simultaneous verbs)",
+          "area": "frontend",
+          "owner_role": "Physics Eng",
+          "est_hours": 4,
+          "dependencies": [
+            "P2-S2-01",
+            "P2-S2-02",
+            "P2-S2-03",
+            "P2-S2-04",
+            "P2-S2-05",
+            "P2-S2-06"
+          ],
+          "deliverable": "Global verb state machine that ensures only one Kinetic Verb is active at a time with 200ms cooldown between activations.",
+          "acceptance": "Attempting to activate THROW while GRASP is active is rejected and activating THROW after GRASP release respects 200ms cooldown."
+        },
+        {
+          "id": "P2-S2-28",
+          "title": "Implement haptic-like screen edge vibration on GRASP and STRIKE (CSS animation feedback)",
+          "area": "frontend",
+          "owner_role": "UX Designer",
+          "est_hours": 3,
+          "dependencies": [
+            "P2-S2-01",
+            "P2-S2-04"
+          ],
+          "deliverable": "CSS animation system that vibrates screen edges on GRASP activation and STRIKE impact using transform and box-shadow.",
+          "acceptance": "GRASP shows subtle edge glow pulse and STRIKE shows brief screen shake proportional to momentum tier."
+        },
+        {
+          "id": "P2-S2-29",
+          "title": "Create collision sound library (6 material pairs: stone-stone, stone-metal, cloth-rustle, etc.)",
+          "area": "frontend",
+          "owner_role": "Audio Eng",
+          "est_hours": 5,
+          "dependencies": [
+            "P0-S2-43"
+          ],
+          "deliverable": "Audio library with collision sounds for 6 material pairs with velocity-based volume and pitch modulation.",
+          "acceptance": "Collisions between objects with different material tags play the correct material-pair sound with volume scaling by impact force."
+        },
+        {
+          "id": "P2-S2-30",
+          "title": "Build object inventory system: track grasped items, max 2 simultaneous",
+          "area": "frontend",
+          "owner_role": "Frontend Eng",
+          "est_hours": 4,
+          "dependencies": [
+            "P2-S2-01"
+          ],
+          "deliverable": "Inventory tracker that maintains list of currently grasped objects with a maximum of 2 simultaneous holds.",
+          "acceptance": "Grasping a 3rd object while holding 2 is rejected with visual feedback and releasing one allows grasping a new one."
+        },
+        {
+          "id": "P2-S2-31",
+          "title": "Implement proximity sensor debug visualization (range circles around dormant objects)",
+          "area": "frontend",
+          "owner_role": "Physics Eng",
+          "est_hours": 3,
+          "dependencies": [
+            "P2-S2-09",
+            "P0-S2-29"
+          ],
+          "deliverable": "Debug overlay showing wake radius (10u) and sleep radius (20u) circles around dormant objects when debug mode is active.",
+          "acceptance": "Enabling debug mode shows concentric circles at 10u and 20u around each dormant object with color indicating wake state."
+        },
+        {
+          "id": "P2-S2-32",
+          "title": "Build object element tag system: fire, water, earth, air, void assignments",
+          "area": "frontend",
+          "owner_role": "Frontend Eng",
+          "est_hours": 3,
+          "dependencies": [
+            "P2-S2-08"
+          ],
+          "deliverable": "Tagging system that assigns one of 5 elemental types (fire, water, earth, air, void) to each ritual object.",
+          "acceptance": "Every ritual object has exactly one element tag and querying objects by element returns the correct subset."
+        },
+        {
+          "id": "P2-S2-33",
+          "title": "Create ritual object spawn system: place objects at predefined positions per zone",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 4,
+          "dependencies": [
+            "P2-S2-08",
+            "P0-S2-14"
+          ],
+          "deliverable": "Spawn system that places ritual objects at predefined world-space positions based on zone configuration data.",
+          "acceptance": "Entering a zone spawns the correct set of ritual objects at their configured positions within 0.5 units of target."
+        },
+        {
+          "id": "P2-S2-34",
+          "title": "Implement object persistence: remember object states across zone transitions",
+          "area": "data",
+          "owner_role": "Frontend Eng",
+          "est_hours": 3,
+          "dependencies": [
+            "P2-S2-08",
+            "P0-S2-27"
+          ],
+          "deliverable": "Zustand persistence layer that saves object states (position, rotation, FSM state) when leaving a zone and restores on return.",
+          "acceptance": "Moving an object to Active state, leaving the zone, and returning finds the object in Active state at its last position."
+        },
+        {
+          "id": "P2-S2-35",
+          "title": "Build integration test: pick up, throw, orbit, place, and strike a test cube",
+          "area": "qa",
+          "owner_role": "QA",
+          "est_hours": 4,
+          "dependencies": [
+            "P2-S2-01",
+            "P2-S2-02",
+            "P2-S2-03",
+            "P2-S2-04",
+            "P2-S2-06"
+          ],
+          "deliverable": "End-to-end integration test that exercises all 5 primary verbs on a test cube in sequence and validates physics outcomes.",
+          "acceptance": "Test passes executing GRASP, THROW, ORBIT, REST, and STRIKE in sequence with correct state transitions and physics responses."
+        }
+      ]
+    },
+    {
+      "sprint_id": "S3",
+      "duration_weeks": 2,
+      "focus": "Bio-Integration & Shader System",
+      "tasks": [
+        {
+          "id": "P2-S3-01",
+          "title": "Connect real PIP Analysis Engine: WebSocket/SSE stream of coherence, LQD, entropy, breath_phase",
+          "area": "frontend",
+          "owner_role": "Bio-Integration Eng",
+          "est_hours": 5,
+          "dependencies": [
+            "P1-S1-16"
+          ],
+          "deliverable": "WebSocket client connecting to PIP Analysis Engine that receives and parses real-time coherence, LQD, entropy, and breath_phase values.",
+          "acceptance": "Client receives live PIP data at greater than 10Hz and parsed values match the PIP dashboard output within 1% tolerance."
+        },
+        {
+          "id": "P2-S3-02",
+          "title": "Implement breathfield flow field shader (GLSL): splat movement driven by breath rate and LQD",
+          "area": "frontend",
+          "owner_role": "Shader Eng",
+          "est_hours": 6,
+          "dependencies": [
+            "P0-S2-25"
+          ],
+          "deliverable": "GLSL fragment/vertex shader that displaces breathfield splats along a flow field whose speed and turbulence respond to breath rate and LQD.",
+          "acceptance": "Breathfield splats visibly accelerate with higher breath rate and flow becomes smoother (less turbulence) as LQD increases."
+        },
+        {
+          "id": "P2-S3-03",
+          "title": "Wire live coherence score to LinearDamping for real-time viscosity tuning",
+          "area": "frontend",
+          "owner_role": "Physics Eng",
+          "est_hours": 3,
+          "dependencies": [
+            "P1-S1-15",
+            "P2-S3-01"
+          ],
+          "deliverable": "System that maps live coherence score (0-100) to Rapier LinearDamping (0.1-2.0) for all dynamic bodies in the breathfield zone.",
+          "acceptance": "Coherence at 90 produces low damping (0.2, fluid movement) and coherence at 20 produces high damping (1.8, viscous movement)."
+        },
+        {
+          "id": "P2-S3-04",
+          "title": "Implement post-processing with PIP uniforms: ChromaticAberration scales 0 to 0.5 with entropy",
+          "area": "frontend",
+          "owner_role": "Shader Eng",
+          "est_hours": 4,
+          "dependencies": [
+            "P0-S1-22",
+            "P2-S3-01"
+          ],
+          "deliverable": "Post-processing pass that maps PIP entropy value (0-100) to ChromaticAberration intensity (0-0.5) via shader uniform.",
+          "acceptance": "Entropy at 0 shows no chromatic aberration and entropy at 100 shows maximum 0.5 aberration offset with smooth interpolation."
+        },
+        {
+          "id": "P2-S3-05",
+          "title": "Build biome transition shaders (dissolve between Dasha worlds on transit change)",
+          "area": "frontend",
+          "owner_role": "Shader Eng",
+          "est_hours": 5,
+          "dependencies": [
+            "P0-S2-25"
+          ],
+          "deliverable": "Noise-based dissolve shader that transitions between two Dasha world splat scenes with configurable dissolve pattern and duration.",
+          "acceptance": "Triggering a biome transition produces a smooth dissolve over 3 seconds with no visible seams or z-fighting."
+        },
+        {
+          "id": "P2-S3-06",
+          "title": "Implement Aletheos friction modifier: coherence >70 for 30/60/120s produces friction 0.8/0.5/0.3",
+          "area": "frontend",
+          "owner_role": "Physics Eng",
+          "est_hours": 4,
+          "dependencies": [
+            "P0-S1-14",
+            "P2-S3-01"
+          ],
+          "deliverable": "Aletheos Witness Agent that tracks sustained coherence duration above 70 and steps down global friction at 30s, 60s, and 120s thresholds.",
+          "acceptance": "Maintaining coherence above 70 for 35 seconds sets friction to 0.8, for 65 seconds to 0.5, and for 125 seconds to 0.3."
+        },
+        {
+          "id": "P2-S3-07",
+          "title": "Implement Pichet gravity modifier: physical cycle >70/50-70/30-50/<30 produces gravity 1.0/1.3/1.8/2.5x",
+          "area": "frontend",
+          "owner_role": "Physics Eng",
+          "est_hours": 4,
+          "dependencies": [
+            "P0-S1-14",
+            "P2-S3-01"
+          ],
+          "deliverable": "Pichet Witness Agent that reads physical cycle score and adjusts global gravity multiplier across 4 tiers.",
+          "acceptance": "Physical cycle score of 75 sets gravity to 1.0x, score of 60 sets 1.3x, score of 40 sets 1.8x, and score of 20 sets 2.5x."
+        },
+        {
+          "id": "P2-S3-08",
+          "title": "Build Gate Check Protocol: combined Aletheos + Pichet evaluation before ritual activation",
+          "area": "frontend",
+          "owner_role": "Physics Eng",
+          "est_hours": 4,
+          "dependencies": [
+            "P2-S3-06",
+            "P2-S3-07"
+          ],
+          "deliverable": "Gate check system that evaluates both Aletheos friction level and Pichet gravity level before allowing ritual state transition.",
+          "acceptance": "Ritual activation is blocked when Aletheos friction is above 0.6 OR Pichet gravity is above 1.5x and allowed when both conditions are met."
+        },
+        {
+          "id": "P2-S3-09",
+          "title": "Implement collision event system: proximity_wake, ritual_activation, zone_transition, resonance_check, settle",
+          "area": "frontend",
+          "owner_role": "Physics Eng",
+          "est_hours": 5,
+          "dependencies": [
+            "P2-S2-08",
+            "P0-S2-15"
+          ],
+          "deliverable": "Event bus for 5 collision event types dispatched from Rapier contact callbacks with typed payloads.",
+          "acceptance": "Each of the 5 event types fires with correct payload when its trigger condition occurs and listeners receive events within 1 frame."
+        },
+        {
+          "id": "P2-S3-10",
+          "title": "Build elemental affinity resonance table: Fire+Fire=amplify, Fire+Water=dissonance, Earth+Earth=ground, Air+Any=lift, Fire+Earth=forge_resonance",
+          "area": "frontend",
+          "owner_role": "Physics Eng",
+          "est_hours": 5,
+          "dependencies": [
+            "P2-S3-09",
+            "P2-S2-32"
+          ],
+          "deliverable": "5x5 elemental resonance lookup table that returns interaction type and physics modifier when two elemental objects collide.",
+          "acceptance": "Fire+Fire collision returns amplify modifier (2x force), Fire+Water returns dissonance (opposing forces), and all 25 pairs have defined outcomes."
+        },
+        {
+          "id": "P2-S3-11",
+          "title": "Implement zone boundary transition: gravity(2s lerp), fog(2s ease), color(1.5s HSL), audio(3s crossfade), bloom(instant)",
+          "area": "frontend",
+          "owner_role": "Frontend Eng",
+          "est_hours": 5,
+          "dependencies": [
+            "P0-S2-15"
+          ],
+          "deliverable": "Multi-parameter zone transition system that interpolates gravity, fog, color palette, audio, and bloom across zone boundaries at specified rates.",
+          "acceptance": "Crossing a zone boundary produces smooth gravity lerp over 2s, fog ease over 2s, HSL color shift over 1.5s, audio crossfade over 3s, and instant bloom change."
+        },
+        {
+          "id": "P2-S3-12",
+          "title": "Build comprehensive performance profiling under full bio-data + physics + splat load",
+          "area": "qa",
+          "owner_role": "QA",
+          "est_hours": 5,
+          "dependencies": [
+            "P2-S3-01",
+            "P2-S2-08",
+            "P0-S2-01"
+          ],
+          "deliverable": "Performance profiling harness that measures frame time, GPU time, physics step time, and memory under full system load.",
+          "acceptance": "Profiler captures all 4 metrics per frame for 60 seconds and generates a report with min/max/avg/p95 values."
+        },
+        {
+          "id": "P2-S3-13",
+          "title": "Implement LOD system with occlusion culling for generated world geometry",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 5,
+          "dependencies": [
+            "P0-S2-11"
+          ],
+          "deliverable": "Combined LOD and occlusion culling system that reduces rendered geometry based on distance and visibility from camera.",
+          "acceptance": "Occluded objects behind terrain are not rendered and LOD reduces triangle count by 50% at medium distance."
+        },
+        {
+          "id": "P2-S3-14",
+          "title": "Build degradation system: Tier 0(full) to Tier 1(-splats) to Tier 2(-post-processing) to Tier 3(minimum 30fps)",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 5,
+          "dependencies": [
+            "P0-S2-05",
+            "P2-S3-12"
+          ],
+          "deliverable": "4-tier quality degradation system that progressively disables splats, post-processing, and effects to maintain minimum 30fps.",
+          "acceptance": "When frame rate drops below 30fps, system steps down tiers until 30fps is restored, and stepping is visible in debug overlay."
+        },
+        {
+          "id": "P2-S3-15",
+          "title": "Implement automatic recovery system (restore quality when frame budget allows)",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 3,
+          "dependencies": [
+            "P2-S3-14"
+          ],
+          "deliverable": "Recovery system that monitors sustained frame budget headroom (greater than 5ms for 30 frames) and steps up quality tier.",
+          "acceptance": "After degradation to Tier 2, sustained 45fps for 1 second triggers automatic step-up to Tier 1."
+        },
+        {
+          "id": "P2-S3-16",
+          "title": "Build PIP connection health monitor with auto-reconnect and mock data fallback",
+          "area": "frontend",
+          "owner_role": "Bio-Integration Eng",
+          "est_hours": 4,
+          "dependencies": [
+            "P2-S3-01"
+          ],
+          "deliverable": "Health monitor that detects PIP WebSocket disconnection, attempts reconnect with exponential backoff, and falls back to mock data after 3 failures.",
+          "acceptance": "Disconnecting PIP triggers reconnect within 1 second, falls back to mock data after 3 failed attempts, and reconnects when PIP is restored."
+        },
+        {
+          "id": "P2-S3-17",
+          "title": "Implement breathfield splat color palette transitions per zone proximity",
+          "area": "frontend",
+          "owner_role": "Shader Eng",
+          "est_hours": 4,
+          "dependencies": [
+            "P2-S3-02",
+            "P0-S2-15"
+          ],
+          "deliverable": "Shader system that blends breathfield splat color palettes based on proximity to zone boundaries with smooth HSL interpolation.",
+          "acceptance": "Breathfield splats shift color palette smoothly when vessel moves from one zone toward another with no abrupt color changes."
+        },
+        {
+          "id": "P2-S3-18",
+          "title": "Create PIP metrics smoothing layer (exponential moving average, 10-frame window)",
+          "area": "frontend",
+          "owner_role": "Bio-Integration Eng",
+          "est_hours": 3,
+          "dependencies": [
+            "P2-S3-01"
+          ],
+          "deliverable": "Smoothing layer applying exponential moving average over 10-frame window to all PIP metrics to prevent jittery shader/physics response.",
+          "acceptance": "Raw PIP spike of 20-to-80 coherence is smoothed to gradual ramp over approximately 300ms (10 frames at 30fps)."
+        },
+        {
+          "id": "P2-S3-19",
+          "title": "Build Witness Agent stores in Zustand (aletheosFriction, pichetGravity as reactive state)",
+          "area": "frontend",
+          "owner_role": "Frontend Eng",
+          "est_hours": 3,
+          "dependencies": [
+            "P2-S3-06",
+            "P2-S3-07",
+            "P0-S2-27"
+          ],
+          "deliverable": "Zustand store with aletheosFriction and pichetGravity as reactive state slices with selectors and history tracking.",
+          "acceptance": "Subscribing to aletheosFriction in a React component re-renders when friction changes and history stores last 60 seconds of values."
+        },
+        {
+          "id": "P2-S3-20",
+          "title": "Create zone transition visual test (walk N to E to W to S, verify smooth interpolation)",
+          "area": "qa",
+          "owner_role": "QA",
+          "est_hours": 4,
+          "dependencies": [
+            "P2-S3-11"
+          ],
+          "deliverable": "Automated visual regression test that moves vessel through all 4 cardinal zone transitions and captures screenshots at boundaries.",
+          "acceptance": "Test captures screenshots at each transition midpoint and all transitions show smooth interpolation with no rendering glitches."
+        },
+        {
+          "id": "P2-S3-21",
+          "title": "Implement skybox gradient shader (Deep Ink at nadir, slightly lighter at zenith)",
+          "area": "frontend",
+          "owner_role": "Shader Eng",
+          "est_hours": 4,
+          "dependencies": [],
+          "deliverable": "GLSL skybox shader rendering a vertical gradient from deep ink black at nadir to slightly lighter ink at zenith with smooth falloff.",
+          "acceptance": "Skybox renders gradient visible at all camera angles with bottom hemisphere darker than top and no banding artifacts."
+        },
+        {
+          "id": "P2-S3-22",
+          "title": "Build shader hot-reload system (GLSL changes recompile without page refresh)",
+          "area": "infra",
+          "owner_role": "Shader Eng",
+          "est_hours": 4,
+          "dependencies": [
+            "P0-S2-25"
+          ],
+          "deliverable": "File watcher that detects .glsl file changes and hot-swaps compiled shader programs without requiring page refresh.",
+          "acceptance": "Editing a .glsl file on disk updates the rendered shader within 500ms without page reload or state loss."
+        },
+        {
+          "id": "P2-S3-23",
+          "title": "Implement Rapier solver iteration adjustment per zone (8 velocity, 4 position for Forge)",
+          "area": "frontend",
+          "owner_role": "Physics Eng",
+          "est_hours": 3,
+          "dependencies": [
+            "P0-S1-14"
+          ],
+          "deliverable": "Per-zone physics solver configuration that adjusts Rapier velocity and position iteration counts based on zone requirements.",
+          "acceptance": "Forge zone uses 8 velocity and 4 position iterations while default zones use 4 velocity and 1 position, verified via debug output."
+        },
+        {
+          "id": "P2-S3-24",
+          "title": "Create performance regression test baseline (CI records metrics, fails on >10% regression)",
+          "area": "qa",
+          "owner_role": "QA",
+          "est_hours": 4,
+          "dependencies": [
+            "P2-S3-12"
+          ],
+          "deliverable": "CI pipeline step that runs performance benchmark, records baseline metrics, and fails build on greater than 10% regression in any metric.",
+          "acceptance": "Intentionally adding a 15% frame time regression causes the CI step to fail with a clear regression report."
+        },
+        {
+          "id": "P2-S3-25",
+          "title": "Build zone-based physics world partitioning (separate Rapier worlds per zone)",
+          "area": "frontend",
+          "owner_role": "Physics Eng",
+          "est_hours": 6,
+          "dependencies": [
+            "P0-S1-13",
+            "P0-S2-14"
+          ],
+          "deliverable": "Physics partitioning system that creates separate Rapier worlds per spatial zone and only steps the active zone plus adjacent zones.",
+          "acceptance": "Physics simulation runs only in the vessel's current zone and immediate neighbors, reducing idle zone physics CPU cost to zero."
+        },
+        {
+          "id": "P2-S3-26",
+          "title": "Implement object transfer between zone physics worlds (maintain velocity on crossing)",
+          "area": "frontend",
+          "owner_role": "Physics Eng",
+          "est_hours": 5,
+          "dependencies": [
+            "P2-S3-25"
+          ],
+          "deliverable": "Transfer system that removes a rigid body from one zone Rapier world and recreates it in the adjacent zone with preserved velocity and rotation.",
+          "acceptance": "Object thrown across a zone boundary maintains its velocity vector within 5% and does not stutter or teleport during transfer."
+        },
+        {
+          "id": "P2-S3-27",
+          "title": "Build adaptive physics solver iterations based on frame budget pressure",
+          "area": "frontend",
+          "owner_role": "Physics Eng",
+          "est_hours": 3,
+          "dependencies": [
+            "P2-S3-23",
+            "P2-S3-14"
+          ],
+          "deliverable": "Adaptive system that reduces Rapier solver iterations when frame budget is tight and restores them when headroom is available.",
+          "acceptance": "Under heavy load, solver iterations reduce from 8 to 4 and frame time decreases measurably without visible physics instability."
+        },
+        {
+          "id": "P2-S3-28",
+          "title": "Create bio-responsive lighting: key light intensity scales with LQD, rim pulses with breath",
+          "area": "frontend",
+          "owner_role": "Shader Eng",
+          "est_hours": 4,
+          "dependencies": [
+            "P2-S3-01"
+          ],
+          "deliverable": "Lighting system where key light intensity is proportional to LQD value and rim light pulses in sync with breath phase.",
+          "acceptance": "High LQD (above 80) produces bright key light, low LQD (below 30) dims it, and rim light visibly pulses at the same frequency as breath input."
+        },
+        {
+          "id": "P2-S3-29",
+          "title": "Implement dynamic splat sorting for correct transparency rendering (depth-sorted)",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 5,
+          "dependencies": [
+            "P0-S2-01"
+          ],
+          "deliverable": "GPU-accelerated depth sorting for Gaussian splats ensuring correct transparency rendering order each frame.",
+          "acceptance": "Overlapping transparent splats render in correct depth order from all camera angles with no visible sorting artifacts."
+        },
+        {
+          "id": "P2-S3-30",
+          "title": "Build anonymized bio-data recording for session analytics (coherence/LQD averages per session)",
+          "area": "data",
+          "owner_role": "Backend Eng",
+          "est_hours": 3,
+          "dependencies": [
+            "P2-S3-01",
+            "P2-S1-02"
+          ],
+          "deliverable": "Backend pipeline that records anonymized aggregate bio-metrics (session averages, not raw data) to the readings table.",
+          "acceptance": "After a 5-minute session, readings table contains one row with session_avg_coherence, session_avg_lqd, and session_duration fields."
+        },
+        {
+          "id": "P2-S3-31",
+          "title": "Implement flow state detection (Aletheos coherence >70 sustained 120s to near-frictionless)",
+          "area": "frontend",
+          "owner_role": "Bio-Integration Eng",
+          "est_hours": 3,
+          "dependencies": [
+            "P2-S3-06"
+          ],
+          "deliverable": "Flow state detector that emits a flow_state_achieved event when Aletheos coherence exceeds 70 for 120 continuous seconds.",
+          "acceptance": "Sustained coherence above 70 for exactly 120 seconds triggers flow_state_achieved event and sets friction to 0.3 (near-frictionless)."
+        },
+        {
+          "id": "P2-S3-32",
+          "title": "Create PIP disconnect notification (vessel flickers once on bio-data loss, stabilizes on reconnect)",
+          "area": "frontend",
+          "owner_role": "3D Engineer",
+          "est_hours": 3,
+          "dependencies": [
+            "P2-S3-16"
+          ],
+          "deliverable": "Visual notification system that flickers the vessel mesh once on PIP disconnect and smoothly stabilizes on reconnect.",
+          "acceptance": "PIP disconnect causes a single visible vessel flicker within 500ms and reconnect smoothly restores stable rendering within 300ms."
+        },
+        {
+          "id": "P2-S3-33",
+          "title": "Build coherence duration timer for Aletheos friction calculation (tracks sustained seconds >70)",
+          "area": "frontend",
+          "owner_role": "Frontend Eng",
+          "est_hours": 3,
+          "dependencies": [
+            "P2-S3-06"
+          ],
+          "deliverable": "Timer component that tracks continuous seconds of coherence above 70, resets on drop below 70, and exposes duration via Zustand.",
+          "acceptance": "Timer accurately counts sustained coherence above 70, resets within 1 frame of coherence dropping below 70, and value is accessible in Zustand store."
+        },
+        {
+          "id": "P2-S3-34",
+          "title": "Implement comprehensive bio-responsive rendering integration test (vary all PIP values, verify visual+physics)",
+          "area": "qa",
+          "owner_role": "QA",
+          "est_hours": 5,
+          "dependencies": [
+            "P2-S3-01",
+            "P2-S3-02",
+            "P2-S3-03",
+            "P2-S3-04"
+          ],
+          "deliverable": "Integration test that programmatically varies coherence, LQD, entropy, and breath_phase across full range and validates visual and physics responses.",
+          "acceptance": "Test sweeps all 4 PIP values from 0 to 100 and asserts correct shader uniform values, physics damping, and post-processing intensity at each step."
+        },
+        {
+          "id": "P2-S3-35",
+          "title": "Create Witness Agent modifier debug display (show current Aletheos friction + Pichet gravity in overlay)",
+          "area": "frontend",
+          "owner_role": "Frontend Eng",
+          "est_hours": 3,
+          "dependencies": [
+            "P2-S3-19",
+            "P0-S2-29"
+          ],
+          "deliverable": "Debug overlay panel showing real-time Aletheos friction value, Pichet gravity multiplier, coherence duration, and flow state indicator.",
+          "acceptance": "Debug overlay displays all 4 values updating in real-time and values match the Zustand store state within 1 frame."
+        }
+      ]
+    }
+  ]
+}

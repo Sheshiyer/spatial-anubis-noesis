@@ -1,0 +1,5 @@
+# Fallback worlds storage directory
+# Place pre-generated .splat and .glb files here for all 9 Dashas:
+# - saturn_world.splat / saturn_world.glb / saturn_collision.glb
+# - venus_world.splat / venus_world.glb / venus_collision.glb
+# - etc. for all 9 planets

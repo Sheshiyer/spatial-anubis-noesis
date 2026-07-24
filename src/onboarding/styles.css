@@ -1,0 +1,329 @@
+/**
+ * Onboarding styles — Descent overlay, silhouette, and visual effects
+ */
+
+/* ============================================================================
+   Descent Overlay (P1-S2-01)
+   ============================================================================ */
+
+.descent-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 9999;
+  pointer-events: auto;
+  overflow: hidden;
+}
+
+.descent-overlay__layer {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  transition: opacity 1s ease-in-out, background-color 1s ease-in-out;
+}
+
+.descent-overlay__layer--black {
+  background-color: #000000;
+  opacity: 1;
+}
+
+.descent-overlay__layer--deep-ink {
+  background-color: #1A1A2E;
+  opacity: 0;
+}
+
+.descent-overlay__layer--grain {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.descent-overlay__layer--fade-out {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.descent-overlay[data-phase='black'] .descent-overlay__layer--black {
+  opacity: 1;
+}
+
+.descent-overlay[data-phase='deep-ink'] .descent-overlay__layer--black {
+  opacity: 0;
+}
+
+.descent-overlay[data-phase='deep-ink'] .descent-overlay__layer--deep-ink,
+.descent-overlay[data-phase='deep-ink'] .descent-overlay__layer--grain {
+  opacity: 1;
+}
+
+.descent-overlay[data-phase='first-particle'] .descent-overlay__layer--deep-ink,
+.descent-overlay[data-phase='cartographer-spawn'] .descent-overlay__layer--deep-ink,
+.descent-overlay[data-phase='fade-complete'] .descent-overlay__layer--deep-ink {
+  opacity: 0;
+}
+
+.descent-overlay[data-phase='complete'] .descent-overlay__layer--deep-ink,
+.descent-overlay[data-phase='complete'] .descent-overlay__layer--grain {
+  opacity: 0;
+}
+
+/* ============================================================================
+   Film Grain Shader (P1-S2-09)
+   ============================================================================ */
+
+.film-grain {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  opacity: 0.03;
+  mix-blend-mode: overlay;
+  animation: grain 0.5s steps(10) infinite;
+  pointer-events: none;
+}
+
+@keyframes grain {
+  0%, 100% { transform: translate(0, 0); }
+  10% { transform: translate(-1%, -1%); }
+  20% { transform: translate(1%, 1%); }
+  30% { transform: translate(-1%, 1%); }
+  40% { transform: translate(1%, -1%); }
+  50% { transform: translate(-1%, 0%); }
+  60% { transform: translate(1%, 0%); }
+  70% { transform: translate(0%, 1%); }
+  80% { transform: translate(0%, -1%); }
+  90% { transform: translate(1%, 1%); }
+}
+
+/* ============================================================================
+   First Particle Light (P1-S2-04)
+   ============================================================================ */
+
+.first-particle {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 4px;
+  height: 4px;
+  background-color: #F5F0E8;
+  border-radius: 50%;
+  opacity: 0;
+  box-shadow: 
+    0 0 10px 2px rgba(245, 240, 232, 0.5),
+    0 0 20px 5px rgba(245, 240, 232, 0.3),
+    0 0 40px 10px rgba(245, 240, 232, 0.1);
+  transition: opacity 500ms ease-out;
+}
+
+.descent-overlay[data-phase='first-particle'] .first-particle,
+.descent-overlay[data-phase='cartographer-spawn'] .first-particle,
+.descent-overlay[data-phase='fade-complete'] .first-particle {
+  opacity: 1;
+}
+
+/* ============================================================================
+   Cartographer Container
+   ============================================================================ */
+
+.cartographer-container {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 400px;
+  height: 400px;
+  opacity: 0;
+  transition: opacity 1000ms ease-in-out;
+}
+
+.descent-overlay[data-phase='cartographer-spawn'] .cartographer-container,
+.descent-overlay[data-phase='fade-complete'] .cartographer-container {
+  opacity: 1;
+}
+
+/* ============================================================================
+   Silhouette Overlay (P1-S2-13, P1-S2-14)
+   ============================================================================ */
+
+.silhouette-overlay {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 100;
+  pointer-events: none;
+}
+
+.silhouette-svg {
+  width: 200px;
+  height: 400px;
+  color: #F5F0E8;
+  filter: blur(0.5px);
+  transition: opacity 800ms ease-out;
+}
+
+.silhouette-overlay[data-dissolving='true'] .silhouette-svg {
+  filter: blur(8px);
+  transform: scale(1.1);
+}
+
+/* ============================================================================
+   Loading Screen (P1-S2-28)
+   ============================================================================ */
+
+.loading-screen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: #1A1A2E;
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 1;
+  transition: opacity 500ms ease-out;
+}
+
+.loading-screen.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.loading-orb {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 30%, rgba(184, 134, 11, 0.8), rgba(184, 134, 11, 0.2));
+  animation: pulse-orb 2s ease-in-out infinite;
+}
+
+@keyframes pulse-orb {
+  0%, 100% {
+    transform: scale(0.9);
+    opacity: 0.6;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 1;
+  }
+}
+
+/* ============================================================================
+   Visit Traces (P1-S2-26)
+   ============================================================================ */
+
+.visit-trace {
+  position: absolute;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(245, 240, 232, 0.3) 0%, transparent 70%);
+  animation: trace-fade 10s ease-out forwards;
+}
+
+@keyframes trace-fade {
+  0% {
+    opacity: 0.3;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+}
+
+/* ============================================================================
+   Reduced Motion Support (P1-S2-47)
+   ============================================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  .film-grain {
+    animation: none;
+    opacity: 0;
+  }
+  
+  .first-particle {
+    transition: none;
+  }
+  
+  .cartographer-container {
+    transition: none;
+  }
+  
+  .silhouette-svg {
+    transition: none;
+  }
+  
+  .loading-orb {
+    animation: none;
+    opacity: 0.8;
+  }
+  
+  .descent-overlay__layer {
+    transition: none;
+  }
+}
+
+/* Reduced motion mode applied via class */
+.descent-overlay[data-reduced-motion='true'] .film-grain,
+.descent-overlay[data-reduced-motion='true'] .loading-orb {
+  animation: none;
+}
+
+.descent-overlay[data-reduced-motion='true'] .descent-overlay__layer,
+.descent-overlay[data-reduced-motion='true'] .first-particle,
+.descent-overlay[data-reduced-motion='true'] .cartographer-container,
+.descent-overlay[data-reduced-motion='true'] .silhouette-svg {
+  transition: none;
+}
+
+/* ============================================================================
+   Navigation Hint Glow (P1-S2-33, P1-S2-40)
+   ============================================================================ */
+
+.navigation-hint {
+  position: absolute;
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(184, 134, 11, 0.4) 0%, transparent 70%);
+  animation: nav-pulse 2s ease-in-out infinite;
+}
+
+@keyframes nav-pulse {
+  0%, 100% {
+    opacity: 0.3;
+    transform: scale(0.8);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(1.2);
+  }
+}
+
+/* ============================================================================
+   Performance Monitor Overlay (P1-S2-42)
+   ============================================================================ */
+
+.performance-overlay {
+  position: fixed;
+  top: 8px;
+  right: 8px;
+  z-index: 10001;
+  font-family: monospace;
+  font-size: 10px;
+  color: #F5F0E8;
+  background: rgba(26, 26, 46, 0.9);
+  padding: 8px 12px;
+  border-radius: 4px;
+  opacity: 0.8;
+}
+
+.performance-overlay[data-warning='true'] {
+  color: #C65D3B;
+  border: 1px solid #C65D3B;
+}

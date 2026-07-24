@@ -1,0 +1,163 @@
+{
+  "biomes": {
+    "saturn": {
+      "name": "Obsidian Void",
+      "description": "A vast expanse of black volcanic glass, where jagged obsidian spires pierce through eternal twilight.",
+      "element": "earth",
+      "material_keywords": ["obsidian", "black glass", "volcanic rock", "sharp crystalline edges", "basalt", "onyx", "shadow stone"],
+      "lighting_preset": "saturn_twilight",
+      "atmosphere": {
+        "fog_density": 0.025,
+        "fog_color": "#1a0a2e",
+        "ambient_color": "#0d0221",
+        "light_intensity": 0.4
+      }
+    },
+    "venus": {
+      "name": "Crystalline Garden",
+      "description": "A lush sanctuary of prismatic crystals and bioluminescent flora. Soft pink and emerald light filters through translucent formations.",
+      "element": "water",
+      "material_keywords": ["rose quartz", "emerald crystal", "mother of pearl", "bioluminescent flora", "prismatic glass", "pink marble", "iridescent surfaces"],
+      "lighting_preset": "venus_soft_prismatic",
+      "atmosphere": {
+        "fog_density": 0.008,
+        "fog_color": "#ffe4e1",
+        "ambient_color": "#f8e8e8",
+        "light_intensity": 0.8
+      }
+    },
+    "jupiter": {
+      "name": "Golden Temple Realm",
+      "description": "Majestic floating temples of gold and bronze suspended among massive gas clouds. Thunder rolls eternally in the distance.",
+      "element": "ether",
+      "material_keywords": ["gold", "bronze", "amber", "marble columns", "floating platforms", "storm clouds", "ivory"],
+      "lighting_preset": "jupiter_golden_storm",
+      "atmosphere": {
+        "fog_density": 0.015,
+        "fog_color": "#daa520",
+        "ambient_color": "#fff8dc",
+        "light_intensity": 0.9
+      }
+    },
+    "mars": {
+      "name": "Crimson Battlefield",
+      "description": "A landscape of red iron oxide dunes and ancient weapon-forges frozen in time. The ground pulses with buried aggression.",
+      "element": "fire",
+      "material_keywords": ["rusted iron", "red sandstone", "blood crystal", "forged steel", "cooled lava", "cinnabar", "battle-worn bronze"],
+      "lighting_preset": "mars_crimson_dusk",
+      "atmosphere": {
+        "fog_density": 0.02,
+        "fog_color": "#8b0000",
+        "ambient_color": "#4a0404",
+        "light_intensity": 0.7
+      }
+    },
+    "sun": {
+      "name": "Solar Throne",
+      "description": "A brilliant realm of pure light where golden palaces float in the corona of an eternal star.",
+      "element": "fire",
+      "material_keywords": ["pure gold", "solar crystal", "radiant light", "white marble", "sunstone", "citrine", "radiant energy"],
+      "lighting_preset": "sun_radiant",
+      "atmosphere": {
+        "fog_density": 0.005,
+        "fog_color": "#ffd700",
+        "ambient_color": "#fffacd",
+        "light_intensity": 1.0
+      }
+    },
+    "moon": {
+      "name": "Silver Dreamscape",
+      "description": "An ethereal realm of silver mists and reflective pools. Reality bends softly at the edges.",
+      "element": "water",
+      "material_keywords": ["silver", "moonstone", "reflective water", "pearl", "silver sand", "opal", "mirror surfaces"],
+      "lighting_preset": "moon_soft_silver",
+      "atmosphere": {
+        "fog_density": 0.012,
+        "fog_color": "#c0c0c0",
+        "ambient_color": "#e6e6fa",
+        "light_intensity": 0.5
+      }
+    },
+    "mercury": {
+      "name": "Mercury Spire",
+      "description": "A lightning-fast realm of quicksilver rivers and crystalline information towers. Thought becomes form instantly.",
+      "element": "air",
+      "material_keywords": ["quicksilver", "mercury", "silver mirror", "prism glass", "holographic crystal", "liquid metal", "data streams"],
+      "lighting_preset": "mercury_neural",
+      "atmosphere": {
+        "fog_density": 0.01,
+        "fog_color": "#e5e4e2",
+        "ambient_color": "#f0f8ff",
+        "light_intensity": 0.85
+      }
+    },
+    "rahu": {
+      "name": "Shadow Maze",
+      "description": "An unsettling labyrinth of smoky shadows and distorted reflections. Nothing is as it seems.",
+      "element": "void",
+      "material_keywords": ["smoke", "shadow", "distorted mirror", "dark glass", "eclipse darkness", "void stone", "twisted geometry"],
+      "lighting_preset": "rahu_eclipse",
+      "atmosphere": {
+        "fog_density": 0.03,
+        "fog_color": "#1a1a1a",
+        "ambient_color": "#0a0a0a",
+        "light_intensity": 0.3
+      }
+    },
+    "ketu": {
+      "name": "Emptiness Monastery",
+      "description": "A serene void of minimal forms and spiritual silence. Detachment brings clarity.",
+      "element": "void",
+      "material_keywords": ["white void", "minimal stone", "emptiness", "pure light", "simple geometry", "ash", "transcendent white"],
+      "lighting_preset": "ketu_void",
+      "atmosphere": {
+        "fog_density": 0.006,
+        "fog_color": "#ffffff",
+        "ambient_color": "#ffffff",
+        "light_intensity": 0.6
+      }
+    }
+  },
+  "archetype_modifiers": {
+    "seeker": {
+      "description": "journey of discovery, hidden paths, ancient wisdom",
+      "lighting_boost": 0.1,
+      "fog_reduction": 0.2
+    },
+    "warrior": {
+      "description": "test of strength, battle remnants, honorable combat",
+      "lighting_boost": 0.0,
+      "fog_reduction": 0.0
+    },
+    "sage": {
+      "description": "contemplation spaces, knowledge artifacts, serene study",
+      "lighting_boost": 0.15,
+      "fog_reduction": 0.1
+    },
+    "mystic": {
+      "description": "sacred geometry, ritual spaces, esoteric symbols",
+      "lighting_boost": 0.05,
+      "fog_reduction": 0.15
+    },
+    "wanderer": {
+      "description": "endless horizons, resting places, nomadic elements",
+      "lighting_boost": 0.05,
+      "fog_reduction": 0.1
+    },
+    "builder": {
+      "description": "construction sites, materials and tools, foundation stones",
+      "lighting_boost": 0.1,
+      "fog_reduction": 0.2
+    },
+    "healer": {
+      "description": "restoration pools, medicinal flora, sanctuary spaces",
+      "lighting_boost": 0.2,
+      "fog_reduction": 0.15
+    },
+    "trickster": {
+      "description": "hidden passages, illusion elements, playful surprises",
+      "lighting_boost": -0.05,
+      "fog_reduction": -0.1
+    }
+  }
+}

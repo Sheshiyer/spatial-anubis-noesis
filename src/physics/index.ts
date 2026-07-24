@@ -3,3 +3,4 @@
  */
 export * from './rapier';
 export * from './sync';
+export * from './navigation';

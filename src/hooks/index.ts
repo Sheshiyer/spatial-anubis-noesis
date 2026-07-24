@@ -1,5 +1,9 @@
 /**
- * Hooks module — custom React hooks
+ * Hooks module — Custom React hooks
  */
-export * from './usePhysics';
-export * from './usePerformanceMonitor';
+
+export { useNavigation } from './useNavigation';
+export { usePerformanceMonitor } from './usePerformanceMonitor';
+export { usePhysics } from './usePhysics';
+export { useKineticVerbs } from './useKineticVerbs';
+export type { UseKineticVerbsReturn } from './useKineticVerbs';

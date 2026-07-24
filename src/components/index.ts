@@ -1,4 +1,5 @@
 /**
- * Components module — React components and UI elements
+ * React components
  */
 export * from './PerformanceMonitor';
+export * from './VesselNavigation';
